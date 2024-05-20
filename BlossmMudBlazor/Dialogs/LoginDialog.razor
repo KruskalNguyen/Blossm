@@ -1,0 +1,86 @@
+﻿@using System.Text.RegularExpressions
+@using System.ComponentModel.DataAnnotations
+@using Blazored.LocalStorage;
+@using BlossmAPI.ModelViews;
+@using System.Net.Http.Headers;
+@using BlossmMudBlazor.DTO;
+@using BlossmMudBlazor.Patterms;
+@inject HttpClient httpClient
+@inject NavigationManager NavManager
+@inject ILocalStorageService localStorage
+@inject ISnackbar Snackbar
+
+<MudDialog Style="width: 350px;">
+    <DialogContent>
+        <MudForm @ref="form" @bind-IsValid="@success" @bind-Errors="@errors">
+            <MudTextField T="string" Label="Email" Required="true" @ref="emailField" RequiredError="Email is required!"
+                          Validation="@(new EmailAddressAttribute() {ErrorMessage = "The email address is invalid"})" />
+            <MudTextField T="string" Label="Password" @ref="pwField1"
+                          InputType="InputType.Password"
+                          Validation="@(new Func<string, IEnumerable<string>>(PasswordStrength))" Required="true"
+                          RequiredError="Password is required!" />
+            <div class="d-flex align-center" style="padding-top: 30px">
+                <MudCheckBox T="bool" Label="Remember account!" />
+                <MudSpacer />
+                <MudButton Variant="Variant.Filled" Color="Color.Primary" Disabled="@(!success)" Class="ml-auto" OnClick="Submit">Login</MudButton>
+            </div>
+        </MudForm>
+    </DialogContent>
+</MudDialog>
+@code {
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+
+    bool success;
+    string[] errors = { };
+    MudTextField<string> pwField1;
+    MudTextField<string> emailField;
+    MudForm form;
+
+    async Task Submit()
+    {
+        if (success && BlossmSingleTon.Instance.GetEmployeeProfile() == null)
+        {
+            LoginEmployeeView emp = new LoginEmployeeView();
+            emp.Email = emailField.Value;
+            emp.Password = pwField1.Value;
+
+            var rs = await httpClient.PostAsJsonAsync("/api/Users/LoginEmployee", emp);
+            if (rs.IsSuccessStatusCode)
+            {
+                var data = await rs.Content.ReadAsStringAsync();
+                httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", data);
+
+                var employeeProfile = await httpClient.GetFromJsonAsync("/api/Users/GetCurrentEmployee", typeof(EmployeeProfile));
+                BlossmSingleTon.Instance.SetEmployeeProfile((EmployeeProfile)employeeProfile);
+
+                if (BlossmSingleTon.Instance.GetEmployeeProfile() != null)
+                {
+                    await localStorage.SetItemAsync("token", data);
+                    MudDialog.Close(DialogResult.Ok(true));
+                    Snackbar.Add("Login success", Severity.Success);
+                }
+            }
+            else
+            {
+                Snackbar.Add("Password or user name is incorrect", Severity.Error);
+            }
+        }
+    }
+
+    private IEnumerable<string> PasswordStrength(string pw)
+    {
+        if (string.IsNullOrWhiteSpace(pw))
+        {
+            yield return "Password is required!";
+            yield break;
+        }
+        if (pw.Length < 8)
+            yield return "Password must be at least of length 8";
+        if (!Regex.IsMatch(pw, @"[A-Z]"))
+            yield return "Password must contain at least one capital letter";
+        if (!Regex.IsMatch(pw, @"[a-z]"))
+            yield return "Password must contain at least one lowercase letter";
+        if (!Regex.IsMatch(pw, @"[0-9]"))
+            yield return "Password must contain at least one digit";
+    }
+}

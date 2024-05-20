@@ -1,0 +1,74 @@
+﻿@using BlazorMudClient.DTO;
+@inject HttpClient http;
+@inject ISnackbar Snackbar
+
+<MudDialog>
+    <DialogContent>
+        <MudGrid>
+            <MudItem xs="6">
+                <MudTextField @bind-Value="userRegister.firstName" Label="First Name" Variant="Variant.Text"></MudTextField>
+            </MudItem>
+            <MudItem xs="6">
+                <MudTextField @bind-Value="userRegister.lastName" Label="Last Name" Variant="Variant.Text"></MudTextField>
+            </MudItem>
+            <MudItem xs="12">
+                <MudTextField @bind-Value="userRegister.phoneNumber" Label="Phone Number" Variant="Variant.Text"></MudTextField>
+            </MudItem>
+            <MudItem xs="12">
+                <MudTextField @bind-Value="userRegister.email" Label="Email" Variant="Variant.Text"></MudTextField>
+            </MudItem>
+            <MudItem xs="12">
+                <MudTextField @bind-Value="userRegister.password" Label="Password" Variant="Variant.Text" InputType="@PasswordInput" Adornment="Adornment.End" AdornmentIcon="@PasswordInputIcon" OnAdornmentClick="ButtonTestclick" AdornmentAriaLabel="Show Password"></MudTextField>
+            </MudItem>
+            <MudItem xs="12">
+                <MudTextField @bind-Value="userRegister.rePassword" Label="Re Password" Variant="Variant.Text" InputType="@PasswordInput" Adornment="Adornment.End" AdornmentIcon="@PasswordInputIcon" OnAdornmentClick="ButtonTestclick" AdornmentAriaLabel="Show Password"></MudTextField>
+            </MudItem>
+
+        </MudGrid>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+        <MudButton Color="Color.Primary" OnClick="Submit">Register</MudButton>
+    </DialogActions>
+</MudDialog>
+@code {
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+
+    UserRegister userRegister = new UserRegister();
+
+    bool isShow;
+    InputType PasswordInput = InputType.Password;
+    string PasswordInputIcon = Icons.Material.Filled.VisibilityOff;
+
+    async Task Submit()
+    {
+        var rs = await http.PostAsJsonAsync("/api/Users/Register", userRegister);
+        if (rs.IsSuccessStatusCode)
+        {
+            Snackbar.Add("Successfully", Severity.Success);
+            MudDialog.Close(DialogResult.Ok(await rs.Content.ReadAsStringAsync()));
+        }
+        else
+        {
+            Snackbar.Add(await rs.Content.ReadAsStringAsync(), Severity.Error);
+        }
+    }
+    void Cancel() => MudDialog.Cancel();
+
+    void ButtonTestclick()
+    {
+        @if (isShow)
+        {
+            isShow = false;
+            PasswordInputIcon = Icons.Material.Filled.VisibilityOff;
+            PasswordInput = InputType.Password;
+        }
+        else
+        {
+            isShow = true;
+            PasswordInputIcon = Icons.Material.Filled.Visibility;
+            PasswordInput = InputType.Text;
+        }
+    }
+}
+

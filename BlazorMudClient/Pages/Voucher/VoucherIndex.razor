@@ -1,0 +1,45 @@
+﻿@page "/voucher"
+
+@using BlossmAPI.Models;
+@using BlossmAPI.ModelViews;
+@using BlazorMudClient.DARK_CODE;
+
+@inject HttpClient http;
+@inject NavigationManager navigator;
+
+@if (StaticValue.AspNetUser != null)
+{
+    <MudGrid>
+        @foreach(var voucher in vouchers)
+        {
+            <MudItem xs="6">
+                <MudCard>
+                    <MudCardMedia Image="https://lh3.googleusercontent.com/u/0/drive-viewer/AK7aPaCBgZTTGvBEKQLKyG2ykPitbSJNZaVVb68fbb2DF0N6bfmyYTzQFIzxbWk7mEYH8GcfhINoee5GVn99jtUcQiD8UMhNAA=w1600-h793" Height="200" />
+                    <MudCardContent>
+                        <MudText Typo="Typo.h5">@voucher.Id</MudText>
+                        <MudText Typo="Typo.body2">@voucher.Name</MudText>
+                        <MudText Typo="Typo.body2">Available from @voucher.StartDate to @voucher.EndDate</MudText>
+                        <MudText Typo="Typo.body2">@voucher.Limit left</MudText>
+                    </MudCardContent>
+                    <MudCardActions>
+                        <MudButton Variant="Variant.Text" Color="MudBlazor.Color.Primary" OnClick="() => { navigator.NavigateTo(productPage); }">Go Shopping Now!</MudButton>
+                    </MudCardActions>
+                </MudCard>
+            </MudItem>
+        }
+    </MudGrid>
+}
+else
+{
+    <MudText>Please login to visit this page!</MudText>
+}
+
+@code {
+    private List<Voucher> vouchers = new List<Voucher>();
+    private string productPage = "/product";
+
+    protected override async Task OnInitializedAsync()
+    {
+        vouchers = await http.GetFromJsonAsync<List<BlossmAPI.Models.Voucher>>("api/Voucher/GetVoucherByUserId");
+    }
+}

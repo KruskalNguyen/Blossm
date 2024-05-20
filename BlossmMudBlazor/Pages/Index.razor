@@ -1,0 +1,211 @@
+﻿@page "/"
+@using BlossmMudBlazor.DTO;
+@using BlossmMudBlazor.Patterms;
+@using BlossmAPI.Models;
+@using BlossmAPI.ModelViews;
+
+@inject HttpClient httpClient;
+
+<PageTitle>Index</PageTitle>
+
+<MudGrid>
+    <MudItem xs="3">
+        <MudPaper Class="d-flex align-center justify-center mud-width-full py-8">
+            <MudText>Total new Order: </MudText>
+            <MudText Class="h-5"><strong> @todayOrder </strong></MudText>
+            <MudButton Variant="Variant.Text" Color="MudBlazor.Color.Primary">Go to Details</MudButton>
+        </MudPaper>
+    </MudItem>
+    <MudItem xs="3">
+        <MudPaper Class="d-flex align-center justify-center mud-width-full py-8">
+            <MudText>Total New Purchase Request: </MudText>
+            <MudText Class="h-5"><strong> @todayPR </strong></MudText>
+            <MudButton Variant="Variant.Text" Color="MudBlazor.Color.Primary">Go to Details</MudButton>
+        </MudPaper>
+    </MudItem>
+    <MudItem xs="3">
+        <MudPaper Class="d-flex align-center justify-center mud-width-full py-8">
+            <MudText>Out of stock: </MudText>
+            <MudText Class="h-5"><strong> 0 </strong></MudText>
+            <MudButton Variant="Variant.Text" Color="MudBlazor.Color.Primary">Go to Details</MudButton>
+        </MudPaper>
+    </MudItem>
+    <MudItem xs="3">
+        <MudPaper Class="d-flex align-center justify-center mud-width-full py-8">
+            <MudText>Customer: </MudText>
+            <MudText Class="h-5"><strong> 0 </strong></MudText>
+            <MudButton Variant="Variant.Text" Color="MudBlazor.Color.Primary">Go to Details</MudButton>
+        </MudPaper>
+    </MudItem>
+    <MudItem xs="12">
+        <MudPaper Class="align-center justify-content-center mud-width-full py-8">
+            <MudText>Doanh thu toàn bộ chi nhánh 2023</MudText>
+            <div>
+                <MudChart ChartType="ChartType.Line" ChartSeries="@Series" XAxisLabels="@XAxisLabels" Width="100%" Height="350px"></MudChart>
+            </div>
+            <MudButton Variant="Variant.Text" Color="MudBlazor.Color.Primary" OnClick="Debug">Chi tiết</MudButton>
+        </MudPaper>
+    </MudItem>
+    <MudItem xs="6">
+        <MudPaper Class="align-center justify-center mud-width-full py-8">
+            <MudText>Bảng thống kê Order/Purchase Order</MudText>
+            <div>
+                <MudChart ChartType="ChartType.Bar" ChartSeries="@RevenueSeries" XAxisLabels="@daysOfWeek" Width="100%" Height="350px"></MudChart>
+            </div>
+        </MudPaper>
+    </MudItem>
+    <MudItem xs="6">
+        <MudPaper Class="align-center justify-center mud-width-full py-8">
+            <MudText>Bảng thống kê sản phẩm bán chạy</MudText>
+            <div>
+                <MudChart ChartType="ChartType.Pie" LegendPosition="Position.Bottom" InputData="@productQuantity" InputLabels="@productName" Width="300px" Height="300px">
+                </MudChart>
+            </div>
+        </MudPaper>
+    </MudItem>
+    <MudItem xs="6">
+        <MudPaper Class="align-center justify-center mud-width-full py-8">
+            <MudText>Bảng thống kê tổng đơn hàng trong tuần</MudText>
+            <div>
+                <MudChart ChartType="ChartType.Bar" ChartSeries="@todayODRSeries" XAxisLabels="@daysOfWeek" Width="100%" Height="350px"></MudChart>
+            </div>
+        </MudPaper>
+    </MudItem>
+    <MudItem xs="6">
+        <MudPaper Class="align-center justify-center mud-width-full py-8">
+            <MudText>Bảng thống kê đơn mua hàng của tuần</MudText>
+            <div>
+                <MudChart ChartType="ChartType.Bar" ChartSeries="@todayPOSeries" XAxisLabels="@daysOfWeek" Width="100%" Height="350px"></MudChart>
+            </div>
+        </MudPaper>
+    </MudItem>
+</MudGrid>
+
+@code{
+    public List<BlossmAPI.Models.Branch> branches = new List<BlossmAPI.Models.Branch>();
+    public List<ChartSeries> Series = new List<ChartSeries>();
+    public List<ChartSeries> RevenueSeries = new List<ChartSeries>();
+    public List<ChartSeries> todayODRSeries = new List<ChartSeries>();
+    public List<ChartSeries> todayPOSeries = new List<ChartSeries>();
+    public List<ProductRankingView> view = new List<ProductRankingView>();
+    public List<double> poRevenue = new List<double>();
+    public List<double> orderRevenue = new List<double>();
+    public string[] XAxisLabels = { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
+    public string[] daysOfWeek = { "Mon", "Tue", "Wed", "Thur", "Fri", "Sat", "Sun" };
+    public double[] poData = new double[0];
+    public double[] orderData = new double[0];
+    public string[] productName = new string[0];
+    public double[] productQuantity = new double[0];
+    public int todayOrder = 0;
+    public int todayPR = 0;
+
+    EventCallback<int> pieChartIndex = new EventCallback<int>();
+
+    EmployeeProfile profile = new EmployeeProfile();
+    protected override async Task OnInitializedAsync()
+    {
+        if (BlossmSingleTon.Instance.GetEmployeeProfile() != null)
+            profile = BlossmSingleTon.Instance.GetEmployeeProfile();
+
+        await Init();
+        //all branch revenue
+        foreach(var branch in branches)
+        {
+            ChartSeries series = new ChartSeries();
+            series.Name = branch.Address;
+            series.Data = new double[DateTime.Now.Month];
+            for (int i = 0; i < DateTime.Now.Month; i++)
+            {
+                HttpResponseMessage response = await httpClient.GetAsync($"api/Revenue/GetRevenueByMonth?month={i}&idBranch={branch.Id}");
+                int seriesValue = 0;
+                if(response.IsSuccessStatusCode)
+                {
+                    string content = await response.Content.ReadAsStringAsync();
+                    if(int.TryParse(content, out int result))
+                    {
+                        seriesValue = result;
+                        series.Data[i] = seriesValue;
+                    }
+                }
+            }
+            Series.Add(series);
+        }
+        await GetPOData();
+        await GetOrderData();
+        await GetPieChartData();
+        todayOrder = (int) await httpClient.GetFromJsonAsync($"api/Revenue/GetTodayOrder?idBranch={profile.idBranch}", typeof(int));
+        todayPR = (int)await httpClient.GetFromJsonAsync($"api/Revenue/GetTodayPurchaseRequest?idBranch={profile.idBranch}", typeof(int));
+    }
+    private async Task Init()
+    {
+        //Get all branch
+        branches = (List<BlossmAPI.Models.Branch>)await httpClient.GetFromJsonAsync("api/Branch/GetAllBranch", typeof(List<BlossmAPI.Models.Branch>));
+    }
+    private async Task GetPOData()
+    {
+        DateTime today = DateTime.Today;
+        DayOfWeek currentDayOfWeek = today.DayOfWeek;
+
+        // Calculate the start and end dates of the current week based on the current day
+        DateTime startDate = today.AddDays(-(int)currentDayOfWeek + 1);
+        DateTime endDate = startDate.AddDays(6); // Assuming Sunday is the end of the week
+        ChartSeries poSeries = new ChartSeries();
+        poSeries.Name = "Purchase Order";
+        poSeries.Data = new double[7];
+        for (int i = 0; i < 7; i++)
+        {
+            DateTime day = startDate.AddDays(i);
+            int response = (int)await httpClient.GetFromJsonAsync($"api/Revenue/GetPurchaseOrderValueByDay?idBranch={profile.idBranch}&year={day.Year}&month={day.Month}&day={day.Day}", typeof(int));
+            //current branch revenue
+            poSeries.Data[i] = (double)response;
+        }
+        RevenueSeries.Add(poSeries);
+        todayPOSeries.Add(poSeries);
+    }
+    private async Task GetOrderData()
+    {
+        DateTime today = DateTime.Today;
+        DayOfWeek currentDayOfWeek = today.DayOfWeek;
+
+        // Calculate the start and end dates of the current week based on the current day
+        DateTime startDate = today.AddDays(-(int)currentDayOfWeek + 1);
+        DateTime endDate = startDate.AddDays(6); // Assuming Sunday is the end of the week
+        ChartSeries orderSeries = new ChartSeries();
+        orderSeries.Name = "Order";
+        orderSeries.Data = new double[7];
+        for (int i = 0; i < 7; i++)
+        {
+            DateTime day = startDate.AddDays(i);
+            int response = (int)await httpClient.GetFromJsonAsync($"api/Revenue/GetOrderValueByDay?idBranch={profile.idBranch}&year={day.Year}&month={day.Month}&day={day.Day}", typeof(int));
+            //current branch revenue
+            orderSeries.Data[i] = (double)response;
+        }
+        RevenueSeries.Add(orderSeries);
+        todayODRSeries.Add(orderSeries);
+    }
+    private async Task GetPieChartData()
+    {
+        try
+        {
+            view = (List<ProductRankingView>)await httpClient.GetFromJsonAsync($"api/Revenue/GetTopProductByMonth?month={DateTime.Now.Month}&idBranch={profile.idBranch} ", typeof(List<ProductRankingView>));
+            view = view.Take(5).ToList();
+        }
+        catch(Exception ex)
+        {
+            throw ex;
+        }
+        productName = new string[view.Count];
+        productQuantity = new double[view.Count];
+        int i = 0;
+        foreach(var item in view)
+        {
+            productName[i] = item.name + $" {item.totalQuantity*100/view.Sum(v => v.totalQuantity)}%";
+            productQuantity[i] = (double)item.totalQuantity;
+            i++;
+        }
+    }
+    void Debug()
+    {
+        var i = pieChartIndex;
+    }
+}

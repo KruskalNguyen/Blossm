@@ -1,0 +1,558 @@
+﻿@using BlossmAPI.ModelViews
+@using BlossmAPI.Models
+@using BlossmAPI.Models.DistanceResult
+@using BlossmMudBlazor.DTO
+@using BlossmMudBlazor.Dialogs
+@using BlossmMudBlazor.Models.StaticValue
+@using BlossmMudBlazor.Pages.Product
+@using BlossmMudBlazor.Patterms
+
+@inject IDialogService DialogService
+@inject HttpClient httpClient
+@inject ISnackbar Snackbar
+
+<MudDialog>
+    <DialogContent>
+        <MudGrid>
+            <MudItem xs="6">
+                <MudGrid>
+                    <MudItem xs="6">
+                        <MudField Label="Id" Variant="Variant.Text">@Context.id</MudField>
+                        </MudItem>
+                        <MudItem xs="6">
+                            <MudField Label="Id Branch" Variant="Variant.Text">@BranchContext.Id</MudField>`
+                        </MudItem>
+                        <MudItem xs="12">
+                            <MudField Label="Crate Date" Variant="Variant.Text">@Context.createDate</MudField>
+                        </MudItem>
+                        <MudItem xs="12">
+                            <MudField Label="Address" Variant="Variant.Text">@Context.address</MudField>
+                        </MudItem>
+                        <MudItem xs="11">
+                            @if(editBranch == false)
+                            {
+                            <MudField Label="Branch Address" Variant="Variant.Text">@BranchContext.Address</MudField>
+                        }
+                        else
+                        {
+                            <MudSelect T="string" @bind-Value="BranchContext.Address" Label="Branch Address" AnchorOrigin="Origin.BottomCenter">
+                                    @{
+                                    foreach (var item in branches)
+                                    {
+                                    <MudSelectItem Value="@($"{listKm[branches.IndexOf(item)]} - {item.Address}")" />
+                                        
+                                    }
+                                    }
+                                </MudSelect>
+                            }
+                        </MudItem>
+                        <MudItem xs="1">
+                            <MudToggleIconButton 
+                                                 Icon="@Icons.Material.Filled.Edit" Color="@MudBlazor.Color.Default" Title="Off"
+                                             ToggledIcon="@Icons.Material.Filled.Check" ToggledColor="@MudBlazor.Color.Success" ToggledTitle="On" ToggledChanged="OnToggledBraAddresChanged"/>
+                        </MudItem>
+                        <MudItem xs="5">
+                            <MudField Label="User Phone" Variant="Variant.Text">@User.PhoneNumber</MudField>
+                        </MudItem>
+                        <MudItem xs="1">
+                            <MudIconButton Icon="@Icons.Material.Filled.Person" OnClick="OppenUserDia"></MudIconButton>
+                        </MudItem>
+                        <MudItem xs="6">
+                            <MudField Label="Reciever" Variant="Variant.Text">@Context.reciver</MudField>
+                        </MudItem>
+                        <MudItem xs="5">
+                            @if(Context.voucher != null)
+                            {
+                                <MudField Label="Voucher" Variant="Variant.Text">@Context.voucher.Id</MudField>
+                            }
+                            else
+                            {
+                            <MudField Label="Voucher" Variant="Variant.Text"></MudField>
+                            }
+
+                        </MudItem>
+                        <MudItem xs="1">
+                        <MudIconButton Icon="@Icons.Material.Filled.Discount" OnClick="OppenVoucherDia"></MudIconButton>
+                        </MudItem>
+                        <MudItem xs="6">
+                            <MudField Label="Subtotal" Variant="Variant.Text">@String.Format("{0:0,0}", Context.subtotal)đ</MudField>
+                        </MudItem>
+                        
+                </MudGrid>
+            </MudItem>
+            <MudItem xs="6">
+                <MudGrid>
+                    <MudItem xs="12">
+                        <h2>Delivery Status</h2>
+                        <MudTimeline>
+                            @if (deliveryStatuses != null)
+                            {
+                                int i = 0;
+                                foreach (var item in deliveryStatuses)
+                                {
+                                    if (i == 3) break;
+
+                                    MudBlazor.Color color = new MudBlazor.Color();
+                                    if (item.name == Context.deliveryStatus)
+                                        color = MudBlazor.Color.Primary;
+                                    else
+                                        color = MudBlazor.Color.Default;
+
+                                    <MudTimelineItem Color="color">
+                                        <MudText>@item.name</MudText>
+                                        </MudTimelineItem>
+                                    i++;
+                                }
+                            }
+                        </MudTimeline>
+                    </MudItem>
+                    <MudItem xs="12">
+                        <MudGrid>
+                            <MudItem xs="3">
+                                <MudButton Color="MudBlazor.Color.Success" OnClick="NextDelivery">Next</MudButton>
+                            </MudItem>
+
+                            <MudItem xs="3">
+                                <MudButton Color="MudBlazor.Color.Error" OnClick="CancleDelivery">Cancel</MudButton>
+                            </MudItem>
+                        </MudGrid>
+                    </MudItem>
+                     <MudItem xs="6">
+                        @if (Context.status != "Đã thanh toán")
+                        {
+                            <MudField Label="Status" Variant="Variant.Text">Chưa thanh toán</MudField>
+                        }
+                        else
+                        {
+                            <MudField Label="Status" Variant="Variant.Text">@Context.status</MudField>
+                        }
+                    </MudItem>
+                    <MudItem xs="6">
+                        <MudField Label="Payment Method" Variant="Variant.Text">@Context.paymentMethod</MudField>
+                    </MudItem>
+                    <MudItem xs="12">
+                        <MudField Label="Cancellation Reason" Variant="Variant.Text">@Context.cancellationReason</MudField>
+                        </MudItem>
+                        <MudItem xs="12">
+                            <MudField Label="Note" Variant="Variant.Text">@Context.note</MudField>
+                        </MudItem>
+                </MudGrid>
+            </MudItem>
+                    
+                            
+               
+                @foreach (var item in Elements)
+                {
+                    <MudItem xs="12">
+                        <MudTable Items="@item.variant" Dense="@dense" Hover="@hover" Bordered="@bordered" Striped="@striped">
+                            <ToolBarContent>
+                                <MudText Typo="Typo.h6">@item.product.Name</MudText>
+                                <MudSpacer />
+                                <MudTextField @bind-Value="searchString1" Placeholder="Search" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="MudBlazor.Size.Medium" Class="mt-0"></MudTextField>
+                            </ToolBarContent>
+                            <HeaderContent>
+                                <MudTh>Id</MudTh>
+                                <MudTh>Color</MudTh>
+                                <MudTh>Size</MudTh>
+                                <MudTh>Unit</MudTh>
+                                <MudTh>Selling Price</MudTh>
+                                <MudTh>Purchase Price</MudTh>
+                                <MudTh>Quantity</MudTh>
+                                <MudTh>Inventory</MudTh>
+                                <MudTh></MudTh>
+                            </HeaderContent>
+                            <RowTemplate>
+                                @if (context.IdColorNavigation != null && context.IdSizeNavigation != null && context.IdUnitNavigation != null)
+                                {
+                                <MudTd DataLabel="Nr">@context.Id</MudTd>
+                                <MudTd DataLabel="Nr">@context.IdColorNavigation.Name</MudTd>
+                                <MudTd DataLabel="Nr">@context.IdSizeNavigation.Name</MudTd>
+                                <MudTd DataLabel="Nr">@context.IdUnitNavigation.Name</MudTd>
+                                <MudTd DataLabel="Nr">@String.Format("{0:0,0}", context.SellingPrice)</MudTd>
+                                <MudTd DataLabel="Nr">@String.Format("{0:0,0}", context.PurchasePrice)</MudTd>
+                                <MudTd DataLabel="Nr">@Context.orderItems.FirstOrDefault(o => o.IdProductVariant == context.Id).Quantity</MudTd>
+                                <MudTd DataLabel="Nr">@{
+                                        try
+                                        {
+                                            if (listInventory.FirstOrDefault(i => i[0] == context.Id)[1] == 0)
+                                            {
+                                                isDelivering.Add(false);
+                                                <p style="color: red; font: bold"> Out of Stock</p>
+                                            }
+                                            else if (listInventory.FirstOrDefault(i => i[0] == context.Id)[1] < Context.orderItems.FirstOrDefault(o => o.IdProductVariant == context.Id).Quantity)
+                                            {
+                                                isDelivering.Add(false);
+                                                <p style="color: red; font: bold"> @listInventory.FirstOrDefault(i => i[0] == context.Id)[1]</p>
+                                            }
+                                            else
+                                            {
+                                                isDelivering.Add(true);
+                                                @listInventory.FirstOrDefault(i => i[0] == context.Id)[1]
+                                            }
+                                        }
+                                        catch
+                                        {
+                                        
+                                        }
+                                    }</MudTd>
+                                <MudTd DataLabel="Nr">
+                                    <MudIconButton Icon="@Icons.Material.Filled.RemoveRedEye" OnClick="() => OpenDetailProduct(item)"></MudIconButton>
+                                </MudTd>
+                                }
+                            
+                                </RowTemplate>
+                                <PagerContent>
+                                    <MudTablePager />
+                                </PagerContent>
+                            </MudTable>
+                    </MudItem>
+                    
+                }
+            <MudItem xs="12">
+                <h1>Total: @Context.orderItems.Sum(o => o.Quantity)</h1>
+            </MudItem>
+
+        </MudGrid>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+        <MudButton Color="MudBlazor.Color.Primary" OnClick="Submit">Ok</MudButton>
+    </DialogActions>
+</MudDialog>
+@code {
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+    [Parameter] public OrderDTO Context { get; set; }
+
+    private Branch BranchContext = new Branch();
+
+    private List<SizeView> sizes = new List<SizeView>();
+    private List<UnitView> units = new List<UnitView>();
+    private List<ColorView> colors = new List<ColorView>();
+    private List<Category> categories = new List<Category>();
+    private List<BlossmAPI.Models.Image> Images = new List<BlossmAPI.Models.Image>();
+    private List<VariantDetails> Elements = new List<VariantDetails>();
+    private HttpResponseMessage response = null;
+    private List<BlossmAPI.Models.Branch> branches = new List<Branch>();
+    private List<string> listKm = new List<string>();
+    private AspNetUser User = new AspNetUser();
+
+    List<DTO.OrderStatus> orderStatuses = null;
+    List<DTO.DeliveryStatus> deliveryStatuses = null;
+
+    List<int[]> listInventory = new List<int[]>();
+
+    private bool editBranch { get; set; }
+
+    private bool dense = false;
+    private bool hover = true;
+    private bool striped = false;
+    private bool bordered = false;
+    private string searchString1 = "";
+
+    private List<bool> isDelivering = new List<bool>();
+
+    void Submit() => MudDialog.Close(DialogResult.Ok(true));
+    void Cancel() => MudDialog.Cancel();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await FillData();
+
+        List<VariantDetails> eleTemp = new List<VariantDetails>();
+
+        foreach (var item in Elements)
+        {
+            var listPv = item.variant.Where(i => Context.productVariants.Contains(Context.productVariants.FirstOrDefault(i2 => i2.id == i.Id))).ToList();
+
+            if (listPv.Count() == 0)
+            {
+                eleTemp.Add(item);
+            }
+            else
+            {
+                item.variant = listPv;
+            }
+        }
+        Elements = Elements.Except(eleTemp).ToList();
+
+        branches = BlossmSingleTon.Instance.GetBranches();
+        BranchContext = branches.FirstOrDefault(b => b.Id == Context.IdBranch);
+
+        orderStatuses = new List<DTO.OrderStatus>();
+        orderStatuses = (List<DTO.OrderStatus>)await httpClient.GetFromJsonAsync("/api/OrderStatus/GetOrderStatus", typeof(List<DTO.OrderStatus>));
+
+        deliveryStatuses = new List<DTO.DeliveryStatus>();
+        deliveryStatuses = (List<DTO.DeliveryStatus>)await httpClient.GetFromJsonAsync("/api/DeliveryStatus/GetDeliveryStatus", typeof(List<DTO.DeliveryStatus>));
+
+        User = await httpClient.GetFromJsonAsync<AspNetUser>("/api/Users/GetUserById?id=" + Context.idUser);
+
+        string listLocationBranch = "";
+
+        int startForBranch = 0;
+        int endForBranch = branches.Count() - 1;
+
+        foreach (Branch branch in branches)
+        {
+
+
+            if (startForBranch != endForBranch)
+                listLocationBranch = listLocationBranch + branch.Latlng + "|";
+            else
+                listLocationBranch = listLocationBranch + branch.Latlng;
+            startForBranch++;
+        }
+
+        string apiDistance = "https://rsapi.goong.io/DistanceMatrix" +
+            "?origins=" + Context.latlng +
+            "&destinations=" + listLocationBranch +
+            "&vehicle=" + "car" +
+            "&api_key=" + StaticValue.goongKey;
+
+        DistanceResult distanceResult = await httpClient.GetFromJsonAsync<DistanceResult>(apiDistance);
+
+        listKm = distanceResult.rows[0].elements.Select(e => e.distance.text).ToList();
+
+        string braAddressTemp = BranchContext.Address;
+
+        foreach(var item in Elements)
+        {
+            foreach(var item2 in item.variant)
+            {
+                await GetInventory(item2.Id);
+
+            }
+        }
+
+    }
+
+    protected async Task FillData()
+    {
+        try
+        {
+            Elements = new List<VariantDetails>();
+
+            var prlist = (List<Product>)await httpClient.GetFromJsonAsync("/api/Product/GetProducts", typeof(List<Product>));
+
+            foreach (var item in prlist)
+            {
+                VariantDetails details = new VariantDetails();
+                details.id = Guid.NewGuid().ToString();
+                details.product = item;
+                Elements.Add(details);
+            }
+
+            foreach (var item in Elements)
+            {
+                response = await httpClient.PostAsJsonAsync("/api/Product/GetByProductId", item.product.Id);
+                List<ProductVariant> variants = new List<ProductVariant>();
+                variants = (List<ProductVariant>)await response.Content.ReadFromJsonAsync(typeof(List<ProductVariant>));
+                foreach (var variant in variants)
+                {
+                    item.variant.Add(variant);
+                }
+            }
+
+            sizes = new List<SizeView>();
+            units = new List<UnitView>();
+            colors = new List<ColorView>();
+            categories = new List<Category>();
+
+            sizes = (List<SizeView>)await httpClient.GetFromJsonAsync("api/Size/GetSizes", typeof(List<SizeView>));
+            units = (List<UnitView>)await httpClient.GetFromJsonAsync("api/Unit/GetUnits", typeof(List<UnitView>));
+            colors = (List<ColorView>)await httpClient.GetFromJsonAsync("api/Color/GetColors", typeof(List<ColorView>));
+            categories = (List<Category>)await httpClient.GetFromJsonAsync("/api/Category/GetCategories", typeof(List<Category>));
+
+            GetImages();
+
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add(ex.Message, Severity.Error);
+        }
+    }
+
+    private async void GetImages()
+    {
+        foreach (var item in Elements)
+        {
+            foreach (var variant in item.variant)
+            {
+                response = await httpClient.PostAsJsonAsync("api/Image/GetImagesByVariantId", variant.Id);
+
+                variant.Images = new List<BlossmAPI.Models.Image>();
+                variant.Images = (List<BlossmAPI.Models.Image>)await response.Content.ReadFromJsonAsync(typeof(List<BlossmAPI.Models.Image>));
+            }
+        }
+    }
+
+    async void OpenDetailProduct(VariantDetails variant)
+    {
+        try
+        {
+            var param = new DialogParameters<UpdateProductDialog>();
+            param.Add(x => x.detail, variant);
+            param.Add(x => x.categories, categories);
+            param.Add(x => x.units, units);
+            param.Add(x => x.colors, colors);
+            param.Add(x => x.sizes, sizes);
+            var options = new DialogOptions { MaxWidth = MaxWidth.Large, FullWidth = true, CloseButton = true, DisableBackdropClick = true };
+            var rs = await DialogService.ShowAsync<UpdateProductDialog>("Product #" + variant.product.Id, param, options);
+            var rsData = await rs.Result;
+            StateHasChanged();
+        }
+        catch
+        {
+
+        }
+
+    }
+
+    public async Task OnToggledBraAddresChanged(bool toggled)
+    {
+        editBranch = toggled;
+
+        if (!toggled)
+        {
+            if (Context.deliveryStatus != "Trong quá trình vận chuyển" && Context.deliveryStatus != "Đã giao hàng thành công")
+            {
+                foreach (var item in branches)
+                {
+                    if (BranchContext.Address.Contains(item.Address))
+                    {
+                        BranchContext.Id = item.Id;
+                        BranchContext.Address = item.Address;
+                        Context.IdBranch = item.Id;
+
+                        StateHasChanged();
+                        break;
+                    }
+                }
+
+
+                foreach (var item in Elements)
+                {
+                    foreach (var item2 in item.variant)
+                    {
+                        await GetInventory(item2.Id);
+                    }
+                }
+                var branchList = await httpClient.GetFromJsonAsync<List<BlossmAPI.Models.Branch>>("/api/Branch/GetAllBranch");
+                branches = branchList.Where(b => b.Latlng != null).ToList();
+
+                isDelivering = new List<bool>();
+
+                StateHasChanged();
+
+                Snackbar.Add("Successfuly", Severity.Success);
+
+            }
+            else
+            {
+                Snackbar.Add("This order is delivered", Severity.Error);
+                
+            }
+
+        }
+    }
+
+    async void OppenUserDia()
+    {
+        try
+        {
+            var param = new DialogParameters<UserDialog>();
+            param.Add(x => x.Context, User);
+            var options = new DialogOptions { CloseButton = true};
+            var rs = await DialogService.ShowAsync<UserDialog>("User", param, options);
+            var rsData = await rs.Result;
+            StateHasChanged();
+        }
+        catch
+        {
+
+        }
+    }
+
+    async void OppenVoucherDia()
+    {
+        try
+        {
+            if(Context.voucher != null)
+            {
+                var param = new DialogParameters<VoucherDia>();
+                param.Add(x => x.Context, Context.voucher);
+                var options = new DialogOptions { CloseButton = true };
+                var rs = await DialogService.ShowAsync<VoucherDia>("Voucher", param, options);
+                var rsData = await rs.Result;
+                StateHasChanged();
+            }
+        }
+        catch
+        {
+
+        }
+    }
+
+    async Task GetInventory(int idPV)
+    {
+        listInventory = new List<int[]>();
+        int inventory = await httpClient.GetFromJsonAsync<int>($"/api/Branch/GetQuantityPVinBranch?idPV={idPV}&idBranch={Context.IdBranch}");
+
+        listInventory.Add(new int[] { idPV, inventory });
+        StateHasChanged();
+    }
+
+    async void NextDelivery()
+    {
+        if (isDelivering.Contains(false))
+        {
+            Snackbar.Add("Please check the quantity in stock", Severity.Error);
+        }
+        else if (deliveryStatuses.FirstOrDefault(d => d.name == Context.deliveryStatus).id == 3)
+        {
+            Snackbar.Add("You cannot next this", Severity.Error);
+        }
+        else
+        {
+            OrderView orderView = new OrderView();
+
+            orderView.id_branch = Context.IdBranch;
+            orderView.id = Context.id;
+            foreach(var item in Context.orderItems)
+            {
+                OrderItemView oiv = new OrderItemView();
+                oiv.id = item.IdOrder;
+                oiv.id_variant = item.IdProductVariant;
+                oiv.selling_price = (int)item.SellingPrice;
+                oiv.quantity = (int)item.Quantity;
+
+                orderView.orderItems.Add(oiv);
+            }
+            orderView.id_delivery_status = deliveryStatuses.FirstOrDefault(d => d.name == Context.deliveryStatus).id + 1;
+
+            var rs = await httpClient.PutAsJsonAsync("/api/Order/UpdateOrderDeliveryStatus", orderView);
+            if (rs.IsSuccessStatusCode)
+            {
+                Snackbar.Add("Successfully", Severity.Success);
+                Context.deliveryStatus = deliveryStatuses.FirstOrDefault(d => d.id == orderView.id_delivery_status).name;
+                foreach (var item in Context.orderItems)
+                {
+                    listInventory.FirstOrDefault(l => l[0] == item.IdProductVariant)[1] = listInventory.FirstOrDefault(l => l[0] == item.IdProductVariant)[1] - (int)item.Quantity;
+                }
+                StateHasChanged();
+            }
+        }
+    }
+
+    async void CancleDelivery()
+    {
+        if (Context.status != "Đã thanh toán")
+        {
+
+        }
+        else
+        {
+            Snackbar.Add("You cannot cancel this order because it has already been paid", Severity.Error);
+        }
+    }
+
+}

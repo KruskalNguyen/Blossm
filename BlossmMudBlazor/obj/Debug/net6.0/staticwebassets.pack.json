@@ -1,0 +1,613 @@
+{
+  "Files": [
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\bin\\Debug\\net6.0\\wwwroot\\_framework\\blazor.webassembly.js",
+      "PackagePath": "staticwebassets\\_framework\\blazor.webassembly.js"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\obj\\Debug\\net6.0\\compressed\\0n2y1gnspu.gz",
+      "PackagePath": "staticwebassets\\_framework\\blazor.webassembly.js.gz"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\wwwroot\\favicon.ico",
+      "PackagePath": "staticwebassets\\favicon.ico"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\wwwroot\\index.html",
+      "PackagePath": "staticwebassets\\index.html"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\wwwroot\\lib\\quill\\CHANGELOG.md",
+      "PackagePath": "staticwebassets\\lib\\quill\\CHANGELOG.md"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\wwwroot\\lib\\quill\\LICENSE",
+      "PackagePath": "staticwebassets\\lib\\quill"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\wwwroot\\lib\\quill\\README.md",
+      "PackagePath": "staticwebassets\\lib\\quill\\README.md"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\wwwroot\\lib\\quill\\assets\\base.styl",
+      "PackagePath": "staticwebassets\\lib\\quill\\assets\\base.styl"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\wwwroot\\lib\\quill\\assets\\bubble.styl",
+      "PackagePath": "staticwebassets\\lib\\quill\\assets\\bubble.styl"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\wwwroot\\lib\\quill\\assets\\bubble\\toolbar.styl",
+      "PackagePath": "staticwebassets\\lib\\quill\\assets\\bubble\\toolbar.styl"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\wwwroot\\lib\\quill\\assets\\bubble\\tooltip.styl",
+      "PackagePath": "staticwebassets\\lib\\quill\\assets\\bubble\\tooltip.styl"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\wwwroot\\lib\\quill\\assets\\core.styl",
+      "PackagePath": "staticwebassets\\lib\\quill\\assets\\core.styl"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\wwwroot\\lib\\quill\\assets\\favicon.png",
+      "PackagePath": "staticwebassets\\lib\\quill\\assets\\favicon.png"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\wwwroot\\lib\\quill\\assets\\icons\\align-center.svg",
+      "PackagePath": "staticwebassets\\lib\\quill\\assets\\icons\\align-center.svg"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\wwwroot\\lib\\quill\\assets\\icons\\align-justify.svg",
+      "PackagePath": "staticwebassets\\lib\\quill\\assets\\icons\\align-justify.svg"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\wwwroot\\lib\\quill\\assets\\icons\\align-left.svg",
+      "PackagePath": "staticwebassets\\lib\\quill\\assets\\icons\\align-left.svg"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\wwwroot\\lib\\quill\\assets\\icons\\align-right.svg",
+      "PackagePath": "staticwebassets\\lib\\quill\\assets\\icons\\align-right.svg"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\wwwroot\\lib\\quill\\assets\\icons\\attachment.svg",
+      "PackagePath": "staticwebassets\\lib\\quill\\assets\\icons\\attachment.svg"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\wwwroot\\lib\\quill\\assets\\icons\\audio.svg",
+      "PackagePath": "staticwebassets\\lib\\quill\\assets\\icons\\audio.svg"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\wwwroot\\lib\\quill\\assets\\icons\\authorship.svg",
+      "PackagePath": "staticwebassets\\lib\\quill\\assets\\icons\\authorship.svg"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\wwwroot\\lib\\quill\\assets\\icons\\background.svg",
+      "PackagePath": "staticwebassets\\lib\\quill\\assets\\icons\\background.svg"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\wwwroot\\lib\\quill\\assets\\icons\\blockquote.svg",
+      "PackagePath": "staticwebassets\\lib\\quill\\assets\\icons\\blockquote.svg"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\wwwroot\\lib\\quill\\assets\\icons\\bold.svg",
+      "PackagePath": "staticwebassets\\lib\\quill\\assets\\icons\\bold.svg"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\wwwroot\\lib\\quill\\assets\\icons\\clean.svg",
+      "PackagePath": "staticwebassets\\lib\\quill\\assets\\icons\\clean.svg"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\wwwroot\\lib\\quill\\assets\\icons\\code.svg",
+      "PackagePath": "staticwebassets\\lib\\quill\\assets\\icons\\code.svg"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\wwwroot\\lib\\quill\\assets\\icons\\color.svg",
+      "PackagePath": "staticwebassets\\lib\\quill\\assets\\icons\\color.svg"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\wwwroot\\lib\\quill\\assets\\icons\\comment.svg",
+      "PackagePath": "staticwebassets\\lib\\quill\\assets\\icons\\comment.svg"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\wwwroot\\lib\\quill\\assets\\icons\\direction-ltr.svg",
+      "PackagePath": "staticwebassets\\lib\\quill\\assets\\icons\\direction-ltr.svg"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\wwwroot\\lib\\quill\\assets\\icons\\direction-rtl.svg",
+      "PackagePath": "staticwebassets\\lib\\quill\\assets\\icons\\direction-rtl.svg"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\wwwroot\\lib\\quill\\assets\\icons\\dropdown.svg",
+      "PackagePath": "staticwebassets\\lib\\quill\\assets\\icons\\dropdown.svg"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\wwwroot\\lib\\quill\\assets\\icons\\embed.svg",
+      "PackagePath": "staticwebassets\\lib\\quill\\assets\\icons\\embed.svg"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\wwwroot\\lib\\quill\\assets\\icons\\emoji.svg",
+      "PackagePath": "staticwebassets\\lib\\quill\\assets\\icons\\emoji.svg"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\wwwroot\\lib\\quill\\assets\\icons\\float-center.svg",
+      "PackagePath": "staticwebassets\\lib\\quill\\assets\\icons\\float-center.svg"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\wwwroot\\lib\\quill\\assets\\icons\\float-full.svg",
+      "PackagePath": "staticwebassets\\lib\\quill\\assets\\icons\\float-full.svg"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\wwwroot\\lib\\quill\\assets\\icons\\float-left.svg",
+      "PackagePath": "staticwebassets\\lib\\quill\\assets\\icons\\float-left.svg"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\wwwroot\\lib\\quill\\assets\\icons\\float-right.svg",
+      "PackagePath": "staticwebassets\\lib\\quill\\assets\\icons\\float-right.svg"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\wwwroot\\lib\\quill\\assets\\icons\\font.svg",
+      "PackagePath": "staticwebassets\\lib\\quill\\assets\\icons\\font.svg"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\wwwroot\\lib\\quill\\assets\\icons\\formula.svg",
+      "PackagePath": "staticwebassets\\lib\\quill\\assets\\icons\\formula.svg"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\wwwroot\\lib\\quill\\assets\\icons\\hashtag.svg",
+      "PackagePath": "staticwebassets\\lib\\quill\\assets\\icons\\hashtag.svg"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\wwwroot\\lib\\quill\\assets\\icons\\header-2.svg",
+      "PackagePath": "staticwebassets\\lib\\quill\\assets\\icons\\header-2.svg"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\wwwroot\\lib\\quill\\assets\\icons\\header-3.svg",
+      "PackagePath": "staticwebassets\\lib\\quill\\assets\\icons\\header-3.svg"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\wwwroot\\lib\\quill\\assets\\icons\\header-4.svg",
+      "PackagePath": "staticwebassets\\lib\\quill\\assets\\icons\\header-4.svg"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\wwwroot\\lib\\quill\\assets\\icons\\header-5.svg",
+      "PackagePath": "staticwebassets\\lib\\quill\\assets\\icons\\header-5.svg"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\wwwroot\\lib\\quill\\assets\\icons\\header-6.svg",
+      "PackagePath": "staticwebassets\\lib\\quill\\assets\\icons\\header-6.svg"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\wwwroot\\lib\\quill\\assets\\icons\\header.svg",
+      "PackagePath": "staticwebassets\\lib\\quill\\assets\\icons\\header.svg"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\wwwroot\\lib\\quill\\assets\\icons\\horizontal-rule.svg",
+      "PackagePath": "staticwebassets\\lib\\quill\\assets\\icons\\horizontal-rule.svg"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\wwwroot\\lib\\quill\\assets\\icons\\image.svg",
+      "PackagePath": "staticwebassets\\lib\\quill\\assets\\icons\\image.svg"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\wwwroot\\lib\\quill\\assets\\icons\\indent.svg",
+      "PackagePath": "staticwebassets\\lib\\quill\\assets\\icons\\indent.svg"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\wwwroot\\lib\\quill\\assets\\icons\\italic.svg",
+      "PackagePath": "staticwebassets\\lib\\quill\\assets\\icons\\italic.svg"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\wwwroot\\lib\\quill\\assets\\icons\\link.svg",
+      "PackagePath": "staticwebassets\\lib\\quill\\assets\\icons\\link.svg"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\wwwroot\\lib\\quill\\assets\\icons\\list-bullet.svg",
+      "PackagePath": "staticwebassets\\lib\\quill\\assets\\icons\\list-bullet.svg"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\wwwroot\\lib\\quill\\assets\\icons\\list-check.svg",
+      "PackagePath": "staticwebassets\\lib\\quill\\assets\\icons\\list-check.svg"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\wwwroot\\lib\\quill\\assets\\icons\\list-ordered.svg",
+      "PackagePath": "staticwebassets\\lib\\quill\\assets\\icons\\list-ordered.svg"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\wwwroot\\lib\\quill\\assets\\icons\\map.svg",
+      "PackagePath": "staticwebassets\\lib\\quill\\assets\\icons\\map.svg"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\wwwroot\\lib\\quill\\assets\\icons\\mention.svg",
+      "PackagePath": "staticwebassets\\lib\\quill\\assets\\icons\\mention.svg"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\wwwroot\\lib\\quill\\assets\\icons\\more.svg",
+      "PackagePath": "staticwebassets\\lib\\quill\\assets\\icons\\more.svg"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\wwwroot\\lib\\quill\\assets\\icons\\outdent.svg",
+      "PackagePath": "staticwebassets\\lib\\quill\\assets\\icons\\outdent.svg"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\wwwroot\\lib\\quill\\assets\\icons\\redo.svg",
+      "PackagePath": "staticwebassets\\lib\\quill\\assets\\icons\\redo.svg"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\wwwroot\\lib\\quill\\assets\\icons\\size-decrease.svg",
+      "PackagePath": "staticwebassets\\lib\\quill\\assets\\icons\\size-decrease.svg"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\wwwroot\\lib\\quill\\assets\\icons\\size-increase.svg",
+      "PackagePath": "staticwebassets\\lib\\quill\\assets\\icons\\size-increase.svg"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\wwwroot\\lib\\quill\\assets\\icons\\size.svg",
+      "PackagePath": "staticwebassets\\lib\\quill\\assets\\icons\\size.svg"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\wwwroot\\lib\\quill\\assets\\icons\\spacing.svg",
+      "PackagePath": "staticwebassets\\lib\\quill\\assets\\icons\\spacing.svg"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\wwwroot\\lib\\quill\\assets\\icons\\speech.svg",
+      "PackagePath": "staticwebassets\\lib\\quill\\assets\\icons\\speech.svg"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\wwwroot\\lib\\quill\\assets\\icons\\strike.svg",
+      "PackagePath": "staticwebassets\\lib\\quill\\assets\\icons\\strike.svg"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\wwwroot\\lib\\quill\\assets\\icons\\subscript.svg",
+      "PackagePath": "staticwebassets\\lib\\quill\\assets\\icons\\subscript.svg"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\wwwroot\\lib\\quill\\assets\\icons\\superscript.svg",
+      "PackagePath": "staticwebassets\\lib\\quill\\assets\\icons\\superscript.svg"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\wwwroot\\lib\\quill\\assets\\icons\\table-border-all.svg",
+      "PackagePath": "staticwebassets\\lib\\quill\\assets\\icons\\table-border-all.svg"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\wwwroot\\lib\\quill\\assets\\icons\\table-border-bottom.svg",
+      "PackagePath": "staticwebassets\\lib\\quill\\assets\\icons\\table-border-bottom.svg"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\wwwroot\\lib\\quill\\assets\\icons\\table-border-left.svg",
+      "PackagePath": "staticwebassets\\lib\\quill\\assets\\icons\\table-border-left.svg"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\wwwroot\\lib\\quill\\assets\\icons\\table-border-none.svg",
+      "PackagePath": "staticwebassets\\lib\\quill\\assets\\icons\\table-border-none.svg"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\wwwroot\\lib\\quill\\assets\\icons\\table-border-outside.svg",
+      "PackagePath": "staticwebassets\\lib\\quill\\assets\\icons\\table-border-outside.svg"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\wwwroot\\lib\\quill\\assets\\icons\\table-border-right.svg",
+      "PackagePath": "staticwebassets\\lib\\quill\\assets\\icons\\table-border-right.svg"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\wwwroot\\lib\\quill\\assets\\icons\\table-border-top.svg",
+      "PackagePath": "staticwebassets\\lib\\quill\\assets\\icons\\table-border-top.svg"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\wwwroot\\lib\\quill\\assets\\icons\\table-delete-cells.svg",
+      "PackagePath": "staticwebassets\\lib\\quill\\assets\\icons\\table-delete-cells.svg"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\wwwroot\\lib\\quill\\assets\\icons\\table-delete-columns.svg",
+      "PackagePath": "staticwebassets\\lib\\quill\\assets\\icons\\table-delete-columns.svg"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\wwwroot\\lib\\quill\\assets\\icons\\table-delete-rows.svg",
+      "PackagePath": "staticwebassets\\lib\\quill\\assets\\icons\\table-delete-rows.svg"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\wwwroot\\lib\\quill\\assets\\icons\\table-insert-cells.svg",
+      "PackagePath": "staticwebassets\\lib\\quill\\assets\\icons\\table-insert-cells.svg"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\wwwroot\\lib\\quill\\assets\\icons\\table-insert-columns.svg",
+      "PackagePath": "staticwebassets\\lib\\quill\\assets\\icons\\table-insert-columns.svg"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\wwwroot\\lib\\quill\\assets\\icons\\table-insert-rows.svg",
+      "PackagePath": "staticwebassets\\lib\\quill\\assets\\icons\\table-insert-rows.svg"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\wwwroot\\lib\\quill\\assets\\icons\\table-merge-cells.svg",
+      "PackagePath": "staticwebassets\\lib\\quill\\assets\\icons\\table-merge-cells.svg"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\wwwroot\\lib\\quill\\assets\\icons\\table-unmerge-cells.svg",
+      "PackagePath": "staticwebassets\\lib\\quill\\assets\\icons\\table-unmerge-cells.svg"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\wwwroot\\lib\\quill\\assets\\icons\\table.svg",
+      "PackagePath": "staticwebassets\\lib\\quill\\assets\\icons\\table.svg"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\wwwroot\\lib\\quill\\assets\\icons\\underline.svg",
+      "PackagePath": "staticwebassets\\lib\\quill\\assets\\icons\\underline.svg"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\wwwroot\\lib\\quill\\assets\\icons\\undo.svg",
+      "PackagePath": "staticwebassets\\lib\\quill\\assets\\icons\\undo.svg"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\wwwroot\\lib\\quill\\assets\\icons\\video.svg",
+      "PackagePath": "staticwebassets\\lib\\quill\\assets\\icons\\video.svg"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\wwwroot\\lib\\quill\\assets\\snow.styl",
+      "PackagePath": "staticwebassets\\lib\\quill\\assets\\snow.styl"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\wwwroot\\lib\\quill\\assets\\snow\\toolbar.styl",
+      "PackagePath": "staticwebassets\\lib\\quill\\assets\\snow\\toolbar.styl"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\wwwroot\\lib\\quill\\assets\\snow\\tooltip.styl",
+      "PackagePath": "staticwebassets\\lib\\quill\\assets\\snow\\tooltip.styl"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\wwwroot\\lib\\quill\\blots\\block.js",
+      "PackagePath": "staticwebassets\\lib\\quill\\blots\\block.js"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\wwwroot\\lib\\quill\\blots\\break.js",
+      "PackagePath": "staticwebassets\\lib\\quill\\blots\\break.js"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\wwwroot\\lib\\quill\\blots\\container.js",
+      "PackagePath": "staticwebassets\\lib\\quill\\blots\\container.js"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\wwwroot\\lib\\quill\\blots\\cursor.js",
+      "PackagePath": "staticwebassets\\lib\\quill\\blots\\cursor.js"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\wwwroot\\lib\\quill\\blots\\embed.js",
+      "PackagePath": "staticwebassets\\lib\\quill\\blots\\embed.js"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\wwwroot\\lib\\quill\\blots\\inline.js",
+      "PackagePath": "staticwebassets\\lib\\quill\\blots\\inline.js"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\wwwroot\\lib\\quill\\blots\\scroll.js",
+      "PackagePath": "staticwebassets\\lib\\quill\\blots\\scroll.js"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\wwwroot\\lib\\quill\\blots\\text.js",
+      "PackagePath": "staticwebassets\\lib\\quill\\blots\\text.js"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\wwwroot\\lib\\quill\\core.js",
+      "PackagePath": "staticwebassets\\lib\\quill\\core.js"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\wwwroot\\lib\\quill\\core\\editor.js",
+      "PackagePath": "staticwebassets\\lib\\quill\\core\\editor.js"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\wwwroot\\lib\\quill\\core\\emitter.js",
+      "PackagePath": "staticwebassets\\lib\\quill\\core\\emitter.js"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\wwwroot\\lib\\quill\\core\\logger.js",
+      "PackagePath": "staticwebassets\\lib\\quill\\core\\logger.js"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\wwwroot\\lib\\quill\\core\\module.js",
+      "PackagePath": "staticwebassets\\lib\\quill\\core\\module.js"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\wwwroot\\lib\\quill\\core\\polyfill.js",
+      "PackagePath": "staticwebassets\\lib\\quill\\core\\polyfill.js"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\wwwroot\\lib\\quill\\core\\quill.js",
+      "PackagePath": "staticwebassets\\lib\\quill\\core\\quill.js"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\wwwroot\\lib\\quill\\core\\selection.js",
+      "PackagePath": "staticwebassets\\lib\\quill\\core\\selection.js"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\wwwroot\\lib\\quill\\core\\theme.js",
+      "PackagePath": "staticwebassets\\lib\\quill\\core\\theme.js"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\wwwroot\\lib\\quill\\dist\\quill.bubble.css",
+      "PackagePath": "staticwebassets\\lib\\quill\\dist\\quill.bubble.css"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\wwwroot\\lib\\quill\\dist\\quill.core.css",
+      "PackagePath": "staticwebassets\\lib\\quill\\dist\\quill.core.css"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\wwwroot\\lib\\quill\\dist\\quill.core.js",
+      "PackagePath": "staticwebassets\\lib\\quill\\dist\\quill.core.js"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\wwwroot\\lib\\quill\\dist\\quill.js",
+      "PackagePath": "staticwebassets\\lib\\quill\\dist\\quill.js"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\wwwroot\\lib\\quill\\dist\\quill.min.js",
+      "PackagePath": "staticwebassets\\lib\\quill\\dist\\quill.min.js"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\wwwroot\\lib\\quill\\dist\\quill.min.js.map",
+      "PackagePath": "staticwebassets\\lib\\quill\\dist\\quill.min.js.map"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\wwwroot\\lib\\quill\\dist\\quill.snow.css",
+      "PackagePath": "staticwebassets\\lib\\quill\\dist\\quill.snow.css"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\wwwroot\\lib\\quill\\formats\\align.js",
+      "PackagePath": "staticwebassets\\lib\\quill\\formats\\align.js"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\wwwroot\\lib\\quill\\formats\\background.js",
+      "PackagePath": "staticwebassets\\lib\\quill\\formats\\background.js"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\wwwroot\\lib\\quill\\formats\\blockquote.js",
+      "PackagePath": "staticwebassets\\lib\\quill\\formats\\blockquote.js"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\wwwroot\\lib\\quill\\formats\\bold.js",
+      "PackagePath": "staticwebassets\\lib\\quill\\formats\\bold.js"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\wwwroot\\lib\\quill\\formats\\code.js",
+      "PackagePath": "staticwebassets\\lib\\quill\\formats\\code.js"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\wwwroot\\lib\\quill\\formats\\color.js",
+      "PackagePath": "staticwebassets\\lib\\quill\\formats\\color.js"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\wwwroot\\lib\\quill\\formats\\direction.js",
+      "PackagePath": "staticwebassets\\lib\\quill\\formats\\direction.js"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\wwwroot\\lib\\quill\\formats\\font.js",
+      "PackagePath": "staticwebassets\\lib\\quill\\formats\\font.js"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\wwwroot\\lib\\quill\\formats\\header.js",
+      "PackagePath": "staticwebassets\\lib\\quill\\formats\\header.js"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\wwwroot\\lib\\quill\\formats\\image.js",
+      "PackagePath": "staticwebassets\\lib\\quill\\formats\\image.js"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\wwwroot\\lib\\quill\\formats\\indent.js",
+      "PackagePath": "staticwebassets\\lib\\quill\\formats\\indent.js"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\wwwroot\\lib\\quill\\formats\\italic.js",
+      "PackagePath": "staticwebassets\\lib\\quill\\formats\\italic.js"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\wwwroot\\lib\\quill\\formats\\link.js",
+      "PackagePath": "staticwebassets\\lib\\quill\\formats\\link.js"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\wwwroot\\lib\\quill\\formats\\list.js",
+      "PackagePath": "staticwebassets\\lib\\quill\\formats\\list.js"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\wwwroot\\lib\\quill\\formats\\script.js",
+      "PackagePath": "staticwebassets\\lib\\quill\\formats\\script.js"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\wwwroot\\lib\\quill\\formats\\size.js",
+      "PackagePath": "staticwebassets\\lib\\quill\\formats\\size.js"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\wwwroot\\lib\\quill\\formats\\strike.js",
+      "PackagePath": "staticwebassets\\lib\\quill\\formats\\strike.js"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\wwwroot\\lib\\quill\\formats\\underline.js",
+      "PackagePath": "staticwebassets\\lib\\quill\\formats\\underline.js"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\wwwroot\\lib\\quill\\formats\\video.js",
+      "PackagePath": "staticwebassets\\lib\\quill\\formats\\video.js"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\wwwroot\\lib\\quill\\modules\\clipboard.js",
+      "PackagePath": "staticwebassets\\lib\\quill\\modules\\clipboard.js"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\wwwroot\\lib\\quill\\modules\\formula.js",
+      "PackagePath": "staticwebassets\\lib\\quill\\modules\\formula.js"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\wwwroot\\lib\\quill\\modules\\history.js",
+      "PackagePath": "staticwebassets\\lib\\quill\\modules\\history.js"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\wwwroot\\lib\\quill\\modules\\keyboard.js",
+      "PackagePath": "staticwebassets\\lib\\quill\\modules\\keyboard.js"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\wwwroot\\lib\\quill\\modules\\syntax.js",
+      "PackagePath": "staticwebassets\\lib\\quill\\modules\\syntax.js"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\wwwroot\\lib\\quill\\modules\\toolbar.js",
+      "PackagePath": "staticwebassets\\lib\\quill\\modules\\toolbar.js"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\wwwroot\\lib\\quill\\package.json",
+      "PackagePath": "staticwebassets\\lib\\quill\\package.json"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\wwwroot\\lib\\quill\\quill.js",
+      "PackagePath": "staticwebassets\\lib\\quill\\quill.js"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\wwwroot\\lib\\quill\\themes\\base.js",
+      "PackagePath": "staticwebassets\\lib\\quill\\themes\\base.js"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\wwwroot\\lib\\quill\\themes\\bubble.js",
+      "PackagePath": "staticwebassets\\lib\\quill\\themes\\bubble.js"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\wwwroot\\lib\\quill\\themes\\snow.js",
+      "PackagePath": "staticwebassets\\lib\\quill\\themes\\snow.js"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\wwwroot\\lib\\quill\\ui\\color-picker.js",
+      "PackagePath": "staticwebassets\\lib\\quill\\ui\\color-picker.js"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\wwwroot\\lib\\quill\\ui\\icon-picker.js",
+      "PackagePath": "staticwebassets\\lib\\quill\\ui\\icon-picker.js"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\wwwroot\\lib\\quill\\ui\\icons.js",
+      "PackagePath": "staticwebassets\\lib\\quill\\ui\\icons.js"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\wwwroot\\lib\\quill\\ui\\picker.js",
+      "PackagePath": "staticwebassets\\lib\\quill\\ui\\picker.js"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\wwwroot\\lib\\quill\\ui\\tooltip.js",
+      "PackagePath": "staticwebassets\\lib\\quill\\ui\\tooltip.js"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlossmMudBlazor\\wwwroot\\sample-data\\weather.json",
+      "PackagePath": "staticwebassets\\sample-data\\weather.json"
+    },
+    {
+      "Id": "obj\\Debug\\net6.0\\staticwebassets\\msbuild.BlossmMudBlazor.Microsoft.AspNetCore.StaticWebAssets.props",
+      "PackagePath": "build\\Microsoft.AspNetCore.StaticWebAssets.props"
+    },
+    {
+      "Id": "obj\\Debug\\net6.0\\staticwebassets\\msbuild.build.BlossmMudBlazor.props",
+      "PackagePath": "build\\BlossmMudBlazor.props"
+    },
+    {
+      "Id": "obj\\Debug\\net6.0\\staticwebassets\\msbuild.buildMultiTargeting.BlossmMudBlazor.props",
+      "PackagePath": "buildMultiTargeting\\BlossmMudBlazor.props"
+    },
+    {
+      "Id": "obj\\Debug\\net6.0\\staticwebassets\\msbuild.buildTransitive.BlossmMudBlazor.props",
+      "PackagePath": "buildTransitive\\BlossmMudBlazor.props"
+    }
+  ],
+  "ElementsToRemove": []
+}

@@ -1,0 +1,217 @@
+﻿@using BlossmAPI.Models;
+@using BlossmAPI.ModelViews;
+
+@{
+	InitForm();
+	Console.WriteLine();
+}
+<MudDialog>
+    <DialogContent>
+		<MudCard>
+			<MudForm Model="@view" @ref="@form">
+				<MudCardContent>
+					<MudTextField @bind-Value="view.product_name"
+								  Immediate="true"
+								  Label="Name"/>
+					<MudStack Style="width: 100%">
+						<MudFileUpload T="IReadOnlyList<IBrowserFile>" OnFilesChanged="OnFileUpload" AppendMultipleFiles Hidden="false" Class="flex-1" InputClass="absolute mud-width-full mud-height-full overflow-hidden z-20" InputStyle="opacity:0"
+									   @ondragenter="@SetDragClass" @ondragleave="@ClearDragClass" @ondragend="@ClearDragClass">
+							<ButtonTemplate>
+								<MudPaper MinHeight="300px" Outlined="true" Class="@DragClass">
+									<MudText Typo="Typo.h6">Drag and drop files here or click</MudText>
+									@foreach (var file in fileNames)
+									{
+										<MudChip Color="MudBlazor.Color.Dark" Text="@file" />
+									}
+									<br />
+									@foreach (var img in imageDataUrls)
+									{
+										<MudImage Src="@img" Alt="img" Width="100" Height="100" Elevation="25" Class="rounded-lg pl-1 pr-1" />
+									}
+								</MudPaper>
+							</ButtonTemplate>
+						</MudFileUpload>
+						<MudToolBar DisableGutters="true" Class="gap-4">
+							@*<MudButton OnClick="Upload" Disabled="@(!fileNames.Any())" Color="MudBlazor.Color.Primary" Variant="Variant.Filled">Upload</MudButton>*@
+							<MudButton OnClick="Clear" Disabled="@(!fileNames.Any())" Color="MudBlazor.Color.Error" Variant="Variant.Filled">Clear Images</MudButton>
+						</MudToolBar>
+					</MudStack>
+					<MudSelect T="int" Label="Category" @bind-Value="selectedCategory">
+						@if (categories != null)
+						{
+							@foreach (var item in categories)
+							{
+								<MudSelectItem T="int" Value="@item.Id">@item.Name</MudSelectItem>
+							}
+						}
+					</MudSelect>
+
+					<MudSelect T="int" Label="Unit" @bind-Value="selectedUnit">
+						@if (units != null)
+						{
+							@foreach (var item in units)
+							{
+								<MudSelectItem T="int" Value="@item.id">@item.name</MudSelectItem>
+							}
+						}
+					</MudSelect>
+
+					<MudSelect T="int" Label="Color" @bind-Value="selectedColor">
+						@if (colors != null)
+						{
+							@foreach (var item in colors)
+							{
+								<MudSelectItem T="int" Value="@item.id">@item.name</MudSelectItem>
+							}
+						}
+					</MudSelect>
+
+					<MudSelect T="int" Label="Size" @bind-Value="selectedSize">
+						@if (sizes != null)
+						{
+							@foreach (var item in sizes)
+							{
+								<MudSelectItem T="int" Value="@item.id">@item.name</MudSelectItem>
+							}
+						}
+					</MudSelect>
+
+					<MudTextField @bind-Value="view.product_purchase_price"
+								  Immediate="true"
+								  Label="Purchasing Price" />
+					<MudTextField @bind-Value="view.product_selling_price"
+								  Immediate="true"
+								  Label="Selling Price" />
+				</MudCardContent>
+			</MudForm>
+		</MudCard>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+		<MudButton Color="MudBlazor.Color.Primary" OnClick="Submit">Ok</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+	#region Variables
+	#region Inject
+	[Inject] ISnackbar Snackbar { get; set; }
+	[Inject] HttpClient HttpClient { get; set; }
+	[Inject] NavigationManager NavManager { get; set; }
+	[CascadingParameter] MudDialogInstance MudDialog { get; set; }
+	#endregion
+	private int selectedCategory { get; set; }
+	private int selectedUnit { get; set; }
+	private int selectedColor { get; set; }
+	private int selectedSize { get; set; }
+
+	private IBrowserFile inputFile;
+	private string imageDataUrl; // URL dữ liệu của hình ảnh
+	private List<string> imageDataUrls = new List<string>(); // URL dữ liệu của hình ảnh
+	private List<string> imgBase64 = new List<string>(); // URL dữ liệu của hình ảnh
+	private static string DefaultDragClass = "relative rounded-lg border-2 border-dashed pa-4 mt-4 mud-width-full mud-height-full z-10";
+	private string DragClass = DefaultDragClass;
+	private List<string> fileNames = new List<string>();
+
+	private MudForm form;
+	private HttpResponseMessage result = new HttpResponseMessage();
+	private ProductView view { get; set; } = new ProductView();
+	private List<Category> categories = new List<Category>();
+	private List<UnitView> units = new List<UnitView>();
+	private List<ColorView> colors = new List<ColorView>();
+	private List<SizeView> sizes = new List<SizeView>();
+	#endregion
+
+	#region Init
+	void Cancel() => MudDialog.Cancel();
+	async Task<List<Category>> GetCateList() => (List<Category>)await HttpClient.GetFromJsonAsync("/api/Category/GetCategories", typeof(List<Category>));
+	async Task<List<UnitView>> GetUnitList() => (List<UnitView>)await HttpClient.GetFromJsonAsync("/api/Unit/GetUnits", typeof(List<UnitView>));
+	async Task<List<ColorView>> GetColorList() => (List<ColorView>)await HttpClient.GetFromJsonAsync("/api/Color/GetColors", typeof(List<ColorView>));
+	async Task<List<SizeView>> GetSizeList() => (List<SizeView>)await HttpClient.GetFromJsonAsync("/api/Size/GetSizes", typeof(List<SizeView>));
+
+	private async void InitForm()
+	{
+		categories = await GetCateList();
+		units = await GetUnitList();
+		colors = await GetColorList();
+		sizes = await GetSizeList();
+	}
+	#endregion
+
+	#region Image processor
+	private void SetDragClass()
+	{
+		DragClass = $"{DefaultDragClass} mud-border-primary";
+	}
+	private void ClearDragClass()
+	{
+		DragClass = DefaultDragClass;
+	}
+	private async Task Clear()
+	{
+		fileNames.Clear();
+		imageDataUrls.Clear();
+		ClearDragClass();
+		await Task.Delay(100);
+	}
+	async Task OnFileUpload(InputFileChangeEventArgs e)
+	{
+		ClearDragClass();
+		var files = e.GetMultipleFiles();
+		foreach (var file in files)
+		{
+			fileNames.Add(file.Name);
+			//var resizedImage = await file.RequestImageFileAsync("image/png", 200, 200);
+			var buffer = ConvertIBrowserFileToByteArray(file);
+			string s = Convert.ToBase64String(await buffer);
+			imageDataUrl = $"data:image/png;base64,{s}";
+			imageDataUrls.Add(imageDataUrl);
+			imgBase64.Add(s);
+			//var rs = await resizedImage.OpenReadStream().ReadAsync(buffer);
+		}
+	}
+	private async Task<byte[]> ConvertIBrowserFileToByteArray(IBrowserFile file)
+	{
+		using (var memoryStream = new MemoryStream())
+		{
+			await file.OpenReadStream().CopyToAsync(memoryStream);
+			return memoryStream.ToArray();
+		}
+	}
+	#endregion
+
+	private async Task Submit()
+	{
+		#region bind data to ProductView
+		List<Image> prodImgLst = new List<Image>();
+		foreach (var (name, base64) in Enumerable.Zip(fileNames, imgBase64))
+		{
+			Image prodImg = new Image();
+			prodImg.Images = base64;
+
+			prodImgLst.Add(prodImg);
+		}
+		prodImgLst[0].Avatar = true;
+
+		view.Images = new List<string>();
+		foreach(var img in prodImgLst)
+		{
+			view.Images.Add(img.Images);
+		}
+		view.cate_id = selectedCategory;
+		view.unit_id = selectedUnit;
+		view.color_id = selectedColor;
+		view.size_id = selectedSize;
+		#endregion
+		try
+		{
+			result = await HttpClient.PostAsJsonAsync("api/Product/Create", view);
+			Snackbar.Add("Create product successfully", MudBlazor.Severity.Success);
+			MudDialog.Close(DialogResult.Ok(true));
+		}
+		catch(Exception ex)
+		{
+			Snackbar.Add(result.Content.ReadAsStream().ToString(), MudBlazor.Severity.Error);
+		}
+	}
+}

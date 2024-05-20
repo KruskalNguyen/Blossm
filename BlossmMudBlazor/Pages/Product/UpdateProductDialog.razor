@@ -1,0 +1,718 @@
+﻿@using BlossmMudBlazor.DTO;
+@using BlossmMudBlazor.Helper;
+@using BlossmMudBlazor.Patterms;
+@using BlossmAPI.ModelViews;
+@using BlossmAPI.Models;
+@using Blazored.TextEditor;
+
+@{
+    Init();
+}
+
+<MudDialog>
+    <DialogContent>
+        <MudTabs Elevation="1" Rounded="true" PanelClass="pa-6">
+            <MudTabPanel Text="Product Details" ToolTip="ToolTip One">
+                <MudForm Model="@detail.product" @ref="@form">
+                    <MudTextField @bind-Value="detail.product.Id" Label="Disabled" Variant="Variant.Filled" Disabled="true" />
+                    <MudTextField @bind-Value="detail.product.Name" Label="Standard" Variant="Variant.Text" For="@(() => detail.product.Name)" Immediate="true"></MudTextField>
+                    <MudSelect T="int?" Label="Category" @bind-Value="detail.product.IdCategory" For="@(() => detail.product.IdCategory)" Immediate="true">
+                        @if (categories != null)
+                        {
+                            @foreach (var item in categories)
+                            {
+                                <MudSelectItem T="int?" Value="@item.Id">@item.Id - @item.Name</MudSelectItem>
+                            }
+                        }
+                    </MudSelect>
+                    <MudText><b>Short Description</b></MudText>
+                    <MudTextField T="string" @bind-Value="detail.product.ShortDescription">
+
+                    </MudTextField>
+                    <MudText><b>Main Description</b></MudText>
+                    <BlazoredTextEditor @ref=quillEditor Placeholder="Write something here">
+                        <ToolbarContent>
+                            <select class="ql-header">
+                                <option selected=""></option>
+                                <option value="1"></option>
+                                <option value="2"></option>
+                                <option value="3"></option>
+                                <option value="4"></option>
+                                <option value="5"></option>
+                            </select>
+                            <span class="ql-formats">
+                                <button class="ql-bold"></button>
+                                <button class="ql-italic"></button>
+                                <button class="ql-underline"></button>
+                                <button class="ql-strike"></button>
+                            </span>
+                            <span class="ql-formats">
+                                <select class="ql-color"></select>
+                                <select class="ql-background"></select>
+                            </span>
+                            <span class="ql-formats">
+                                <button class="ql-list" value="ordered"></button>
+                                <button class="ql-list" value="bullet"></button>
+                            </span>
+                            <span class="ql-formats">
+                                <button class="ql-link"></button>
+                            </span>
+                            <span class="ql-formats">
+                                <button class="ql-image"></button>
+                            </span>
+                            <span class="ql-formats">
+                                <button class="ql-video"></button>
+                            </span>
+                        </ToolbarContent>
+                        <EditorContent>
+                            @((MarkupString)detail.product.MainDescription)
+                        </EditorContent>
+                    </BlazoredTextEditor>
+                    <div style="width:100%; align-items:center; padding-top:20px; display:flex">
+                        <MudButton Style="display:inline" OnClick="SaveChange" Color="MudBlazor.Color.Primary" Variant="Variant.Filled">Save</MudButton>
+                        <MudButton Style="display:inline" OnClick="Cancel" Color="MudBlazor.Color.Error" Variant="Variant.Filled">Cancel</MudButton>
+                    </div>
+                </MudForm>
+            </MudTabPanel>
+            <MudTabPanel Text="Variant Details" ToolTip="ToolTip Two">
+                @*------------------------------------------Variant Table---------------------------------------------*@
+
+                <MudTable Items="@detail.variant" Dense="@dense" Hover="@hover" ReadOnly="@ronly" CanCancelEdit="@canCancelEdit" Filter="new Func<ProductVariant,bool>(FilterFunc)"
+                          @bind-SelectedItem="selectedItem1" SortLabel="Sort By" CommitEditTooltip="Commit Edit"
+                          OnCommitEditClick="@(() => Snackbar.Add("Commit Edit Handler Invoked"))" RowEditPreview="BackupItem" RowEditCancel="ResetItemToOriginalValues"
+                          RowEditCommit="ItemHasBeenCommitted" IsEditRowSwitchingBlocked="@blockSwitch" ApplyButtonPosition="@applyButtonPosition" EditButtonPosition="@editButtonPosition" EditTrigger="@editTrigger">
+                    <ToolBarContent>
+                        <MudText Typo="Typo.h6">Periodic Elements</MudText>
+                        <MudSpacer />
+                        <MudTextField @bind-Value="searchString" Placeholder="Search" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="MudBlazor.Size.Medium" Class="mt-0"></MudTextField>
+                    </ToolBarContent>
+                    <ColGroup>
+                        @if (applyButtonPosition.DisplayApplyButtonAtStart() || (editButtonPosition.DisplayEditButtonAtStart() && editTrigger == TableEditTrigger.EditButton))
+                        {
+                            <col style="width:50px;" />
+                        }
+                        <col style="width:50px;" />
+                        <col style="width:100px;" />
+                        <col style="width:100PX;" />
+                        <col style="width:100PX;" />
+                        <col />
+                        <col />
+                        <col />
+                        <col />
+                        @if (applyButtonPosition.DisplayApplyButtonAtEnd() || (editButtonPosition.DisplayEditButtonAtEnd() && editTrigger == TableEditTrigger.EditButton))
+                        {
+                            <col style="width:50px;" />
+                        }
+                    </ColGroup>
+                    <HeaderContent>
+                        <MudTh><MudTableSortLabel SortBy="new Func<ProductVariant, object>(x=>x.Id)">Id</MudTableSortLabel></MudTh>
+                        <MudTh><MudTableSortLabel SortBy="new Func<ProductVariant, object>(x=>x.IdUnit)">Unit</MudTableSortLabel></MudTh>
+                        <MudTh><MudTableSortLabel SortBy="new Func<ProductVariant, object>(x=>x.IdColor)">Color</MudTableSortLabel></MudTh>
+                        <MudTh><MudTableSortLabel SortBy="new Func<ProductVariant, object>(x=>x.IdSize)">Size</MudTableSortLabel></MudTh>
+                        <MudTh><MudTableSortLabel SortBy="new Func<ProductVariant, object>(x=>x.PurchasePrice)">Purchasing Price</MudTableSortLabel></MudTh>
+                        <MudTh><MudTableSortLabel SortBy="new Func<ProductVariant, object>(x=>x.SellingPrice)">Selling Price</MudTableSortLabel></MudTh>
+                        <MudTh><MudTableSortLabel SortBy="new Func<ProductVariant, object>(x=>x.Publish)">Publish</MudTableSortLabel></MudTh>
+                    </HeaderContent>
+                    <RowTemplate>
+                        @if (context.Id != 0)
+                        {
+                            <MudTd DataLabel="Id">@context.Id</MudTd>
+                            <MudTd DataLabel="Unit">@context.IdUnitNavigation.Name</MudTd>
+                            <MudTd DataLabel="Color">@context.IdColorNavigation.Name</MudTd>
+                            <MudTd DataLabel="Size">@context.IdSizeNavigation.Name</MudTd>
+                            <MudTd DataLabel="Purchasing Price">@context.PurchasePrice</MudTd>
+                            <MudTd DataLabel="Selling Price">@context.SellingPrice</MudTd>
+                            <MudTd DataLabel="Publish">@context.Publish</MudTd>
+                        }
+                        else if (context.Id == 0)
+                        {
+                            <MudTd DataLabel="Id">NEW</MudTd>
+                            <MudTd DataLabel="Unit">SELECT</MudTd>
+                            <MudTd DataLabel="Color">SELECT</MudTd>
+                            <MudTd DataLabel="Size">SELECT</MudTd>
+                            <MudTd DataLabel="Purchasing Price">0</MudTd>
+                            <MudTd DataLabel="Selling Price">0</MudTd>
+                            <MudTd DataLabel="Publish">@context.Publish</MudTd>
+                        }
+                        @if (showContent && context.Id != 0)
+                        {
+                            <MudTd DataLabel="Action">
+                                <MudIconButton Icon="@Icons.Material.Filled.Add" aria-label="Add" Color="MudBlazor.Color.Primary" OnClick="() => showAddField(context.Id)"></MudIconButton>
+                                <MudIconButton Size="@MudBlazor.Size.Small" Icon="@Icons.Material.Filled.HideImage" Class="pa-0" OnClick="OpenImageView" />
+                            </MudTd>
+                        }
+                        else if (!showContent && context.Id != 0)
+                        {
+                            <MudTd DataLabel="Action">
+                                <MudIconButton Icon="@Icons.Material.Filled.Add" aria-label="Add" Color="MudBlazor.Color.Primary" OnClick="() => showAddField(context.Id)"></MudIconButton>
+                                <MudIconButton Size="@MudBlazor.Size.Small" Icon="@Icons.Material.Filled.Image" Class="pa-0" OnClick="OpenImageView" />
+                            </MudTd>
+                        }
+                    </RowTemplate>
+                    <RowEditingTemplate>
+                        <MudTd DataLabel="Id">@context.Id</MudTd>
+                        <MudTd DataLabel="Unit">
+                            <MudSelect T="int?" Label="Unit" MultiSelection="false" @bind-Value="@context.IdUnit">
+                                @if (units != null)
+                                {
+                                    @foreach (var item in units)
+                                    {
+                                        <MudSelectItem Class="pt-5" T="int?" Value="@item.id">@item.id - @item.name</MudSelectItem>
+                                    }
+                                }
+                            </MudSelect>
+                        </MudTd>
+                        <MudTd DataLabel="Color">
+                            <MudSelect T="int?" Label="Color" MultiSelection="false" @bind-Value="@context.IdColor">
+                                @if (colors != null)
+                                {
+                                    @foreach (var item in colors)
+                                    {
+                                        <MudSelectItem Class="pt-5" T="int?" Value="@item.id">@item.id - @item.name</MudSelectItem>
+                                    }
+                                }
+                            </MudSelect>
+                        </MudTd>
+                        <MudTd DataLabel="Size">
+                            <MudSelect T="int?" Label="Size" MultiSelection="false" @bind-Value="@context.IdSize">
+                                @if (sizes != null)
+                                {
+                                    @foreach (var item in sizes)
+                                    {
+                                        <MudSelectItem Class="pt-5" T="int?" Value="@item.id">@item.id - @item.name</MudSelectItem>
+                                    }
+                                }
+                            </MudSelect>
+                        </MudTd>
+                        <MudTd DataLabel="Purchasing Price">
+                            <MudNumericField @bind-Value="@context.PurchasePrice" Required Min="1" />
+                            </MudTd>
+                            <MudTd DataLabel="Selling Price">
+                            <MudNumericField @bind-Value="@context.SellingPrice" Required Min="1" />
+                            </MudTd>
+                            <MudTd DataLabel="Publish">
+                            <MudSelect T="bool?" Label="Publish" MultiSelection="false" @bind-Value="@context.Publish">
+                                @if (context.Publish == true)
+                                {
+                                    <MudSelectItem Class="pt-5" T="bool?" Value="true">TRUE</MudSelectItem>
+                                    <MudSelectItem Class="pt-5" T="bool?" Value="false">FALSE</MudSelectItem>
+                                }
+                                else
+                                {
+                                    <MudSelectItem Class="pt-5" T="bool?" Value="false">FALSE</MudSelectItem>
+                                    <MudSelectItem Class="pt-5" T="bool?" Value="true">TRUE</MudSelectItem>
+                                }
+                            </MudSelect>
+                        </MudTd>
+                    </RowEditingTemplate>
+                    <ChildRowContent>
+                        @if (showContent)
+                        {
+                            <MudTr>
+                                <td colspan="9">
+                                    <MudCard Elevation="3" Style="@($"background:{Colors.Grey.Lighten1};")">
+                                        <MudCardHeader>
+                                            <CardHeaderContent>
+                                                <MudText Typo="Typo.body1">Image Detail for Variant <strong>@context.Id</strong></MudText>
+                                            </CardHeaderContent>
+                                        </MudCardHeader>
+                                        <MudCardContent Class="pa-0">
+                                            <MudTable Items="@context.Images" Context="ImagesContext" Hover="true" Breakpoint="Breakpoint.Sm" Elevation="0"
+                                                  CommitEditTooltip="Commit Edit" RowEditCommit="UpdateImage">
+                                                <ColGroup>
+                                                    <col />
+                                                    <col />
+                                                    <col />
+                                                    <col />
+                                                </ColGroup>
+                                                <HeaderContent>
+                                                    <MudTh>Id</MudTh>
+                                                    <MudTh>Content</MudTh>
+                                                    <MudTh>Avatar</MudTh>
+                                                    <MudTh>Action</MudTh>
+                                                </HeaderContent>
+                                                <RowTemplate>
+                                                    <MudTd DataLabel="Id">@ImagesContext.Id</MudTd>
+                                                    <MudTd DataLabel="Content">
+                                                        @{
+                                                            string imgUrl = $"data:image/png;base64,{ImagesContext.Images}";
+                                                        }
+                                                        <MudImage Src="@imgUrl" Alt="img" Width="100" Height="100" Elevation="25" Class="rounded-lg pl-1 pr-1" />
+                                                    </MudTd>
+                                                    <MudTd DataLabel="Avatar">@ImagesContext.Avatar</MudTd>
+                                                    <MudTd DataLabel="Avatar">
+                                                        <MudIconButton Icon="@Icons.Material.Filled.Delete" OnClick="() => RemoveImage(ImagesContext.Id)" aria-label="delete"></MudIconButton>
+                                                    </MudTd>
+                                                </RowTemplate>
+                                                <RowEditingTemplate>
+                                                    <MudTd DataLabel="Id">@ImagesContext.Id</MudTd>
+                                                    <MudTd DataLabel="Content">
+                                                        @{
+                                                            string imgUrl = $"data:image/png;base64,{ImagesContext.Images}";
+                                                        }
+                                                        <MudImage Src="@imgUrl" Alt="img" Width="100" Height="100" Elevation="25" Class="rounded-lg pl-1 pr-1" />
+                                                    </MudTd>
+                                                    <MudTd DataLabel="Avatar">
+                                                        <MudSelect T="bool?" Label="Publish" MultiSelection="false" @bind-Value="@ImagesContext.Avatar">
+                                                            @if (context.Publish == true)
+                                                            {
+                                                                <MudSelectItem Class="pt-5" T="bool?" Value="true">TRUE</MudSelectItem>
+                                                                <MudSelectItem Class="pt-5" T="bool?" Value="false">FALSE</MudSelectItem>
+                                                            }
+                                                            else
+                                                            {
+                                                                <MudSelectItem Class="pt-5" T="bool?" Value="false">FALSE</MudSelectItem>
+                                                                <MudSelectItem Class="pt-5" T="bool?" Value="true">TRUE</MudSelectItem>
+                                                            }
+                                                        </MudSelect>
+                                                    </MudTd>
+                                                </RowEditingTemplate>
+                                            </MudTable>
+                                        </MudCardContent>
+                                    </MudCard>
+                                </td>
+                            </MudTr>
+                        }
+                    </ChildRowContent>
+                    <PagerContent>
+                        <MudTablePager />
+                    </PagerContent>
+                    <EditButtonContent Context="button">
+                        <MudIconButton Size="@MudBlazor.Size.Small" Icon="@Icons.Material.Outlined.Edit" Class="pa-0" OnClick="@button.ButtonAction" Disabled="@button.ButtonDisabled" />
+                    </EditButtonContent>
+                </MudTable>
+
+                <MudSwitch @bind-Checked="@hover" Color="MudBlazor.Color.Primary">Hover</MudSwitch>
+                <MudSwitch @bind-Checked="@dense" Color="MudBlazor.Color.Secondary">Dense</MudSwitch>
+                <MudSwitch @bind-Checked="@ronly" Color="MudBlazor.Color.Tertiary">Read Only</MudSwitch>
+                <MudSwitch @bind-Checked="@canCancelEdit" Color="MudBlazor.Color.Info">Can Cancel Edit</MudSwitch>
+                <MudSwitch @bind-Checked="@blockSwitch" Color="MudBlazor.Color.Success">Block Edit Row Switching</MudSwitch>
+                <MudGrid>
+                    <MudItem xs="12" md="4">
+                        <MudSelect Label="Edit Trigger" T="TableEditTrigger" @bind-Value="editTrigger">
+                            <MudSelectItem Value="TableEditTrigger.RowClick">Row Click</MudSelectItem>
+                            <MudSelectItem Value="TableEditTrigger.EditButton">Edit Button</MudSelectItem>
+                        </MudSelect>
+                    </MudItem>
+                    @if (editTrigger == TableEditTrigger.EditButton)
+                    {
+                        <MudItem xs="12" md="4">
+                            <MudSelect Label="Edit Button Postion" T="TableEditButtonPosition" @bind-Value="editButtonPosition">
+                                <MudSelectItem Value="TableEditButtonPosition.Start">Start</MudSelectItem>
+                                <MudSelectItem Value="TableEditButtonPosition.End">End</MudSelectItem>
+                                <MudSelectItem Value="TableEditButtonPosition.StartAndEnd">Start and End</MudSelectItem>
+                            </MudSelect>
+                        </MudItem>
+                    }
+                    <MudItem xs="12" md="4">
+                        <MudSelect Label="Apply Button Postion" T="TableApplyButtonPosition" @bind-Value="applyButtonPosition">
+                            <MudSelectItem Value="TableApplyButtonPosition.Start">Start</MudSelectItem>
+                            <MudSelectItem Value="TableApplyButtonPosition.End">End</MudSelectItem>
+                            <MudSelectItem Value="TableApplyButtonPosition.StartAndEnd">Start and End</MudSelectItem>
+                        </MudSelect>
+                    </MudItem>
+                </MudGrid>
+            </MudTabPanel>
+            <MudTabPanel Text=@($"Feedback({detail.comments.Count()})") ToolTip="ToolTip Three">
+                <MudTextField T="string" @bind-Value="newComment" Label="New comment" Variant="Variant.Outlined" AutoGrow Lines="3" HelperText="Max comment capacity: 255 words" />
+                <MudGrid>
+                    <MudItem xs="5"></MudItem>
+                    <MudItem xs="1">
+                        <MudButton Variant="Variant.Filled" Color="MudBlazor.Color.Primary" OnClick="SubmitComment">Submit</MudButton>
+                    </MudItem>
+                    <MudItem xs="1">
+                        <MudButton Variant="Variant.Filled" Color="MudBlazor.Color.Error" OnClick="ClearComment">Clear</MudButton>
+                    </MudItem>
+                    <MudItem xs="5"></MudItem>
+                </MudGrid>
+                <MudTable Items="@detail.comments.OrderByDescending(c => c.CreateDate)" Hover="true" SortLabel="Sort By" CanCancelEdit="true" CommitEditTooltip="Commit Edit"
+                          OnCommitEditClick="@(() => Snackbar.Add("Commit Edit Handler Invoked"))" RowEditPreview="BackupItem" RowEditCancel="ResetItemToOriginalValues"
+                          RowEditCommit="CommentHasBeenCommitted" IsEditRowSwitchingBlocked="true" ApplyButtonPosition="TableApplyButtonPosition.End" 
+                          EditButtonPosition="TableEditButtonPosition.End" EditTrigger="TableEditTrigger.EditButton">
+                    <ToolBarContent>
+                        <MudText Typo="Typo.h6">Product #@detail.product.Id Comments</MudText>
+                        <MudSpacer />
+                    </ToolBarContent>
+                    <HeaderContent>
+                        <MudTh><MudTableSortLabel SortBy="new Func<Comment, object>(x=>x.Id)">Id</MudTableSortLabel></MudTh>
+                        <MudTh><MudTableSortLabel SortBy="new Func<Comment, object>(x=>x.IdUserNavigation.FirstName)">Posted by</MudTableSortLabel></MudTh>
+                        <MudTh><MudTableSortLabel SortBy="new Func<Comment, object>(x=>x.Content)">Content</MudTableSortLabel></MudTh>
+                        <MudTh><MudTableSortLabel SortBy="new Func<Comment, object>(x=>x.CreateDate)">Time</MudTableSortLabel></MudTh>
+                        <MudTh>Action</MudTh>
+                    </HeaderContent>
+                    <RowTemplate>
+                        <MudTd DataLabel="Id">@context.Id</MudTd>
+                        <MudTd DataLabel="Posted by">@context.IdUserNavigation.FirstName @context.IdUserNavigation.LastName</MudTd>
+                        <MudTd DataLabel="Content">@context.Content</MudTd>
+                        <MudTd DataLabel="Time">@context.CreateDate</MudTd>
+                        <MudTd DataLabel="Action">
+                            <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="MudBlazor.Color.Primary" aria-label="Delete" 
+                                OnClick="() => DeleteComment(context.Id)">
+                            </MudIconButton>
+                        </MudTd>
+                    </RowTemplate>
+                    <RowEditingTemplate>
+                        <MudTd DataLabel="Id">@context.Id</MudTd>
+                        <MudTd DataLabel="Posted by">@context.IdUserNavigation.FirstName @context.IdUserNavigation.LastName</MudTd>
+                        <MudTd DataLabel="Content">
+                            <MudTextField T="string" @bind-Value="@context.Content" Label="New comment" Variant="Variant.Filled" 
+                                AutoGrow Lines="2" HelperText="Max comment capacity: 255 words" />
+                        </MudTd>
+                        <MudTd DataLabel="Time">@context.CreateDate</MudTd>
+                    </RowEditingTemplate>
+                    <PagerContent>
+                        <MudTablePager PageSizeOptions="new int[]{10, 20}" />
+                    </PagerContent>
+                </MudTable>
+            </MudTabPanel>
+        </MudTabs>
+    </DialogContent>
+</MudDialog>
+
+@code {
+    #region param
+    [Parameter] public VariantDetails detail { get; set; } = new VariantDetails();
+    [Parameter] public List<Category> categories { get; set; } = new List<Category>();
+    [Parameter] public List<UnitView> units { get; set; } = new List<UnitView>();
+    [Parameter] public List<ColorView> colors { get; set; } = new List<ColorView>();
+    [Parameter] public List<SizeView> sizes { get; set; } = new List<SizeView>();
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+    #endregion
+
+    #region variables
+    [Inject] ISnackbar Snackbar { get; set; }
+    [Inject] HttpClient HttpClient { get; set; }
+    [Inject] NavigationManager NavManager { get; set; }
+    [Inject] IDialogService DialogService { get; set; }
+
+    private List<string> editEvents = new();
+    private bool dense = false;
+    private bool hover = true;
+    private bool ronly = false;
+    private bool canCancelEdit = true;
+    private bool blockSwitch = true;
+    private string searchString = "";
+    private ProductVariant selectedItem1 = null;
+    private ProductVariant elementBeforeEdit;
+    private HashSet<ProductVariant> selectedItems1 = new HashSet<ProductVariant>();
+    private TableApplyButtonPosition applyButtonPosition = TableApplyButtonPosition.End;
+    private TableEditButtonPosition editButtonPosition = TableEditButtonPosition.End;
+    private TableEditTrigger editTrigger = TableEditTrigger.EditButton;
+    private HttpResponseMessage response = new HttpResponseMessage();
+    private bool showContent = false;
+    private bool showField = false;
+    private ImageVIew AddedImages = new ImageVIew();
+    private string productName = "";
+    private int productCategory = 0;
+    private MudForm form;
+    private BlazoredTextEditor quillEditor;
+    private InputTextArea textArea;
+    private string newComment = "";
+    #endregion
+
+    private async void Init()
+    {
+        await GetImages();
+        #region Add temp variant
+        int numberOfNewItem = 0;
+        foreach(var item in detail.variant)
+        {
+            if(item.Id == 0)
+            {
+                numberOfNewItem++;
+            }
+        }
+        if(numberOfNewItem != 0)
+        {
+            return;
+        }
+        ProductVariant tempVariant = new ProductVariant();
+        tempVariant.Id = 0;
+        tempVariant.IdUnit = 0;
+        tempVariant.IdColor = 0;
+        tempVariant.IdSize = 0;
+        tempVariant.IdProduct = 0;
+        tempVariant.Publish = false;
+        tempVariant.Images = new List<Image>();
+        tempVariant.CreateBy = "";
+        tempVariant.CreationDate = null;
+        tempVariant.IssueImages = new List<IssueImage>();
+        tempVariant.BranchProductVariants = new List<BranchProductVariant>();
+        tempVariant.PurchasePrice = 0;
+        tempVariant.SellingPrice = 0;
+        tempVariant.ShoppingCarts = new List<ShoppingCart>();
+        tempVariant.OrderItems = new List<OrderItem>();
+        tempVariant.PurchaseRequestItems = new List<PurchaseRequestItem>();
+
+        detail.variant.Add(tempVariant);
+        #endregion
+    }
+    private async Task GetImages()
+    {
+        foreach (var variant in detail.variant)
+        {
+
+            response = await HttpClient.PostAsJsonAsync("api/Image/GetImagesByVariantId", variant.Id);
+
+            variant.Images = new List<BlossmAPI.Models.Image>();
+            variant.Images = (List<BlossmAPI.Models.Image>)await response.Content.ReadFromJsonAsync(typeof(List<BlossmAPI.Models.Image>));
+        }
+    }
+    private async void ItemHasBeenCommitted(object element)
+    {
+        ProductView updated_variant = new ProductView();
+
+        updated_variant.variant_id = ((ProductVariant)element).Id;
+        updated_variant.unit_id = ((ProductVariant)element).IdUnit;
+        updated_variant.color_id = ((ProductVariant)element).IdColor;
+        updated_variant.size_id = ((ProductVariant)element).IdSize;
+        updated_variant.cate_id = 0;
+        updated_variant.product_selling_price = ((ProductVariant)element).SellingPrice;
+        updated_variant.product_purchase_price = ((ProductVariant)element).PurchasePrice;
+        updated_variant.publish = ((ProductVariant)element).Publish;
+        updated_variant.Images = new List<string>();
+        if(updated_variant.variant_id != 0)
+        {
+            await Update(updated_variant);
+        }
+        else if (updated_variant.variant_id == 0)
+        {
+            await Create(updated_variant);
+        }
+    }
+    private async Task Create(ProductView view)
+    {
+        view.product_id = detail.product.Id;
+        if(view.unit_id == 0 || view.color_id == 0 || view.size_id == 0)
+        {
+            Snackbar.Add("Vui lòng nhập đầy đủ thuộc tính", MudBlazor.Severity.Error, config => { config.VisibleStateDuration = 5000; });
+            return;
+        }
+        if (view.product_purchase_price <= 5000 || view.product_selling_price <= 10000 || view.product_selling_price < view.product_purchase_price)
+        {
+            Snackbar.Add("Vui lòng nhập giá tiền hợp lệ", MudBlazor.Severity.Error, config => { config.VisibleStateDuration = 5000; });
+            return;
+        }
+        response = await HttpClient.PostAsJsonAsync("api/Product/CreateVariant", view);
+        if (response.IsSuccessStatusCode)
+        {
+            Snackbar.Add("Create variant successfully", MudBlazor.Severity.Success);
+            await ResetDialogOnVariantAdded();
+        }
+        else
+        {
+            Snackbar.Add(await response.Content.ReadAsStringAsync(), MudBlazor.Severity.Error, config => { config.VisibleStateDuration = 5000; });
+        }
+    }
+    private async Task Update(ProductView view)
+    {
+        response = await HttpClient.PutAsJsonAsync("api/Product/UpdateVariant", view);
+        if (response.IsSuccessStatusCode)
+        {
+            Snackbar.Add("Updated successfully", MudBlazor.Severity.Success);
+        }
+        else
+        {
+            Snackbar.Add(await response.Content.ReadAsStringAsync(), MudBlazor.Severity.Error, config => { config.VisibleStateDuration = 5000; });
+        }
+    }
+    private async Task ResetDialogOnVariantAdded()
+    {
+        var rs = await HttpClient.PostAsJsonAsync("/api/Product/GetByProductId", detail.product.Id);
+        List<ProductVariant> updatedVariants = (List<ProductVariant>)await rs.Content.ReadFromJsonAsync(typeof(List<ProductVariant>));
+
+        detail.variant = new List<ProductVariant>();
+        foreach(var item in updatedVariants)
+        {
+            #region new product variant
+            ProductVariant updated_variant = new ProductVariant();
+            updated_variant.Id = item.Id;
+            updated_variant.IdUnit = item.IdUnit;
+            updated_variant.IdColor = item.IdColor;
+            updated_variant.IdSize = item.IdSize;
+            updated_variant.IdProduct = item.IdProduct;
+            updated_variant.PurchasePrice = item.PurchasePrice;
+            updated_variant.SellingPrice = item.SellingPrice;
+            updated_variant.CreationDate = item.CreationDate;
+            updated_variant.UpdateDate = item.UpdateDate;
+            updated_variant.CreateBy = item.CreateBy;
+            updated_variant.Publish = item.Publish;
+
+            var updated_unit = units.FirstOrDefault(s => s.id == updated_variant.IdUnit);
+            Unit uni = new Unit();
+            uni.Id = updated_unit.id;
+            uni.Name = updated_unit.name;
+            updated_variant.IdUnitNavigation = uni;
+
+            var updated_color = colors.FirstOrDefault(c => c.id == updated_variant.IdColor);
+            BlossmAPI.Models.Color col = new BlossmAPI.Models.Color();
+            col.Id = updated_color.id;
+            col.Name = updated_color.name;
+            col.Hex = updated_color.hex;
+            updated_variant.IdColorNavigation = col;
+
+            var updated_size = sizes.FirstOrDefault(s => s.id == updated_variant.IdSize);
+            BlossmAPI.Models.Size siz = new BlossmAPI.Models.Size();
+            siz.Id = updated_size.id;
+            siz.Name = updated_size.name;
+            updated_variant.IdSizeNavigation = siz;
+            #endregion
+            detail.variant.Add(updated_variant);
+        }
+    }
+    private void BackupItem(object element)
+    {
+
+    }
+    private void ResetItemToOriginalValues(object element)
+    {
+
+    }
+    private bool FilterFunc(ProductVariant element)
+    {
+        return true;
+    }
+    private void OpenImageView()
+    {
+        showContent = !showContent;
+    }
+    private async void UpdateImage(object element)
+    {
+        ImageVIew view = new ImageVIew();
+        view.image_id = ((Image)element).Id;
+        view.avatar = ((Image)element).Avatar;
+
+        response = await HttpClient.PutAsJsonAsync("api/Image/UpdateImage", view);
+        if(response.IsSuccessStatusCode)
+        {
+            Snackbar.Add("Updated successfully", MudBlazor.Severity.Success);
+        }
+        else
+        {
+            Snackbar.Add(await response.Content.ReadAsStringAsync(), MudBlazor.Severity.Error, config => { config.VisibleStateDuration = 5000; });
+        }
+    }
+    private async void RemoveImage(int id)
+    {
+        response = await HttpClient.DeleteAsync("api/Image/DeleteImage?id=" + id);
+        foreach (var variant in detail.variant)
+        {
+            var img = variant.Images.FirstOrDefault(v => v.Id == id);
+            StateHasChanged();
+        }
+        if (response.IsSuccessStatusCode)
+        {
+            Snackbar.Add("Updated successfully", MudBlazor.Severity.Success);
+        }
+        else
+        {
+            Snackbar.Add(await response.Content.ReadAsStringAsync(), MudBlazor.Severity.Error, config => { config.VisibleStateDuration = 5000; });
+        }
+    }
+    private async void showAddField(int id)
+    {
+        DialogParameters<AddImageDialog> param = new DialogParameters<AddImageDialog>();
+        param.Add(x => x.id_variant, id);
+        DialogOptions options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.Large, FullWidth = true, DisableBackdropClick = true };
+        var rs = await DialogService.ShowAsync<AddImageDialog>("Add Images for Variant #" + id, param, options);
+        var rsData = await rs.Result;
+        if(rsData.Data != null)
+        {
+            AddedImages = (ImageVIew)rsData.Data;
+            StateHasChanged();
+        }
+    }
+    private void Cancel()
+    {
+        MudDialog.Close();
+    }
+    private async void SaveChange()
+    {
+        if (form.IsValid)
+        {
+            ProductView view = new ProductView();
+            view.product_name = detail.product.Name;
+            view.product_id = detail.product.Id;
+            view.cate_id = detail.product.IdCategory;
+            view.unit_id = 0;
+            view.color_id = 0;
+            view.size_id = 0;
+            view.product_purchase_price = 0;
+            view.product_selling_price = 0;
+            view.publish = false;
+            view.cate_id = detail.product.IdCategory;
+            view.short_des = detail.product.ShortDescription;
+            view.main_des = await quillEditor.GetHTML();
+            view.Images = new List<string>();
+            response = await HttpClient.PutAsJsonAsync("api/Product/UpdateProduct", view);
+            if (response.IsSuccessStatusCode)
+            {
+                Snackbar.Add("Updated successfully", MudBlazor.Severity.Success);
+                MudDialog.Close(DialogResult.Ok(view.product_id));
+            }
+            else
+            {
+                Snackbar.Add(await response.Content.ReadAsStringAsync(), MudBlazor.Severity.Error, config => { config.VisibleStateDuration = 5000; });
+            }
+        }
+        else
+        {
+            Snackbar.Add("Please fill all the field", MudBlazor.Severity.Error, config => { config.VisibleStateDuration = 5000; });
+        }
+
+    }
+    private async Task SubmitComment()
+    {
+        CommentView view = new CommentView();
+        view.id_product = detail.product.Id;
+        view.id_user = BlossmSingleTon.Instance.GetEmployeeProfile().idUser;
+        view.content = newComment;
+
+        var rs = await HttpClient.PostAsJsonAsync("api/Comment/Create", view);
+        if(rs.IsSuccessStatusCode)
+        {
+            Snackbar.Add("Post comment successfully!", Severity.Success);
+            newComment = "";
+            StateHasChanged();
+        }
+        else
+        {
+            Snackbar.Add("Failed to post new comment", Severity.Error);
+        }
+    }
+    private void ClearComment()
+    {
+        newComment = "";
+        StateHasChanged();
+    }
+    private async void CommentHasBeenCommitted(object comment)
+    {
+        CommentView view = new CommentView();
+        view.content = ((Comment)comment).Content;
+        view.id = ((Comment)comment).Id;
+
+        var rs = await HttpClient.PutAsJsonAsync("api/Comment/Update", view);
+        if(rs.IsSuccessStatusCode)
+        {
+            Snackbar.Add("Update comment successfully!", Severity.Success);
+            StateHasChanged();
+        }
+        else
+        {
+            Snackbar.Add("Fail to update comment", Severity.Error);
+        }
+    }
+    private async Task DeleteComment(int id)
+    {
+        var rs = await HttpClient.DeleteAsync($"api/Comment/Delete?id={id}");
+        if (rs.IsSuccessStatusCode)
+        {
+            Snackbar.Add("Comment deleted!", Severity.Success);
+            StateHasChanged();
+        }
+        else
+        {
+            Snackbar.Add("Fail to delete this comment", Severity.Error);
+        }
+    }
+}

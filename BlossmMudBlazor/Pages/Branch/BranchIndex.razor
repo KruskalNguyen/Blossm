@@ -1,0 +1,190 @@
+﻿@page "/Branch"
+
+@using System.Net.Http.Json
+@using BlazorMudClient.DTO.GoongDTO;
+@using BlossmAPI.Models;
+@using BlossmMudBlazor.Models.StaticValue;
+@using BlossmAPI.ModelViews;
+@using BlazorMudClient.DTO;
+@inject HttpClient httpClient
+@inject ISnackbar Snackbar;
+@inject IDialogService DialogService;
+
+<MudTable Items="@Branchs" Hover="true" SortLabel="Sort By" CanCancelEdit="true"
+          RowEditPreview="BackupItem" RowEditCancel="ResetItemToOriginalValues" IsEditRowSwitchingBlocked="true" 
+          ApplyButtonPosition="TableApplyButtonPosition.End" EditButtonPosition="TableEditButtonPosition.End"
+          RowEditCommit="ItemHasBeenCommitted" EditTrigger="@TableEditTrigger.EditButton">
+    <ToolBarContent>
+        <MudText Typo="Typo.h6">Branch Management</MudText>
+        <MudIconButton Icon="@Icons.Material.Filled.Add" Color="MudBlazor.Color.Primary" aria-label="Add" OnClick="OpenAddDialog"></MudIconButton>
+        <MudSpacer />
+        <MudTextField @bind-Value="searchString" Placeholder="Search" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="MudBlazor.Size.Medium" Class="mt-0"></MudTextField>
+    </ToolBarContent>
+    <HeaderContent>
+        <MudTh><MudTableSortLabel SortBy="new Func<Branch, object>(x=>x.Id)">Id</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel Enabled="@enabled" SortBy="new Func<Branch, object>(x=>x.Address)">Address</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortBy="new Func<Branch, object>(x=>x.IdAreaNavigation.Name)">Area</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortBy="new Func<Branch, object>(x=>x.ManagerNavigation.FirstName)">Manager</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortBy="new Func<Branch, object>(x=>x.Latlng)">Coordinate</MudTableSortLabel></MudTh>
+        @*<MudTh>Action</MudTh>*@
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd DataLabel="Id">@context.Id</MudTd>
+        <MudTd DataLabel="Address">@context.Address</MudTd>
+        <MudTd DataLabel="Area">@context.IdAreaNavigation.Name</MudTd>
+        <MudTd DataLabel="Manager">@context.ManagerNavigation.FirstName @context.ManagerNavigation.LastName</MudTd>
+        <MudTd DataLabel="Coordinate">@context.Latlng</MudTd>
+        @*<MudTd>
+            <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="MudBlazor.Color.Secondary" aria-label="Edit"></MudIconButton>
+        </MudTd>*@
+    </RowTemplate>
+    <RowEditingTemplate>
+        <MudTd DataLabel="Code">
+            @context.Id
+        </MudTd>
+        <MudTd DataLabel="Name">
+            <MudAutocomplete T="string" Label="Address" @bind-Value="@context.Address" SearchFunc="@Search2"
+                             ResetValueOnEmptyText="@resetValueOnEmptyText"
+                             CoerceText="@coerceText" CoerceValue="@coerceValue"
+                             AdornmentColor="MudBlazor.Color.Primary" />
+        </MudTd>
+        <MudTd DataLabel="Amount">
+            <MudSelect T="int?" @bind-Value="@context.IdArea" Label="Price" Variant="Variant.Outlined" AnchorOrigin="Origin.BottomCenter">
+                @foreach(var area in areas)
+                {
+                    <MudSelectItem T="int?" Value="area.Id">
+                        @area.Name
+                    </MudSelectItem>
+                }
+            </MudSelect>
+        </MudTd>
+        <MudTd DataLabel="Usage limit">
+            <MudSelect T="string" @bind-Value="@context.Manager" Label="Price" Variant="Variant.Outlined" AnchorOrigin="Origin.BottomCenter">
+                @foreach (var emp in employees)
+                {
+                    <MudSelectItem T="string" Value="emp.IdUser">
+                        @emp.IdUserNavigation.FirstName @emp.IdUserNavigation.LastName
+                    </MudSelectItem>
+                }
+            </MudSelect>
+        </MudTd>
+        <MudTd DataLabel="Usage limit">
+            @context.Latlng
+        </MudTd>
+    </RowEditingTemplate>
+    <PagerContent>
+        <MudTablePager PageSizeOptions="new int[]{5, 10, 20}" />
+    </PagerContent>
+    <EditButtonContent Context="button">
+        <MudIconButton Size="@MudBlazor.Size.Small" Icon="@Icons.Material.Outlined.Edit" Class="pa-0" OnClick="@button.ButtonAction" Disabled="@button.ButtonDisabled" />
+    </EditButtonContent>
+</MudTable>
+
+<MudSwitch @bind-Checked="enabled" Color="MudBlazor.Color.Info">Enable sorting on the Sign Column</MudSwitch>
+@code {
+    private bool enabled = true;
+    private IEnumerable<Branch> Branchs = new List<Branch>();
+    private Branch BranchBeforeEdit = new Branch();
+    private string searchString = "";
+    private List<Area> areas = new List<Area>();
+    private List<Employee> employees = new List<Employee>();
+    private LocationModel model = new LocationModel();
+    private bool resetValueOnEmptyText;
+    private bool coerceText;
+    private bool coerceValue;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Branchs = await httpClient.GetFromJsonAsync<List<Branch>>("api/Branch/GetAllBranch");
+        areas = await httpClient.GetFromJsonAsync<List<Area>>("api/Area/GetAll");
+        employees = await httpClient.GetFromJsonAsync<List<Employee>>("api/Users/GetAllEmployee");
+    }
+    private void BackupItem(object Branch)
+    {
+        BranchBeforeEdit = new()
+            {
+                Id = ((Branch)Branch).Id,
+                Address = ((Branch)Branch).Address,
+                IdArea = ((Branch)Branch).IdArea,
+                Manager = ((Branch)Branch).Manager,
+                Latlng = ((Branch)Branch).Latlng
+            };
+    }
+    private void ResetItemToOriginalValues(object Branch)
+    {
+        ((Branch)Branch).Id = BranchBeforeEdit.Id;
+        ((Branch)Branch).Address = BranchBeforeEdit.Address;
+        ((Branch)Branch).IdArea = BranchBeforeEdit.IdArea;
+        ((Branch)Branch).Manager = BranchBeforeEdit.Manager;
+        ((Branch)Branch).Latlng = BranchBeforeEdit.Latlng;
+    }
+    private async void ItemHasBeenCommitted(object Branch)
+    {
+        BranchView view = new BranchView();
+        view.Id = ((Branch)Branch).Id;
+        view.Address = ((Branch)Branch).Address;
+        view.Manager = ((Branch)Branch).Manager;
+        view.IdArea = ((Branch)Branch).IdArea;
+        view.Latlng = ((Branch)Branch).Latlng;
+        HttpResponseMessage responseMessage = new HttpResponseMessage();
+        try
+        {
+            responseMessage = await httpClient.PutAsJsonAsync("api/Branch/UpdateBranch", view);
+
+            Snackbar.Add("Updated successfully", Severity.Success);
+        }
+        catch(Exception ex)
+        {
+            Snackbar.Add(await responseMessage.Content.ReadAsStringAsync(), Severity.Error);
+        }
+    }
+    private async void OpenAddDialog()
+    {
+        try
+        {
+            var options = new DialogOptions { CloseOnEscapeKey = true, MaxWidth = MaxWidth.Large, FullWidth = true, CloseButton = true };
+            var rs = await DialogService.ShowAsync<AddBranchDialog>("Add Branch", options);
+            var rsData = await rs.Result;
+            if ((bool)rsData.Data == true)
+            {
+                StateHasChanged();
+            }
+        }
+        catch
+        {
+            
+        }
+        
+    }
+    private async Task<IEnumerable<string>> Search2(string value)
+    {
+        // In real life use an asynchronous function for fetching data from an api.
+
+        await Task.Delay(5);
+
+        // if text is null or empty, don't return values (drop-down will not open)
+        if (string.IsNullOrEmpty(value))
+            return new string[0];
+
+        if (value.Length >= 7)
+        {
+            string api = "https://rsapi.goong.io/Place/AutoComplete" +
+            "?api_key=" + StaticValue.goongKey +
+            "&location=" + model.Latitude + ", " + model.Longitude +
+            "&input=" + value;
+
+            try
+            {
+                AutoComplete autoComplete = await httpClient.GetFromJsonAsync<AutoComplete>(api);
+                return autoComplete.predictions.Select(p => p.description);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+        }
+
+        return new string[0];
+    }
+}

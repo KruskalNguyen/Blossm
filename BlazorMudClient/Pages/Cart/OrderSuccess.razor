@@ -1,0 +1,153 @@
+﻿@page "/OrderSuccess/{SetHashCode:int}"
+
+@using BlossmAPI.Models;
+@using BlossmAPI.Models.ModelsExtention;
+@using BlossmAPI.ModelViews;
+@using BlazorMudClient.Infrastructure;
+@using BlazorMudClient.Models;
+@using Microsoft.AspNetCore.Http;
+@using BlazorMudClient.DARK_CODE;
+
+@inject HttpClient http;
+@inject NavigationManager navManager;
+
+<MudContainer>
+    <MudGrid>
+        <MudItem xs="6">
+            <MudPaper Class="d-flex align-center justify-center mud-width-full py-8">
+                <MudGrid>
+                    <MudItem xs="12">Order detail</MudItem>
+                    <MudItem xs="6">Order Id</MudItem>
+                    <MudItem xs="6">@data.Id</MudItem>
+                    <MudItem xs="6">Status</MudItem>
+                    <MudItem xs="6">@data.IdStatusNavigation.Name</MudItem>
+                    <MudItem xs="6">Create Date</MudItem>
+                    <MudItem xs="6">@data.CreateDate</MudItem>
+                </MudGrid>
+            </MudPaper>
+        </MudItem>
+        <MudItem xs="6">
+            <MudPaper Class="d-flex align-center justify-center mud-width-full py-8">
+                <MudGrid>
+                    <MudItem xs="12">Shipment detail</MudItem>
+                    <MudItem xs="6">Receiver:</MudItem>
+                    <MudItem xs="6">@data.Receiver</MudItem>
+                    <MudItem xs="6">Deliver to:</MudItem>
+                    <MudItem xs="6">@data.Address</MudItem>
+                    <MudItem xs="6">Phone numbe</MudItem>
+                    <MudItem xs="6">@data.PhoneNumber</MudItem>
+                </MudGrid>
+
+            </MudPaper>
+        </MudItem>
+        <MudItem xs="12">
+            <MudPaper Class="d-flex align-center justify-center mud-width-full">
+                <MudTable T="OrderItem" Items="@data.OrderItems.Take(4)" Hover="true" Breakpoint="Breakpoint.Sm" Class="mud-width-full">
+                    <HeaderContent>
+                        <MudTh>Name</MudTh>
+                        <MudTh>Image</MudTh>
+                        <MudTh>Price</MudTh>
+                        <MudTh>Quantity</MudTh>
+                        <MudTh>Subtotal</MudTh>
+                    </HeaderContent>
+                    <RowTemplate>
+                        <MudTd DataLabel="Name">
+                            @context.IdProductVariantNavigation.IdProductNavigation.Name
+                            <div class="d-flex">
+                                <MudTextField @bind-Value="@context.IdProductVariantNavigation.IdColorNavigation.Name" Label="Color" ReadOnly="true" Variant="Variant.Text" />
+                                <MudTextField @bind-Value="@context.IdProductVariantNavigation.IdUnitNavigation.Name" Label="Unit" ReadOnly="true" Variant="Variant.Text" />
+                                <MudTextField @bind-Value="@context.IdProductVariantNavigation.IdSizeNavigation.Name" Label="Size" ReadOnly="true" Variant="Variant.Text" />
+                            </div>
+                        </MudTd>
+                        <MudTd DataLabel="Image">
+                            @{
+                                string url = $"data:image/png;base64,{context.IdProductVariantNavigation.Images.First().Images}";
+                            }
+                            <MudImage Src="@url" Width="70" Alt="Variant" Elevation="25" Class="rounded-lg" />
+                        </MudTd>
+                        <MudTd DataLabel="Price">@(String.Format("{0:#,0}", context.SellingPrice)) VND</MudTd>
+                        <MudTd DataLabel="Quantity">@context.Quantity</MudTd>
+                        <MudTd DataLabel="Subtotal">@(context.Quantity * context.SellingPrice)</MudTd>
+                        </RowTemplate>
+                        <FooterContent>
+                            <MudTFootRow>
+                                <MudTd colspan="4">
+                                    <strong>Total</strong>
+                                </MudTd>
+                                <MudTd>@(String.Format("{0:#,0}", data.Subtotal)) VND</MudTd>
+                        </MudTFootRow>
+                    </FooterContent>
+                </MudTable>
+            </MudPaper>
+        </MudItem>
+    </MudGrid>
+
+    <MudButton Variant="Variant.Text" Color="MudBlazor.Color.Primary">Home</MudButton>
+    @if (data.IdPaymentMethod == PaymentMethodConst.VNPAY)
+    {
+        <MudButton Variant="Variant.Text" Color="MudBlazor.Color.Success" Href="@url" OnClick="GotoVNPay">Go to Payment</MudButton>
+    }
+    else if (data.IdPaymentMethod == PaymentMethodConst.CREDIT_CARD)
+    {
+        <MudButton Variant="Variant.Text" Color="MudBlazor.Color.Success" Href="@url" OnClick="GotoPayment">Go to Payment</MudButton>
+    }
+    else
+    {
+        <MudButton Variant="Variant.Text" Color="MudBlazor.Color.Success" Href="@url" OnClick="GotoPayment">My Info</MudButton>
+    }
+</MudContainer>
+
+@code {
+    [Parameter] public int SetHashCode { get; set; }
+    [Inject] StateContainer container { get; set; }
+
+    private string selectedItem1 = null;
+    private Order data = new Order();
+    private string url = "";
+    private string vnp_url = "";
+
+    protected override void OnInitialized()
+    {
+        data = container.GetRoutingObjectParameter<Order>(SetHashCode);
+    }
+
+    protected async override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender)
+        {
+            //VnPay payment gateway integration
+            var rs1 = await http.PostAsJsonAsync("/api/VnPay/GetPaymentUrl", data.Id);
+            vnp_url = await rs1.Content.ReadAsStringAsync();
+
+            //Stripe payment gateway integration
+            List<OrderItemView> orderItems = new List<OrderItemView>();
+            foreach (var item in data.OrderItems)
+            {
+                OrderItemView view = new OrderItemView();
+                view.id = item.IdOrder;
+                view.quantity = item.Quantity;
+                view.id_variant = item.IdProductVariant;
+                view.selling_price = item.SellingPrice;
+
+                orderItems.Add(view);
+            }
+
+            var rs = await http.PostAsJsonAsync("api/StripePayment/checkout", data);
+            url = await rs.Content.ReadAsStringAsync();
+        }
+        
+    }
+    void GotoInfo()
+    {
+        navManager.NavigateTo("/Info");
+    }
+    void GotoPayment()
+    {
+        navManager.NavigateTo(url);
+    }
+    void GotoVNPay()
+    {
+        navManager.NavigateTo(vnp_url);
+    }
+}
+ 

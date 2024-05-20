@@ -1,0 +1,45 @@
+{
+  "Files": [
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlazorMudClient\\bin\\Debug\\net6.0\\wwwroot\\_framework\\blazor.webassembly.js",
+      "PackagePath": "staticwebassets\\_framework\\blazor.webassembly.js"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlazorMudClient\\obj\\Debug\\net6.0\\compressed\\hizey5sv9w.gz",
+      "PackagePath": "staticwebassets\\_framework\\blazor.webassembly.js.gz"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlazorMudClient\\wwwroot\\favicon.ico",
+      "PackagePath": "staticwebassets\\favicon.ico"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlazorMudClient\\wwwroot\\index.html",
+      "PackagePath": "staticwebassets\\index.html"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlazorMudClient\\wwwroot\\location.js",
+      "PackagePath": "staticwebassets\\location.js"
+    },
+    {
+      "Id": "D:\\nam4\\dotnet_project\\Blossm\\BlazorMudClient\\wwwroot\\sample-data\\weather.json",
+      "PackagePath": "staticwebassets\\sample-data\\weather.json"
+    },
+    {
+      "Id": "obj\\Debug\\net6.0\\staticwebassets\\msbuild.BlazorMudClient.Microsoft.AspNetCore.StaticWebAssets.props",
+      "PackagePath": "build\\Microsoft.AspNetCore.StaticWebAssets.props"
+    },
+    {
+      "Id": "obj\\Debug\\net6.0\\staticwebassets\\msbuild.build.BlazorMudClient.props",
+      "PackagePath": "build\\BlazorMudClient.props"
+    },
+    {
+      "Id": "obj\\Debug\\net6.0\\staticwebassets\\msbuild.buildMultiTargeting.BlazorMudClient.props",
+      "PackagePath": "buildMultiTargeting\\BlazorMudClient.props"
+    },
+    {
+      "Id": "obj\\Debug\\net6.0\\staticwebassets\\msbuild.buildTransitive.BlazorMudClient.props",
+      "PackagePath": "buildTransitive\\BlazorMudClient.props"
+    }
+  ],
+  "ElementsToRemove": []
+}

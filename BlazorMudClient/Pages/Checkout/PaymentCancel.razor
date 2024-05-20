@@ -1,0 +1,24 @@
+﻿@page "/PaymentCancel/{orderId}"
+
+@using BlossmAPI.Models;
+@using BlossmAPI.ModelViews;
+
+@inject HttpClient http;
+@inject NavigationManager navManager;
+
+<MudContainer MaxWidth="MaxWidth.Small" Class="d-flex flex-grow-1 gap-4">
+    <MudImage Class="align-self-center py-4 flex-1" Src="https://cdn-icons-png.flaticon.com/512/1304/1304038.png"></MudImage>
+</MudContainer>
+
+@code {
+    [Parameter]
+    public string orderId { get; set; }
+
+    private Order orderData;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var rs = await http.PostAsJsonAsync("api/Order/GetOrderById", orderId);
+        orderData = await rs.Content.ReadFromJsonAsync<Order>();
+    }
+}

@@ -1,0 +1,284 @@
+﻿@using BlossmAPI.ModelViews;
+@using BlossmMudBlazor.Dialogs;
+@using BlossmMudBlazor.Pages.PurchaseRequest;
+@using BlossmMudBlazor.DTO;
+@using BlossmMudBlazor.Patterms;
+@inject HttpClient httpClient
+@inject IDialogService DialogService
+@inject ISnackbar Snackbar
+
+@if(Context != null)
+{
+    <MudDialog>
+        <DialogContent>
+            <MudGrid>
+                <MudItem xs="7">
+                    <MudGrid>
+                        @if (Context.idOrderStatus == 5)
+                        {
+                            <MudItem xs="12">
+                                <h1 style="color: red; font: bold">@orderStatuses.FirstOrDefault(o => o.id == 5).name</h1>
+                            </MudItem>
+                        }
+                        <MudItem xs="4">
+                            <MudField Label="Id-PO" Variant="Variant.Text">PO-@Context.id</MudField>
+                        </MudItem>
+                        <MudItem xs="8">
+                            <MudField Label="Order Date" Variant="Variant.Text">@Context.orderDate</MudField>
+                        </MudItem>
+                        <MudItem xs="4">
+                            <MudField Label="Id-PR" Variant="Variant.Text">PR-@Context.idPurchaseRequest</MudField>
+                        </MudItem>
+                        <MudItem xs="6">
+                            <MudField Label="Requester" Variant="Variant.Text">@Context.lastNameRequester @Context.firstNameRequester</MudField>
+                        </MudItem>
+                        <MudItem xs="2">
+                            <MudIconButton Icon="@Icons.Material.Filled.RemoveRedEye" Color="Color.Inherit" OnClick="() => buttonDetail(Context.idPurchaseRequest)"></MudIconButton>
+                        </MudItem>
+                        <MudItem xs="12">
+                            <MudField Label="Request Date" Variant="Variant.Text">@Context.requestDate</MudField>
+                        </MudItem>
+                        <MudItem xs="12">
+                            <MudField Label="Receiver" Variant="Variant.Text">@Context.lastNameReceiver @Context.firstNameReceiver</MudField>
+                        </MudItem>
+                        <MudItem xs="6">
+                            <MudField Label="Receiving Date" Variant="Variant.Text">@Context.receivingDate</MudField>
+                        </MudItem>
+                        <MudItem xs="6">
+                            <MudField Label="Estimated Delivery Date" Variant="Variant.Text">@Context.estimatedDeliveryDate</MudField>
+                        </MudItem>
+                        <MudItem xs="6">
+                            <MudField Label="Payment Amount" Variant="Variant.Text">@String.Format("{0:0,0}", Context.paymentAmount)</MudField>
+                        </MudItem>
+                        <MudItem xs="1">
+                            <h1>/</h1>
+                        </MudItem>
+                        <MudItem xs="5">
+                            <MudField Label="PR Total Amount" Variant="Variant.Text">@String.Format("{0:0,0}", Context.PRTotalAmount)</MudField>
+                        </MudItem>
+                        <MudItem xs="12">
+                            <MudField Label="Payment Method" Variant="Variant.Text">@Context.namePaymentMethod</MudField>
+                        </MudItem>
+                        <MudItem xs="12">
+                            <MudField Label="Notes" Variant="Variant.Text">@Context.note</MudField>
+                        </MudItem>
+                        <MudItem xs="12">
+                            <MudButton Color="Color.Primary" Variant="Variant.Outlined" FullWidth="true" OnClick="ConfirmPayment">Confirm Payment</MudButton>
+                        </MudItem>
+                    </MudGrid>
+                </MudItem>
+                <MudItem xs="5">
+                    
+                    <h2>Order status</h2>
+                    <MudTimeline>
+                        @if (orderStatuses != null)
+                        {
+                            int i = 0;
+                            foreach (var item in orderStatuses)
+                            {
+                                if (i == 4) break;
+
+                                Color color = new Color();
+                                if (item.id == Context.idOrderStatus)
+                                    color = Color.Primary;
+                                else
+                                    color = Color.Default;
+
+                                <MudTimelineItem Color="color">
+                                    <MudText>@item.name</MudText>
+                                </MudTimelineItem>
+                                i++;
+                            }
+                        }
+                    </MudTimeline>
+                    <MudGrid>
+                        <MudItem xs="6">
+                            <MudButton Color="Color.Success" OnClick="UpdateStatus">Next</MudButton>
+                        </MudItem>
+
+                        <MudItem xs="6">
+                            <MudButton Color="Color.Error" OnClick="CancelStatus">Cancel</MudButton>
+                        </MudItem>                          
+                    </MudGrid>
+                    <h2>Delivery Status</h2>
+                    <MudTimeline>
+                        @if (deliveryStatuses != null)
+                        {
+                            int i = 0;
+                            foreach (var item in deliveryStatuses)
+                            {
+                                if (i == 3) break;
+
+                                Color color = new Color();
+                                if (item.id == Context.idDeliveryStatus)
+                                    color = Color.Primary;
+                                else
+                                    color = Color.Default;
+
+                                <MudTimelineItem Color="color">
+                                    <MudText>@item.name</MudText>
+                                </MudTimelineItem>
+                                i++;
+                            }
+                        }
+                    </MudTimeline>
+                </MudItem>
+            </MudGrid>
+        </DialogContent>
+    </MudDialog>
+}
+
+
+@code {
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+    [Parameter] public int idPurchaseOrder { get; set; }
+
+    PurchaseOrder Context;
+
+    bool test = false;
+
+    List<OrderStatus> orderStatuses = null;
+    List<DeliveryStatus> deliveryStatuses = null;
+
+    protected override async Task OnInitializedAsync()
+    {
+        orderStatuses = new List<OrderStatus>();
+        orderStatuses = (List<OrderStatus>)await httpClient.GetFromJsonAsync("/api/OrderStatus/GetOrderStatus", typeof(List<OrderStatus>));
+
+        deliveryStatuses = new List<DeliveryStatus>();
+        deliveryStatuses = (List<DeliveryStatus>)await httpClient.GetFromJsonAsync("/api/DeliveryStatus/GetDeliveryStatus", typeof(List<DeliveryStatus>));
+
+        Context = new PurchaseOrder();
+        var orderGet = await httpClient.GetAsync("/api/Purchase/GetPurchaseOrderById?id=" + idPurchaseOrder);
+        Context = (PurchaseOrder)await orderGet.Content.ReadFromJsonAsync(typeof(PurchaseOrder));
+    }
+
+    async Task buttonDetail(int id)
+    {
+        try
+        {
+            List<PurchaseRequest> prList = new List<PurchaseRequest>();
+            if (BlossmSingleTon.Instance.GetEmployeeProfile().idBranch != 1)
+                prList = (List<PurchaseRequest>)await httpClient.GetFromJsonAsync("/api/Purchase/GetRequestFromUser", typeof(List<PurchaseRequest>));
+            else
+                prList = (List<PurchaseRequest>)await httpClient.GetFromJsonAsync("/api/Purchase/GetAllRequest", typeof(List<PurchaseRequest>));
+
+            PurchaseRequest purchaseRequest = prList.FirstOrDefault(p => p.id == id);
+
+            var parameters = new DialogParameters<DetailPRDialog>();
+            parameters.Add(x => x.Context, purchaseRequest);
+            var dialog = await DialogService.ShowAsync<DetailPRDialog>("Detail Request", parameters, new DialogOptions() { CloseButton = true, FullWidth = true });
+        }
+        catch
+        {
+
+        }
+    }
+
+    async void UpdateStatus()
+    {
+        if(Context.idOrderStatus > 3)
+        {
+            Snackbar.Add("This is the highest progress", Severity.Error);
+            return;
+        }
+
+        UpdatePurchaseOrderStatusView update = new UpdatePurchaseOrderStatusView();
+        update.id_purchase_order = Context.id;
+        update.id_status = Context.idOrderStatus + 1;
+        var options = new DialogOptions
+            {
+                ClassBackground = "my-custom-class",
+                DisableBackdropClick = true
+            };
+        var dialog = await DialogService.ShowAsync<ConfirmDialog>("Confirm", options);
+        var rsDia = await dialog.Result;
+
+        try
+        {
+            if ((bool)rsDia.Data == true)
+            {
+                var rs = await httpClient.PostAsJsonAsync("/api/Purchase/UpdatePurchaseOrderStatus", update);
+                if (rs.IsSuccessStatusCode)
+                {
+                    await OnInitializedAsync();
+                    StateHasChanged();
+                    Snackbar.Add("Next process successfully", Severity.Success);
+                }
+                else
+                {
+                    Snackbar.Add(await rs.Content.ReadAsStringAsync(), Severity.Error);
+                }
+            }
+        }
+        catch
+        {
+
+        }
+    }
+
+    async void CancelStatus()
+    {
+        UpdatePurchaseOrderStatusView update = new UpdatePurchaseOrderStatusView();
+        update.id_purchase_order = Context.id;
+        update.id_status = 5;
+        var options = new DialogOptions
+            {
+                ClassBackground = "my-custom-class",
+                DisableBackdropClick = true
+            };
+        var dialog = await DialogService.ShowAsync<ConfirmDialog>("Confirm", options);
+        var rsDia = await dialog.Result;
+
+        try
+        {
+            if ((bool)rsDia.Data == true)
+            {
+                var rs = await httpClient.PostAsJsonAsync("/api/Purchase/UpdatePurchaseOrderStatus", update);
+                if (rs.IsSuccessStatusCode)
+                {
+                    await OnInitializedAsync();
+                    StateHasChanged();
+                    Snackbar.Add("Next process successfully", Severity.Success);
+                }
+                else
+                {
+                    Snackbar.Add(await rs.Content.ReadAsStringAsync(), Severity.Error);
+                }
+            }
+        }
+        catch
+        {
+
+        }
+    }
+
+    async void ConfirmPayment()
+    {
+        try
+        {
+            var options = new DialogOptions
+                {
+                    ClassBackground = "my-custom-class",
+                    DisableBackdropClick = true
+                };
+            var parameters = new DialogParameters<ComfirmPaymentDialog>();
+            parameters.Add(x => x.idPurchaseOrder, Context.id);
+            parameters.Add(x => x.note, Context.note);
+            parameters.Add(x => x.PRTotalAmount, Context.PRTotalAmount);
+            var dialog = await DialogService.ShowAsync<ComfirmPaymentDialog>("Confirm Payment", parameters, options);
+            var rsDia = await dialog.Result;
+            if ((bool)rsDia.Data == true)
+            {
+                await OnInitializedAsync();
+                StateHasChanged();
+            }
+        }
+        catch
+        {
+            
+        }
+        
+        
+    }
+}

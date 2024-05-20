@@ -1,0 +1,156 @@
+﻿@page "/PurchaseOrder"
+@using BlossmMudBlazor.DTO;
+@using BlossmMudBlazor.Helper;
+@using BlossmMudBlazor.Pages.PurchaseRequest;
+@using BlossmMudBlazor.Patterms;
+@using Microsoft.AspNetCore.SignalR.Client;
+
+@inject HttpClient httpClient
+@inject IDialogService DialogService
+
+<MudTable Items="@purchaseOrders" Dense="@dense" Hover="@hover" Bordered="@bordered" Striped="@striped" Filter="new Func<PurchaseOrder,bool>(FilterFunc1)">
+    <ToolBarContent>
+        <MudText Typo="Typo.h6">Purchase Order</MudText>
+        <MudSpacer />
+        <MudTextField @bind-Value="searchString1" Placeholder="Search" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+    </ToolBarContent>
+    <HeaderContent>
+        <MudTh>Id-PO</MudTh>
+        <MudTh>Id-PR</MudTh>
+        <MudTh></MudTh>
+        <MudTh>Request Date</MudTh>
+        <MudTh>Requester</MudTh>
+        <MudTh>Order Date</MudTh>
+        <MudTh>Order Status</MudTh>
+        <MudTh>Delivery Status</MudTh>
+        <MudTh>Payment Method</MudTh>
+        <MudTh>Reciever</MudTh>
+        <MudTh>Estimated Delivery Date</MudTh>
+        <MudTh>Receiving Date</MudTh>
+        <MudTh>Payment Amount</MudTh>
+        <MudTh>Notes</MudTh>
+        <MudTh></MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd DataLabel="Nr">PO-@context.id</MudTd>
+        <MudTd DataLabel="Nr">PR-@context.idPurchaseRequest</MudTd>
+        <MudTd DataLabel="Nr">
+            <MudIconButton Icon="@Icons.Material.Filled.RemoveRedEye" Color="Color.Inherit" OnClick="() => buttonDetail(context.idPurchaseRequest)"></MudIconButton>
+        </MudTd>
+        <MudTd DataLabel="Nr">@context.requestDate</MudTd>
+        <MudTd DataLabel="Nr">@context.lastNameRequester @context.firstNameRequester</MudTd>
+        <MudTd DataLabel="Nr">@context.orderDate</MudTd>
+        <MudTd DataLabel="Nr">@context.nameOrderStatus</MudTd>
+        <MudTd DataLabel="Nr">@context.nameDeliveryStatus</MudTd>
+        <MudTd DataLabel="Nr">@context.namePaymentMethod</MudTd>
+        <MudTd DataLabel="Nr">@context.lastNameReceiver @context.firstNameReceiver</MudTd>
+        <MudTd DataLabel="Nr">@context.estimatedDeliveryDate</MudTd>
+        <MudTd DataLabel="Nr">@context.receivingDate</MudTd>
+        <MudTd DataLabel="Nr">@String.Format("{0:0,0}", context.paymentAmount)</MudTd>
+        <MudTd DataLabel="Nr">
+            @if (@context.note != null)
+                @if (@context.note.Length > 8)
+                {
+                    @context.note.Substring(0,8)
+                    <p>...</p>
+                }
+                else
+                {
+                    @context.note
+                }
+        </MudTd>
+        <MudTd DataLabel="Nr">
+            <MudIconButton Icon="@Icons.Material.Filled.RemoveRedEye" Color="Color.Inherit" OnClick="() => buttonDetailOrder(context.id)"></MudIconButton>
+        </MudTd>
+    </RowTemplate>
+    <PagerContent>
+        <MudTablePager />
+    </PagerContent>
+</MudTable>
+
+<div class="d-flex flex-wrap mt-4">
+    <MudSwitch @bind-Checked="@hover" Color="Color.Primary">Hover</MudSwitch>
+    <MudSwitch @bind-Checked="@dense" Color="Color.Secondary">Dense</MudSwitch>
+    <MudSwitch @bind-Checked="@striped" Color="Color.Tertiary">Striped</MudSwitch>
+    <MudSwitch @bind-Checked="@bordered" Color="Color.Warning">Bordered</MudSwitch>
+    <MudSpacer />
+</div>
+
+@code {
+    List<PurchaseOrder> purchaseOrders = new List<PurchaseOrder>();
+    EmployeeProfile employeeProfile = new EmployeeProfile();
+
+    private bool dense = false;
+    private bool hover = true;
+    private bool striped = false;
+    private bool bordered = false;
+    private string searchString1 = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        WebSocket.connection.On<string>("NotiOrderPurchase", 
+        async m =>
+        {
+            await OnInitializedAsync();
+            StateHasChanged();
+        });
+
+        if (BlossmSingleTon.Instance.GetEmployeeProfile() != null)
+            employeeProfile = BlossmSingleTon.Instance.GetEmployeeProfile();
+
+        if (employeeProfile.idBranch != 1)
+            purchaseOrders = (List<PurchaseOrder>)await httpClient.GetFromJsonAsync("/api/Purchase/GetPurchaseOrderByManager", typeof(List<PurchaseOrder>));
+        else
+            purchaseOrders = (List<PurchaseOrder>)await httpClient.GetFromJsonAsync("/api/Purchase/GetAllPurchaseOrder", typeof(List<PurchaseOrder>));
+
+    }
+
+    private bool FilterFunc1(PurchaseOrder element) => FilterFunc(element, searchString1);
+
+    private bool FilterFunc(PurchaseOrder element, string searchString)
+    {
+        //if (string.IsNullOrWhiteSpace(searchString))
+        //    return true;
+        //if (element.Sign.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+        //    return true;
+        //if (element.Name.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+        //    return true;
+        //if ($"{element.Number} {element.Position} {element.Molar}".Contains(searchString))
+        //    return true;
+        return true;
+    }
+
+    async Task buttonDetail(int id)
+    {
+        try
+        {
+            List<PurchaseRequest> prList = new List<PurchaseRequest>();
+            if (employeeProfile.idBranch != 1)
+                prList = (List<PurchaseRequest>)await httpClient.GetFromJsonAsync("/api/Purchase/GetRequestFromUser", typeof(List<PurchaseRequest>));
+            else
+                prList = (List<PurchaseRequest>)await httpClient.GetFromJsonAsync("/api/Purchase/GetAllRequest", typeof(List<PurchaseRequest>));
+
+            PurchaseRequest purchaseRequest = prList.FirstOrDefault(p => p.id == id);
+
+            var parameters = new DialogParameters<DetailPRDialog>();
+            parameters.Add(x => x.Context, purchaseRequest);
+            var dialog = await DialogService.ShowAsync<DetailPRDialog>("Detail Request", parameters, new DialogOptions() { CloseButton = true, FullWidth = true });
+        }
+        catch
+        {
+
+        }
+    }
+
+    async Task buttonDetailOrder(int id)
+    {
+        var parameters = new DialogParameters<DetailPODialog>();
+        parameters.Add(x => x.idPurchaseOrder, id);
+        var dialog = await DialogService.ShowAsync<DetailPODialog>("Detail Purchase Order", parameters, new DialogOptions() { CloseButton = true, FullWidth = true, MaxWidth = MaxWidth.Medium });
+        var rsDia = await dialog.Result;
+        if (rsDia.Cancelled)
+        {
+            await OnInitializedAsync();
+        }
+    }
+}

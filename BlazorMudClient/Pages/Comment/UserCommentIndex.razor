@@ -1,0 +1,69 @@
+﻿@using BlossmAPI.Models;
+@using BlossmAPI.ModelViews;
+@using BlazorMudClient.DARK_CODE;
+
+@inject HttpClient http;
+@inject ISnackbar Snackbar;
+
+@if(StaticValue.AspNetUser != null)
+{
+    <MudTable Items="@comments.OrderByDescending(c => c.CreateDate)" Hover="true" SortLabel="Sort By">
+        <ToolBarContent>
+            <MudText Typo="Typo.h6">My Comments</MudText>
+            <MudSpacer />
+        </ToolBarContent>
+        <HeaderContent>
+            <MudTh><MudTableSortLabel SortBy="new Func<Comment, object>(x=>x.CreateDate)">Date post</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel SortBy="new Func<Comment, object>(x=>x.IdUserNavigation.FirstName)">Posted by</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel SortBy="new Func<Comment, object>(x=>x.IdProduct)">Product</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel SortBy="new Func<Comment, object>(x=>x.Content)">Content</MudTableSortLabel></MudTh>
+            <MudTh>Action</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="Date post">@context.CreateDate</MudTd>
+            <MudTd DataLabel="Posted by">@context.IdUserNavigation.FirstName @context.IdUserNavigation.LastName</MudTd>
+            <MudTd DataLabel="Product">@context.IdProductNavigation.Name</MudTd>
+            <MudTd DataLabel="Content">@context.Content</MudTd>
+            <MudTd DataLabel="Action">
+                <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="MudBlazor.Color.Primary" aria-label="Delete"
+                           OnClick="() => DeleteComment(context.Id)">
+                </MudIconButton>
+            </MudTd>
+        </RowTemplate>
+        <PagerContent>
+            <MudTablePager PageSizeOptions="new int[]{10, 20}" />
+        </PagerContent>
+    </MudTable>
+}
+
+@code {
+    [Parameter] public string userID { get; set; }
+    private List<Comment> comments = new List<Comment>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        Reset();
+        var rs = await http.PostAsJsonAsync("api/Comment/GetCommentsByUser", userID);
+        if(rs.IsSuccessStatusCode)
+        {
+            comments = await rs.Content.ReadFromJsonAsync<List<Comment>>();
+        }
+    }
+    private void Reset()
+    {
+        comments = new List<Comment>();
+    }
+    private async Task DeleteComment(int id)
+    {
+        var rs = await http.DeleteAsync($"api/Comment/Delete?id={id}");
+        if (rs.IsSuccessStatusCode)
+        {
+            Snackbar.Add("Comment deleted!", Severity.Success);
+            await OnInitializedAsync();
+        }
+        else
+        {
+            Snackbar.Add("Fail to delete this comment", Severity.Error);
+        }
+    }
+}

@@ -1,0 +1,128 @@
+﻿@using Blazored.TextEditor
+@using BlossmAPI.Models;
+@using BlossmMudBlazor.Patterms
+
+@inject HttpClient httpClient
+@inject ISnackbar Snackbar
+
+<MudDialog>
+    <DialogContent>
+        <MudGrid>
+            <MudItem xs="12">
+                <MudTextField @bind-Value="newspaper.Title" Label="Title" Variant="Variant.Text"></MudTextField>
+            </MudItem>
+            <MudItem xs="12">
+                <MudFileUpload T="IBrowserFile" FilesChanged="UploadFiles">
+                    <ButtonTemplate>
+                        <MudButton HtmlTag="label"
+                                   Variant="Variant.Filled"
+                                   Color="MudBlazor.Color.Primary"
+                                   StartIcon="@Icons.Material.Filled.CloudUpload"
+                                   for="@context.Id">
+                            Upload Files
+                        </MudButton>
+                    </ButtonTemplate>
+                </MudFileUpload>
+            </MudItem>
+            <MudItem xs="12">
+                <BlazoredTextEditor @ref=quillEditor Placeholder="Write something here">
+                        <ToolbarContent>
+                            <select class="ql-header">
+                                <option selected=""></option>
+                                <option value="1"></option>
+                                <option value="2"></option>
+                                <option value="3"></option>
+                                <option value="4"></option>
+                                <option value="5"></option>
+                            </select>
+                            <span class="ql-formats">
+                                <button class="ql-bold"></button>
+                                <button class="ql-italic"></button>
+                                <button class="ql-underline"></button>
+                                <button class="ql-strike"></button>
+                            </span>
+                            <span class="ql-formats">
+                                <select class="ql-color"></select>
+                                <select class="ql-background"></select>
+                            </span>
+                            <span class="ql-formats">
+                                <button class="ql-list" value="ordered"></button>
+                                <button class="ql-list" value="bullet"></button>
+                            </span>
+                            <span class="ql-formats">
+                                <button class="ql-link"></button>
+                            </span>
+                            <span class="ql-formats">
+                                <button class="ql-image"></button>
+                            </span>
+                            <span class="ql-formats">
+                                <button class="ql-video"></button>
+                            </span>
+                        </ToolbarContent>
+                        <EditorContent>
+                            @((MarkupString)newspaper.Description)
+                        </EditorContent>
+                    </BlazoredTextEditor>
+            </MudItem>
+            <MudItem xs="12">
+
+            </MudItem>
+            <MudItem xs="12">
+
+            </MudItem>
+        </MudGrid>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+        <MudButton Color="MudBlazor.Color.Primary" OnClick="Submit">Ok</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+
+    private Newspaper newspaper = new Newspaper();
+    IBrowserFile fileContext;
+    string base64 = "";
+
+    private BlazoredTextEditor quillEditor;
+
+    async void Submit()
+    {
+        newspaper.Thumnail = base64;
+        newspaper.IdUser = BlossmSingleTon.Instance.GetEmployeeProfile().idUser;
+        newspaper.CreateDate = DateTime.Now;
+        newspaper.Description = await quillEditor.GetHTML();
+
+        var rs = await httpClient.PostAsJsonAsync("/api/Newspaper/CreateNewspaper", newspaper);
+
+        if (rs.IsSuccessStatusCode)
+        {
+            Snackbar.Add("Successfully", Severity.Success);
+        }
+        else
+        {
+            Snackbar.Add("Error", Severity.Error);
+        }
+    }
+    void Cancel() => MudDialog.Cancel();
+
+    private async Task<byte[]> ConvertIBrowserFileToByteArray(IBrowserFile file)
+    {
+        using (var memoryStream = new MemoryStream())
+        {
+            await file.OpenReadStream().CopyToAsync(memoryStream);
+            return memoryStream.ToArray();
+        }
+    }
+
+
+    private async void UploadFiles(IBrowserFile file)
+    {
+        fileContext = file;
+        var bypes = await ConvertIBrowserFileToByteArray(fileContext);
+        base64 = Convert.ToBase64String(bypes);
+    }
+
+    
+}

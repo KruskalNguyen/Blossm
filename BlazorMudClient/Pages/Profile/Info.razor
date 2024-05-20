@@ -1,0 +1,67 @@
+﻿@page "/Info"
+
+@using BlazorMudClient.DARK_CODE;
+@inject NavigationManager NavigationManager
+
+
+@code {
+
+    public void GoToUpdateInfo()
+    {
+        NavigationManager.NavigateTo("/UpdateInfo") ;
+    }
+
+}
+@if (StaticValue.AspNetUser != null)
+{
+    <div style="justify-content: center; align-items: center; display: flex">
+        <MudGrid Style="align-items: center; width: 70%;">
+            <MudItem xs="4">
+                <MudImage Src="https://cdn.sforum.vn/sforum/wp-content/uploads/2023/10/avatar-trang-4.jpg" Width="300"></MudImage>
+            </MudItem>
+            <MudItem xs="8">
+                <MudGrid Style="align-items: center; width: 70%;">
+                    <MudItem xs="12">
+                        <MudField Label="First Name" Variant="Variant.Text"> @StaticValue.AspNetUser.FirstName</MudField>
+                        </MudItem>
+                        <MudItem xs="12">
+                            <MudField Label="Last Name" Variant="Variant.Text">@StaticValue.AspNetUser.LastName</MudField>
+                        </MudItem>
+                    
+                    <MudItem xs="12">
+                        <MudField Label="Email" Variant="Variant.Text">@StaticValue.AspNetUser.Email</MudField>
+                    </MudItem>
+                    <MudItem xs="12">
+                        <MudField Label="NumberPhone" Variant="Variant.Text">@StaticValue.AspNetUser.PhoneNumber</MudField>
+                    </MudItem>
+                    <MudItem xs="12">
+                        <MudField Label="Address" Variant="Variant.Text"> Address</MudField>
+                    </MudItem>
+                </MudGrid>
+            </MudItem>
+            <MudItem xs="12">
+                <MudTabs Elevation="2" Rounded="true" Centered="true" Class="my-6" Color="Color.Secondary">
+                    <MudTabPanel Icon="@Icons.Material.Filled.Assignment" Text="My Orders" BadgeData='"!"' BadgeColor="Color.Success">
+                        <BlazorMudClient.Pages.Orders.IndexOrder></BlazorMudClient.Pages.Orders.IndexOrder>
+                    </MudTabPanel>
+                    <MudTabPanel Icon="@Icons.Material.Filled.CardGiftcard" Text="My Vouchers" BadgeColor="Color.Success">
+                        <BlazorMudClient.Pages.Voucher.VoucherIndex></BlazorMudClient.Pages.Voucher.VoucherIndex>
+                    </MudTabPanel>
+                    <MudTabPanel Icon="@Icons.Material.Filled.Comment" Text="My Comments">
+                        <BlazorMudClient.Pages.Comment.UserCommentIndex userID="@StaticValue.AspNetUser.Id"></BlazorMudClient.Pages.Comment.UserCommentIndex>
+                    </MudTabPanel>
+                </MudTabs>
+                @*<MudButton OnClick="() => {NavigationManager.NavigateTo(orderPage);}">
+                    Order
+                </MudButton>*@
+            </MudItem>
+
+        </MudGrid>
+
+    </div>
+}
+
+@code{
+    string orderPage = "/Order";
+}
+

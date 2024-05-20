@@ -1,0 +1,439 @@
+﻿@using BlazorMudClient.DARK_CODE;
+@using BlazorMudClient.DTO;
+@using BlazorMudClient.Dialog;
+@using BlazorMudClient.Pages.Products
+@using Blazored.LocalStorage;
+@using BlossmAPI.Models;
+@using BlossmMudBlazor.DTO;
+@using BlossmMudBlazor.Helper;
+@using Microsoft.AspNetCore.SignalR.Client;
+@using System.Net.Http.Headers;
+@inherits LayoutComponentBase
+@inject HttpClient http;
+@inject ILocalStorageService localStorage
+@inject IDialogService DialogService
+@inject ISnackbar Snackbar
+@inject NavigationManager Navigation
+
+<MudThemeProvider />
+<MudDialogProvider />
+<MudSnackbarProvider />
+
+<style>
+    .my-custom-class {
+        backdrop-filter: blur(10px);
+    }
+</style>
+
+
+<MudLayout>
+    <MudPaper Elevation="25">
+        <MudToolBar>
+            <MudImage Src="data:image/png;base64,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"
+                      Width="150" Height="55" />            
+            <MudSpacer />
+            <MudAutocomplete T="string" Label="Search" Variant="Variant.Outlined" @bind-Value="value1" SearchFunc="@Search1"
+                             ResetValueOnEmptyText="@resetValueOnEmptyText"
+                             CoerceText="@coerceText" CoerceValue="@coerceValue" Style="padding-right: 15px"/>
+            <MudIconButton Icon="@Icons.Material.Filled.Search" Variant="Variant.Outlined" Color="MudBlazor.Color.Tertiary" Size="MudBlazor.Size.Large" OnClick="SearchProduct" />
+            <MudSpacer />
+            @if (StaticValue.AspNetUser == null)
+            {
+                <MudMenu AnchorOrigin="Origin.BottomCenter">
+                    <ActivatorContent>
+                        <MudIconButton Icon="@Icons.Material.Outlined.PeopleAlt" Color="MudBlazor.Color.Inherit"/>
+                        </ActivatorContent>
+                        <ChildContent>
+                        <MudMenuItem OnClick="OppenLoginDia">Login</MudMenuItem>
+                        <MudMenuItem OnClick="OppenRegisterDia">Register</MudMenuItem>
+                        </ChildContent>
+                    </MudMenu>
+                
+            }
+            else
+            {
+                <MudIconButton Icon="@Icons.Material.Outlined.Notifications" />
+                <MudBadge Content="@StaticValue.cartNum" Color="MudBlazor.Color.Primary" Overlap="true" Class="mx-6 my-4">
+                    <MudIconButton Icon="@Icons.Material.Filled.ShoppingCart" Color="MudBlazor.Color.Default" OnClick="() => NavigateTo(cartPage)" Style="padding: 0" />
+                </MudBadge>
+                <MudMenu AnchorOrigin="Origin.BottomCenter">
+                    <ActivatorContent>
+                        <MudAvatar Size="MudBlazor.Size.Small" Color="MudBlazor.Color.Secondary">@StaticValue.AspNetUser.FirstName[0]</MudAvatar>
+                        </ActivatorContent>
+                        <ChildContent>
+                            <MudMenuItem Href="/info">Profile</MudMenuItem>
+                            <MudMenuItem>Setting</MudMenuItem>
+                            <MudMenuItem OnClick="SignOut">Sign Out</MudMenuItem>
+                        </ChildContent>
+                    </MudMenu>
+            }
+            <MudIconButton Icon="@Icons.Material.Outlined.MoreVert" Color="MudBlazor.Color.Inherit" />
+        </MudToolBar>
+    </MudPaper>
+    <MudTabs Elevation="0" Rounded="true" PanelClass="pa-6" Centered="true">
+        <MudTabPanel Text="Home" OnClick="() => NavigateTo(homePage)">
+
+        </MudTabPanel>
+        <MudTabPanel Text="Product" OnClick="() => NavigateTo(productPage)">
+
+        </MudTabPanel>
+        <MudTabPanel Text="Blog" OnClick="() => NavigateTo(blogPage)">
+        </MudTabPanel>
+        <MudTabPanel Text="About us">
+        </MudTabPanel>
+        @Body
+    </MudTabs>
+     
+    
+    <MudPaper Elevation="25" Style="background: rgb(89, 74, 226);">
+        <MudGrid Class="mt-16" Style="color: white;  padding-top: 30px;">
+            <MudItem xs="3">
+                <MudGrid Style=" padding-left: 50px;">
+                    <MudItem xs="12">
+                        <MudImage Src="data:image/png;base64,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"
+                        Width="300" Height="110" />
+                    </MudItem>
+                    
+                </MudGrid>
+            </MudItem>
+            <MudItem xs="4">
+                <MudGrid Style="font-size: 16px;">
+                    <MudItem xs="12" Style="font-weight: bold; font-size: 20px;">
+                        ADDRESS
+                    </MudItem>
+                    <MudItem xs="12">
+                        828 Sư Vạn Hạnh, Phường 13, Quận 10, TP. HCM
+                    </MudItem>
+                    <MudItem xs="12">
+                        QL22, xã Trung Chánh, huyện Hóc Môn, TP. HCM
+                    </MudItem>
+                </MudGrid>
+            </MudItem>
+            <MudItem xs="4">
+                <MudGrid Style="font-size: 16px;">
+                    <MudItem xs="12" Style="font-weight: bold; font-size: 20px;">
+                        CONTACT US
+                    </MudItem>
+                    <MudItem xs="12">
+                        Email: blossmexamples@gmail.com
+                    </MudItem>
+                    <MudItem xs="12">
+                        Hotline: 1900 6969
+                    </MudItem>
+                </MudGrid>
+            </MudItem>
+            <MudItem xs = "12">
+                <div style="text-align: center; font-size: 18px;">Copyright © 2023 by Blossm | Group 1 | All Rights Reserved.</div>
+            </MudItem>
+
+        </MudGrid>
+    </MudPaper>
+    
+</MudLayout>
+
+
+<MudOverlay Visible="buttonChat" LockScroll="false" Style="position: fixed; width: 60px; height: 60px; top: 82%; left: 90%">
+    <MudFab Color="MudBlazor.Color.Tertiary" StartIcon="@Icons.Material.Filled.Chat" OnClick="chatToggle" />
+</MudOverlay>
+
+<MudOverlay Visible="chatContent" LockScroll="false" Style="position: fixed; width: 370px; height: 420px; top: 48%; left: 70%;">
+    <MudCard Outlined="true" Class="align-center" Style="width:350px; height: 400px;">
+        <MudCard Style="width:350px; height: 330px;overflow: auto;" Elevation="10">
+            <MudIconButton Icon="@Icons.Material.Filled.Close" OnClick="chatToggle"></MudIconButton>
+            @foreach(var item in listMess)
+            {
+                @if (!item.Self)
+                {
+                    <br />
+                    <MudPaper Class="d-flex justify-end flex-grow-1 gap-4" Elevation="0">
+                        <MudChip Color="MudBlazor.Color.Tertiary">
+                            <MudText Typo="Typo.body1">@item.Message</MudText>
+                        </MudChip>
+                    </MudPaper>
+                }
+                else
+                {
+                    <br />
+                    <MudChip Color="MudBlazor.Color.Primary">@item.Message</MudChip>
+                }
+            }
+        </MudCard>
+        <MudCard Style="width:350px; height: 70px; padding-left: 10px" Elevation="10">
+            <MudTextField @bind-Value="Message" Label="Chat" Variant="Variant.Text" Class="d-inline-block " Style="width: 296px;"></MudTextField>
+            <MudIconButton OnClick="SendMessage" Icon="@Icons.Material.Filled.Send" Color="MudBlazor.Color.Tertiary" Class="d-inline-block" Style="width: 34px; height: 44px; padding-top: 20px"></MudIconButton>
+        </MudCard>
+    </MudCard>
+</MudOverlay>
+
+
+@code {
+    bool _drawerOpen = true;
+    public string Search { get; set; }
+    public string TextValue { get; set; }
+    public string Message;
+    bool buttonChat = true;
+    bool chatContent = false;
+    List<HandleMessage> listMess;
+    string homePage = "/";
+    string productPage = "/product";
+    string cartPage = "/cart";
+    string infoPage = "/info";
+    string blogPage = "/blog";
+
+    List<ShoppingCart> carts = new List<ShoppingCart>();
+
+    string token;
+
+    private bool resetValueOnEmptyText;
+    private bool coerceText;
+    private bool coerceValue;
+
+    private string value1;
+
+    protected override async Task OnInitializedAsync()
+    {
+        token = await localStorage.GetItemAsStringAsync("token_login");
+
+        if (token != null)
+        {
+            try
+            {
+                http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+                StaticValue.AspNetUser = await http.GetFromJsonAsync<AspNetUser>("/api/Users/GetCurrentUser");
+                Snackbar.Add("You are logged in", Severity.Success);
+                Snackbar.Add($"Hello! {StaticValue.AspNetUser.FirstName}", Severity.Info);
+
+                carts = await http.GetFromJsonAsync<List<ShoppingCart>>("/api/Cart/GetCartById");
+
+                StaticValue.cartNum = carts.Sum(c => c.Quantity);
+
+                StateHasChanged();
+            }
+            catch
+            {
+                Snackbar.Add("You are not Logged in", Severity.Error);
+            }
+
+            return;
+        }
+        else
+        {
+            Snackbar.Add("You are not Logged in", Severity.Error);
+        }
+
+        await localStorage.RemoveItemAsync("Chat");
+        await ConnectToServer();
+        var checkid = WebSocket.idClient;
+        listMess = await localStorage.GetItemAsync<List<HandleMessage>>("Chat");
+        if (listMess == null)
+        {
+            listMess = new List<HandleMessage>();
+            StateHasChanged();
+        }
+
+        StateHasChanged();
+
+        WebSocket.connection.On<Chat>("ChatSupport", async m =>
+           {
+               if (m.send_to == WebSocket.idClient)
+               {
+                   HandleMessage handleMessage = new HandleMessage();
+                   handleMessage.Self = false;
+                   handleMessage.Message = m.message;
+                   listMess.Add(handleMessage);
+                   StateHasChanged();
+                   await localStorage.SetItemAsync("Chat", listMess);
+               }
+           });
+    }
+
+    void DrawerToggle()
+    {
+        _drawerOpen = !_drawerOpen;
+    }
+
+    async void chatToggle()
+    {
+        buttonChat = !buttonChat;
+        chatContent = !chatContent;
+    }
+
+    private async Task ConnectToServer()
+    {
+        WebSocket.connection = new HubConnectionBuilder()
+            .WithUrl("https://localhost:7285/blossmhub")
+            .Build();
+
+        await WebSocket.connection.StartAsync();
+        WebSocket.isConnected = true;
+        WebSocket.connectionStatus = "Connected :-)";
+
+        WebSocket.connection.Closed += async (s) =>
+        {
+            WebSocket.isConnected = false;
+            WebSocket.connectionStatus = "Disconnected";
+            await WebSocket.connection.StartAsync();
+            WebSocket.isConnected = true;
+        };
+
+        WebSocket.connection.On<List<OnlineUser>>("ListUserOnline", m =>
+        {
+            WebSocket.onlineUsers = m;
+            StateHasChanged();
+        });
+
+        WebSocket.connection.On<string>("id", m =>
+        {
+            WebSocket.idClient = m;
+            StateHasChanged();
+        });
+
+
+    }
+
+    async void SendMessage()
+    {
+        Chat chat = new Chat();
+        chat.id_client = WebSocket.idClient;
+        chat.message = Message;
+
+        HandleMessage handle = new HandleMessage();
+        handle.Message = Message;
+        handle.Self = true;
+
+        listMess.Add(handle);
+        await localStorage.SetItemAsync("Chat", listMess);
+
+
+        foreach(var item in WebSocket.onlineUsers)
+        {
+            if(item.idBranch == 8)
+            {
+                chat.send_to = item.idClient;
+                var rs = await http.PostAsJsonAsync("/api/websocket/chatsupport", chat);
+            }
+        }
+
+        Message = null;
+        StateHasChanged();
+    }
+
+    async Task OppenLoginDia()
+    {
+        token = await localStorage.GetItemAsStringAsync("token_login");
+
+        if (token == null)
+        {
+            await HandleLogin();
+            return;
+        }
+
+        http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+        try
+        {
+            StaticValue.AspNetUser = await http.GetFromJsonAsync<AspNetUser>("/api/Users/GetCurrentUser");
+            NavigateTo(infoPage);
+        }
+        catch
+        {
+            await HandleLogin();
+            return;
+        }
+
+
+    }
+
+    async Task OppenRegisterDia()
+    {
+        try
+        {
+            var options = new DialogOptions { CloseOnEscapeKey = true };
+            var diablog = DialogService.Show<RegisterDia>("Register", options);
+        }
+        catch
+        {
+
+        }
+
+    }
+
+    async Task HandleLogin()
+    {
+        try
+        {
+            var options = new DialogOptions { CloseOnEscapeKey = true };
+            var diablog = DialogService.Show<LoginDia>("Login", options);
+            var rs = await diablog.Result;
+            token = (string)rs.Data;
+            await localStorage.SetItemAsStringAsync("token_login", token);
+            http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            Snackbar.Add("You are logged in", Severity.Success);
+
+            StaticValue.AspNetUser = await http.GetFromJsonAsync<AspNetUser>("/api/Users/GetCurrentUser");
+            Snackbar.Add($"Hello! {StaticValue.AspNetUser.FirstName}", Severity.Info);
+            carts = await http.GetFromJsonAsync<List<ShoppingCart>>("/api/Cart/GetCartById");
+
+            StaticValue.cartNum = carts.Sum(c => c.Quantity);
+
+            Navigation.NavigateTo("/");
+
+            StateHasChanged();
+        }
+        catch
+        {
+
+        }
+
+    }
+
+    async void SignOut()
+    {
+        await localStorage.RemoveItemAsync("token_login");
+        StaticValue.AspNetUser = null;
+        Navigation.NavigateTo("/", true);
+    }
+
+    void NavigateTo(string url)
+    {
+        Navigation.NavigateTo(url);
+    }
+
+    private async Task<IEnumerable<string>> Search1(string value)
+    {
+        // In real life use an asynchronous function for fetching data from an api.
+        await Task.Delay(5);
+        // if text is null or empty, show complete list
+        try
+        {
+            if (string.IsNullOrEmpty(value))
+                return new string[0];
+            return StaticValue.productSearches.Select(p => p.name).Where(p => p.Contains(value)).Distinct();
+        }
+        catch
+        {
+            return new string[0];
+        }
+       
+    }
+
+    void SearchProduct()
+    {
+        OpenDetailsDialog(StaticValue.variantDetails
+            .FirstOrDefault(v => v.id == StaticValue.productSearches
+                                                    .FirstOrDefault(p => p.name == value1).id));
+    }
+
+    private async void OpenDetailsDialog(VariantDetails variant)
+    {
+        var param = new DialogParameters<DetailsDialog>();
+        param.Add(x => x.details, variant);
+        var options = new DialogOptions { MaxWidth = MaxWidth.Medium, FullScreen = true, CloseButton = true, DisableBackdropClick = true };
+        var rs = await DialogService.ShowAsync<DetailsDialog>("Product #" + variant.product.Id, param, options);
+        var rs1 = await rs.Result;
+        if (rs1.Cancelled)
+        {
+            Navigation.NavigateTo("/Product");
+        }
+    }
+}

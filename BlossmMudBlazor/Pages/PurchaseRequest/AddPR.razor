@@ -1,0 +1,342 @@
+﻿@page "/RequestPurchase/AddPR"
+@using BlossmAPI.ModelViews;
+
+@using BlossmMudBlazor.DTO;
+@using BlossmMudBlazor.Dialogs;
+@using BlossmMudBlazor.Helper;
+@using BlossmMudBlazor.Patterms;
+@using System.Net.Http.Json
+
+@inject HttpClient httpClient
+@inject ISnackbar Snackbar
+@inject NavigationManager NavManager
+@inject IDialogService DialogService
+
+<style>
+    .mud-table-cell-custom-group {
+        font-weight: 500;
+    }
+
+    .mud-table-cell-custom-group-footer {
+        padding-bottom: 50px;
+        text-align: right;
+    }
+</style>
+
+@{
+    reloadTable();
+}
+<MudBreadcrumbs Items="_items" Separator=">"></MudBreadcrumbs>
+<MudPaper Elevation="6" Class="pa-6">
+    <h1>Create Purchase Request</h1>
+    <MudSelect T="string" Label="Select Priovity" @bind-Value="valuePriovity" Clearable>
+        @if(priovities.Count > 0)
+            foreach (var item in priovities)
+            {
+                <MudSelectItem T="string" Value="@item.name">@item.name</MudSelectItem>
+            }
+    </MudSelect>
+    <MudSelect T="string" Label="Select Supplier" @bind-Value="valueSupplier" Clearable OnClearButtonClick="whenClearSelectSup">
+        @if (supplierPVs.Count > 0)
+            @foreach (var item in supplierPVs)
+            {
+                <MudSelectItem T="string" Value="@(item.nameSup ?? valueSupplier)">@item.nameSup</MudSelectItem>
+            }
+    </MudSelect>
+    <MudTextField T="DateTime" @bind-Value="deadline" Format="s" Label="Deadline" InputType="InputType.DateTimeLocal" Style="width: 200px;"/>
+    <MudText Style="padding-bottom: 20px"></MudText>
+    
+    @foreach (var item in supplierPVs)
+    {
+        
+        @if (!hiddenSup[supplierPVs.IndexOf(item)])
+        {        
+            <MudGrid Justify="Justify.FlexStart">
+                <MudItem Class="align-center d-flex">
+                    <MudToggleIconButton @bind-Toggled="@arrToggle[supplierPVs.IndexOf(item)]" Icon="@Icons.Material.Filled.KeyboardDoubleArrowDown" Color="@Color.Success" Title="On"
+                                     ToggledIcon="@Icons.Material.Filled.KeyboardDoubleArrowUp" ToggledColor="@Color.Error" ToggledTitle="Off"/>
+
+                </MudItem>
+                <MudItem Class="align-center d-flex">
+                    <h2>@item.nameSup</h2>
+                </MudItem>
+            </MudGrid>
+            if (!arrToggle[supplierPVs.IndexOf(item)])
+            {
+                <MudTable @ref="_arrTable[supplierPVs.IndexOf(item)]" T="ListPV" Items="@item.listPV" MultiSelection="true" @bind-SelectedItems="selectedItems[supplierPVs.IndexOf(item)]" Hover="true"
+                OnRowClick="@OnRowClick" @bind-SelectOnRowClick="@_selectOnRowClick">
+                    <HeaderContent>
+                        <MudTh>IdPV</MudTh>
+                        <MudTh>Name</MudTh>
+                        <MudTh>Color</MudTh>
+                        <MudTh>Size</MudTh>
+                        <MudTh>Unit</MudTh>
+                        <MudTh>Intentory</MudTh>
+                        <MudTh>Quantity</MudTh>
+                    </HeaderContent>
+                    <RowTemplate>
+                        <MudTd DataLabel="IdPV">PV-@context.idPV</MudTd>
+                        <MudTd DataLabel="Name">@context.nameProduct</MudTd>
+                        <MudTd DataLabel="Color">@context.color</MudTd>
+                        <MudTd DataLabel="Size">@context.size</MudTd>
+                        <MudTd DataLabel="Unit">@context.unit</MudTd>
+                        @if (context.quantity != 0)
+                        {
+                            <MudTd DataLabel="Intentory">@context.quantity</MudTd>
+                        }
+                        else
+                        {
+                            <MudTd DataLabel="Intentory">
+                                <h3 style="color: red; font: bold">Out of stock</h3>
+                            </MudTd>
+                        }
+                        <MudTd>
+                            @if (selectedItems[supplierPVs.IndexOf(item)] != null)
+                            {
+                                if(selectedItems[supplierPVs.IndexOf(item)].FirstOrDefault(s => s.idPV == context.idPV) != null)
+                                {
+                                    int count = 0;
+                                    var itemHash = selectedItems[supplierPVs.IndexOf(item)];
+                                    foreach (var item in itemHash)
+                                    {
+                                        if (item.idPV == context.idPV)
+                                        {
+                                            break;
+                                        }
+                                        count++;
+                                    }
+                                    <MudNumericField @bind-Value="IntValue[count]" Label="Quantity" Variant="Variant.Filled" Min="1" />
+                                    
+                                }
+                            }
+                        </MudTd>
+                    </RowTemplate>
+                    <PagerContent>
+                        <MudTablePager PageSizeOptions="new int[]{50, 100}" />
+                    </PagerContent>
+                    <FooterContent>
+                        <MudTd colspan="5">Select All</MudTd>
+                    </FooterContent>
+                </MudTable>
+            }
+              
+                           
+        }
+        
+        <MudText Style="padding-bottom: 20px"></MudText>
+    }
+    
+    <MudTextField T="string" @bind-Value="notes" Label="Notes" Variant="Variant.Outlined" Placeholder="Notes" Lines="6" />
+    <div style="padding-top: 20px" class="d-flex">
+        <MudButton OnClick="Create" Variant="Variant.Filled" Color="Color.Primary" Disabled="@(!success)" Class="ml-auto" >Create</MudButton>
+        <MudSpacer></MudSpacer>
+        <MudButton Variant="Variant.Filled" Color="Color.Secondary" Disabled="@(!success)" Class="ml-auto" Href="/RequestPurchase">Cancel</MudButton>
+    </div>
+</MudPaper>
+@code {
+    bool success = true;
+    string[] errors = { };
+    MudForm form;
+
+    public int[] IntValue { get; set; } = new int[100];
+
+    List<SupplierPV> supplierPVs = new List<SupplierPV>();
+    bool[] arrToggle;
+    bool[] hiddenSup;
+    private MudTable<ListPV>[] _arrTable;
+
+    DateTime deadline { get; set; }
+    string notes { get; set; }
+
+    private string valuePriovity { get; set; }
+    private string valueSupplier { get; set; }
+
+    private bool _selectOnRowClick = false;
+    private HashSet<ListPV>[] selectedItems;
+    private int indexSup = -1;
+
+    private List<Priovity> priovities = new List<Priovity>();
+    private string _selectedItemText = "No row clicked";
+
+    private List<BreadcrumbItem> _items = new List<BreadcrumbItem>
+    {
+        new BreadcrumbItem("Home", href: "/"),
+        new BreadcrumbItem("RequestPurchase", href: "/RequestPurchase"),
+        new BreadcrumbItem("AddPR", href: null, disabled: true)
+    };
+
+    List<PurchaseRequestItemView> dataQuantities = new List<PurchaseRequestItemView>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (BlossmSingleTon.Instance.GetPriovities() != null)
+            priovities = BlossmSingleTon.Instance.GetPriovities();
+
+        try
+        {
+            var tempSpList = await httpClient.GetFromJsonAsync("/api/Suppliers/GetSupWithPVFromUser", typeof(List<SupplierPV>));
+            supplierPVs = (List<SupplierPV>)tempSpList;
+
+            arrToggle = new bool[supplierPVs.Count];
+            hiddenSup = new bool[supplierPVs.Count];
+            selectedItems = new HashSet<ListPV>[supplierPVs.Count];
+            _arrTable = new MudTable<ListPV>[supplierPVs.Count];
+        }
+        catch(Exception ex)
+        {
+            throw ex.InnerException;
+        }
+    }
+
+    void OnRowClick(TableRowClickEventArgs<ListPV> args)
+    {
+        _selectedItemText = $"{args.Item.idPV} ({args.Item.nameProduct})";
+    }
+
+    void reloadTable()
+    {
+        if (selectedItems != null)
+        {
+            for (int i = 0; i < selectedItems.Length; i++)
+            {
+                if (selectedItems[i] != null)
+                    if (selectedItems[i].Count() > 0)
+                    {
+                        if (supplierPVs != null)
+                        {
+                            valueSupplier = supplierPVs[i].nameSup;
+                            break;
+                        }
+
+                    }
+            }
+        }
+
+        if (valueSupplier != null)
+        {
+            indexSup = supplierPVs.IndexOf(supplierPVs.FirstOrDefault(s => s.nameSup == valueSupplier));
+            if (hiddenSup != null)
+                for (int i = 0; i < hiddenSup.Length; i++)
+                    hiddenSup[i] = false;
+
+            if (hiddenSup != null)
+                for (int i = 0; i < hiddenSup.Length; i++)
+                    if (i != indexSup)
+                        hiddenSup[i] = true;
+        }
+        else
+        {
+            if (hiddenSup != null)
+                for (int i = 0; i < hiddenSup.Length; i++)
+                    hiddenSup[i] = false;
+        }
+
+    }
+
+    void whenClearSelectSup()
+    {
+        selectedItems = new HashSet<ListPV>[supplierPVs.Count];
+    }
+
+    async Task Create()
+    {
+        try
+        {
+            int count = 0;
+
+            if (indexSup != -1)
+            {
+                foreach (var item in selectedItems[indexSup])
+                {
+                    var prItem = new PurchaseRequestItemView();
+                    prItem.id_product_variant = item.idPV;
+                    prItem.quantity = IntValue[count];
+                    dataQuantities.Add(prItem);
+                    count++;
+                }
+            }
+            else
+            {
+                Snackbar.Add("There are no products selected", Severity.Error, config =>
+                {
+                    config.VisibleStateDuration = 10000;
+                });
+                dataQuantities = new List<PurchaseRequestItemView>();
+                return;
+            }            
+
+            var idPriovity = priovities.FirstOrDefault(s => s.name == valuePriovity);
+            if(idPriovity == null)
+            {
+                Snackbar.Add("No Priovity selected", Severity.Error, config =>
+                    {
+                        config.VisibleStateDuration = 10000;
+                    });
+                dataQuantities = new List<PurchaseRequestItemView>();
+                return;
+            }
+
+            var postRequest = new PurchaseRequestView();
+            postRequest.IdSupplier = supplierPVs[indexSup].idSup;
+            postRequest.Priority = idPriovity.id;
+            postRequest.IdBranch = BlossmSingleTon.Instance.GetEmployeeProfile().idBranch;
+            if (deadline <= DateTime.Now)
+            {
+                Snackbar.Add("Deline must be after the current date", Severity.Error, config =>
+                    {
+                        config.VisibleStateDuration = 10000;
+                    });
+                dataQuantities = new List<PurchaseRequestItemView>();
+                return;
+            }
+            postRequest.Deadline = deadline;
+            postRequest.Items = dataQuantities;
+            postRequest.Notes = notes;
+
+
+            var options = new DialogOptions
+                    {
+                        ClassBackground = "my-custom-class",
+                        DisableBackdropClick = true
+                    };
+            var dialog = await DialogService.ShowAsync<ConfirmDialog>("Confirm", options);
+            var rsDia = await dialog.Result;
+            if ((bool)rsDia.Data == true)
+            {
+                var rs = await httpClient.PostAsJsonAsync("/api/Purchase/AddPurchaseRequest", postRequest);
+                if (rs.IsSuccessStatusCode)
+                {
+                    NotiPR notiPR = new NotiPR();
+                    var proFile = BlossmSingleTon.Instance.GetEmployeeProfile();
+                    var webSokect = WebSocket.onlineUsers;
+                    notiPR.fullname = proFile.firstName + " " + proFile.lastName;
+                    var idClient = webSokect.FirstOrDefault(o => o.email == proFile.emailManager);
+                    notiPR.dateTime = DateTime.Now;
+                    notiPR.action = "A Purchase Request has just been created";
+
+                    if (idClient != null)
+                    {
+                        notiPR.idClient = idClient.idClient;
+                        await httpClient.PostAsJsonAsync("/api/WebSocket/NotiRequestPurchase", notiPR);
+                    }
+
+
+                    Snackbar.Add("Create request successfully", Severity.Success);
+                    NavManager.NavigateTo("/RequestPurchase");
+                }
+                else
+                {
+                    dataQuantities = new List<PurchaseRequestItemView>();
+                    Snackbar.Add(await rs.Content.ReadAsStringAsync(), Severity.Error);
+                }
+            }
+        }
+        catch(Exception ex)
+        {
+            dataQuantities = new List<PurchaseRequestItemView>();
+            reloadTable();
+            Snackbar.Add(ex.Message, Severity.Error);
+        }
+    }
+
+}

@@ -1,0 +1,34 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
+
+	<PropertyGroup>
+		<TargetFramework>net6.0</TargetFramework>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Blazored.LocalStorage" Version="4.4.0" />
+		<PackageReference Include="Blazored.TextEditor" Version="1.1.0" />
+		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="6.0.23" />
+		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="6.0.23" PrivateAssets="all" />
+		<PackageReference Include="Microsoft.AspNetCore.SignalR" Version="1.0.4" />
+		<PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="6.0.24" />
+		<PackageReference Include="MudBlazor" Version="6.11.1" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Folder Include="Components\" />
+	  <Folder Include="Services\" />
+	  <Folder Include="Static\" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <None Include="Pages\Product\AddImageDialog.razor" />
+	  <None Include="Pages\Product\AddProductDialog.razor" />
+	  <None Include="Pages\Product\IndexProduct.razor" />
+	  <None Include="Pages\Product\UpdateProductDialog.razor" />
+	  <None Include="Pages\Product\ViewProductDialog.razor" />
+	</ItemGroup>
+	
+	
+</Project>

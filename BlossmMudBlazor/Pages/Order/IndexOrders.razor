@@ -1,0 +1,85 @@
+﻿@page "/Orders"
+
+@using BlossmMudBlazor.DTO
+@inject HttpClient http
+@inject IDialogService DialogService
+
+<MudTable Items="@Elements" Dense="@dense" Hover="@hover" Bordered="@bordered" Striped="@striped" @bind-SelectedItem="selectedItem1">
+    <ToolBarContent>
+        <MudText Typo="Typo.h6">Periodic Elements</MudText>
+        <MudSpacer />
+        <MudTextField @bind-Value="searchString1" Placeholder="Search" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="MudBlazor.Size.Medium" Class="mt-0"></MudTextField>
+    </ToolBarContent>
+    <HeaderContent>
+        <MudTh>Id</MudTh>
+        <MudTh>Create Date</MudTh>
+        <MudTh>Address</MudTh>
+        <MudTh>Subtotal</MudTh>
+        <MudTh>Delivery Status</MudTh>
+        <MudTh>Status</MudTh>
+        <MudTh>Product Variants</MudTh>
+        <MudTh>Quantity</MudTh>
+        <MudTh></MudTh>
+    </HeaderContent>
+    <RowTemplate>
+            <MudTd DataLabel="Nr">@context.id</MudTd>
+            <MudTd DataLabel="Nr">@context.createDate</MudTd>
+            <MudTd DataLabel="Nr">@context.address</MudTd>
+            <MudTd DataLabel="Nr">@String.Format("{0:0,0}", context.subtotal)đ</MudTd>
+            <MudTd DataLabel="Nr">@context.deliveryStatus</MudTd>
+            <MudTd DataLabel="Nr">@context.status</MudTd>
+            <MudTd DataLabel="Nr">@context.productVariants.Count()</MudTd>
+            <MudTd DataLabel="Nr">@context.quantity</MudTd>
+            <MudTd DataLabel="Nr">
+                <MudIconButton Icon="@Icons.Material.Filled.RemoveRedEye" OnClick="() => OpenDetailDialog(context)"></MudIconButton>
+            </MudTd>
+        </RowTemplate>
+        <PagerContent>
+            <MudTablePager />
+        </PagerContent>
+    </MudTable>
+
+   
+    @code {
+    private bool dense = false;
+    private bool hover = true;
+    private bool striped = false;
+    private bool bordered = false;
+    private string searchString1 = "";
+    private OrderDTO selectedItem1 = null;
+    private HashSet<OrderDTO> selectedItems = new HashSet<OrderDTO>();
+
+    private List<OrderDTO> Elements = new List<OrderDTO>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var rs = await http.PostAsJsonAsync("/api/Order/GetAllOrders", 1);
+        if (rs.IsSuccessStatusCode)
+        {
+            Elements = await rs.Content.ReadFromJsonAsync<List<OrderDTO>>();
+        }
+    }
+
+    async Task OpenDetailDialog(OrderDTO context)
+    {
+        var parameters = new DialogParameters<DetailOrdersDialog>();
+        parameters.Add(x => x.Context, context);
+        var options = new DialogOptions { CloseOnEscapeKey = true, MaxWidth = MaxWidth.ExtraExtraLarge, CloseButton = true };
+        DialogService.Show<DetailOrdersDialog>($"Order {context.id}", parameters, options);
+    }
+
+    private bool FilterFunc(OrderDTO element, string searchString)
+    {
+        // if (string.IsNullOrWhiteSpace(searchString))
+        //     return true;
+        // if (element.Sign.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+        //     return true;
+        // if (element.Name.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+        //     return true;
+        // if ($"{element.Number} {element.Position} {element.Molar}".Contains(searchString))
+        //     return true;
+        // return false;
+
+        return true;
+    }
+}

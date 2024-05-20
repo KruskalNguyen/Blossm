@@ -1,0 +1,11 @@
+D:\nam4\dotnet_project\Blossm\DesignPatterns\bin\Debug\net7.0\DesignPatterns.deps.json
+D:\nam4\dotnet_project\Blossm\DesignPatterns\bin\Debug\net7.0\DesignPatterns.dll
+D:\nam4\dotnet_project\Blossm\DesignPatterns\bin\Debug\net7.0\DesignPatterns.pdb
+D:\nam4\dotnet_project\Blossm\DesignPatterns\obj\Debug\net7.0\DesignPatterns.GeneratedMSBuildEditorConfig.editorconfig
+D:\nam4\dotnet_project\Blossm\DesignPatterns\obj\Debug\net7.0\DesignPatterns.AssemblyInfoInputs.cache
+D:\nam4\dotnet_project\Blossm\DesignPatterns\obj\Debug\net7.0\DesignPatterns.AssemblyInfo.cs
+D:\nam4\dotnet_project\Blossm\DesignPatterns\obj\Debug\net7.0\DesignPatterns.csproj.CoreCompileInputs.cache
+D:\nam4\dotnet_project\Blossm\DesignPatterns\obj\Debug\net7.0\DesignPatterns.dll
+D:\nam4\dotnet_project\Blossm\DesignPatterns\obj\Debug\net7.0\refint\DesignPatterns.dll
+D:\nam4\dotnet_project\Blossm\DesignPatterns\obj\Debug\net7.0\DesignPatterns.pdb
+D:\nam4\dotnet_project\Blossm\DesignPatterns\obj\Debug\net7.0\ref\DesignPatterns.dll

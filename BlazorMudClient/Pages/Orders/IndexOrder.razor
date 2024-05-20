@@ -1,0 +1,87 @@
+﻿@inject HttpClient httpClient
+@using System.Net.Http.Json
+@using BlazorMudClient.DARK_CODE
+@using BlossmAPI.Models
+
+@page "/Order";
+@inject IDialogService DialogService
+@inject NavigationManager NavManager
+
+<MudContainer>
+    <MudTable Items="@Elements" Dense="@dense" Hover="@hover" Bordered="@bordered" Striped="@striped" @bind-SelectedItem="selectedItem1">
+        <ToolBarContent>
+            <MudText Typo="Typo.h6">Periodic Elements</MudText>
+            <MudSpacer />
+            <MudTextField @bind-Value="searchString1" Placeholder="Search" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="MudBlazor.Size.Medium" Class="mt-0"></MudTextField>
+        </ToolBarContent>
+        <HeaderContent>
+            <MudTh>Id</MudTh>
+            <MudTh>Create Date</MudTh>
+            <MudTh>Status</MudTh>
+            <MudTh>Delivery Status</MudTh>
+            <MudTh>Payment Method</MudTh>
+            <MudTh>Subtotal</MudTh>
+            <MudTh></MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="Id">Ordr-@context.Id</MudTd>
+                <MudTd DataLabel="Sign">@context.CreateDate</MudTd>
+                <MudTd DataLabel="Sign">@context.IdStatusNavigation.Name</MudTd>
+                <MudTd DataLabel="Name">@context.DeliveryStatusNavigation.Name</MudTd>
+                <MudTd DataLabel="Position">@context.IdPaymentMethodNavigation.Name</MudTd>
+                <MudTd DataLabel="Molar mass">@String.Format("{0:#,0}",context.Subtotal)đ</MudTd>
+                <MudTd DataLabel="Molar mass">
+                    <MudIconButton Icon="@Icons.Material.Filled.RemoveRedEye" OnClick="() => OpenDialog(context)"></MudIconButton>
+                </MudTd>
+            </RowTemplate>
+            <PagerContent>
+                <MudTablePager />
+            </PagerContent>
+        </MudTable>
+
+        <div class="d-flex flex-wrap mt-4">
+            <MudSwitch @bind-Checked="@hover" Color="MudBlazor.Color.Primary">Hover</MudSwitch>
+            <MudSwitch @bind-Checked="@dense" Color="MudBlazor.Color.Secondary">Dense</MudSwitch>
+            <MudSwitch @bind-Checked="@striped" Color="MudBlazor.Color.Tertiary">Striped</MudSwitch>
+            <MudSwitch @bind-Checked="@bordered" Color="MudBlazor.Color.Warning">Bordered</MudSwitch>
+            <MudSpacer />
+        </div>
+</MudContainer>
+
+    @code {
+    private bool dense = false;
+    private bool hover = true;
+    private bool striped = false;
+    private bool bordered = false;
+    private string searchString1 = "";
+    private Order selectedItem1 = null;
+    private HashSet<Order> selectedItems = new HashSet<Order>();
+
+    private List<Order> Elements = new List<Order>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var rs = await httpClient.PostAsJsonAsync("/api/Order/GetOrdersByUserId", StaticValue.AspNetUser.Id);
+        if (rs.IsSuccessStatusCode)
+        {
+            Elements = await rs.Content.ReadFromJsonAsync<List<Order>>();
+        }
+    }
+
+    private bool FilterFunc(Order element, string searchString)
+    {
+        return false;
+    }
+
+    async void OpenDialog(Order Context)
+    {
+        var parameters = new DialogParameters<OrderDialog>();
+        parameters.Add(x => x.Context, Context);
+
+        var options = new DialogOptions { CloseOnEscapeKey = true, CloseButton = true, ClassBackground = "my-custom-class" };
+        var rs = DialogService.Show<OrderDialog>($"Order {Context.Id}", parameters, options);
+        var rs1 = await rs.Result;
+    }
+}
+
+

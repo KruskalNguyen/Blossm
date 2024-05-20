@@ -1,0 +1,177 @@
+﻿@using BlazorMudClient.DARK_CODE
+@using BlossmAPI.Models;
+@using BlossmAPI.ModelViews;
+@using BlossmMudBlazor.DTO;
+
+@inject HttpClient http;
+
+<MudDialog Style="overflow: auto;">
+    <DialogContent>
+        <MudContainer >
+            <MudGrid>
+                <MudItem xs="5">
+                    <MudCard>
+                        <MudCardContent>
+                            @*<div class="d-flex" style="height:100%; min-width:100%; max-width:100%">
+                                <MudImage Fluid="true" Src="@currentImg" ObjectFit="ObjectFit.Fill" ObjectPosition="ObjectPosition.Center"></MudImage>
+                            </div>*@
+                            <MudCarousel Class="mud-width-full" Style="height:550px;" ShowArrows="true" 
+                                ShowBullets="false" EnableSwipeGesture="true" AutoCycle="true" TData="object" SelectedIndex="@currentImgIndex">
+                                @foreach(var img in details.allImg)
+                                {
+                                    <MudCarouselItem Transition="Transition.Slide" Color="@MudBlazor.Color.Primary">
+                                        <div class="d-flex" style="height:100%; min-width:100%; max-width:100%">
+                                            <MudImage Fluid="true" Src="@img" ObjectFit="ObjectFit.Fill" ObjectPosition="ObjectPosition.Center"></MudImage>
+                                        </div>
+                                    </MudCarouselItem>
+                                }
+                            </MudCarousel>
+                        </MudCardContent>
+                        <MudCardContent>
+                            @foreach (var img in details.allImg)
+                            {
+                                <MudButton Class="rounded-0" 
+                                    Variant="@((currentImgIndex == details.allImg.FindIndex(i => i == img)) 
+                                        ? Variant.Outlined 
+                                        : Variant.Text)" 
+                                    OnClick="() => SetCurrentImage(details.allImg.FindIndex(i => i == img))">
+                                    <MudImage Width="80" Src="@img" Alt="Variant image" />
+                                </MudButton>
+                            }
+                        </MudCardContent>
+                    </MudCard>
+                </MudItem>
+                
+                <MudItem xs="7">
+                    <div>
+                        <MudText Typo="Typo.h3">@details.product.Name</MudText>
+                            <MudText Typo="Typo.h5">Price: <strong>@String.Format("{0:#,0}", currentVariant.variant.SellingPrice)đ</strong></MudText>
+                    </div>
+                    <div>
+                        <MudExpansionPanel Text="Description" MaxHeight="50" IsExpanded=true>
+                            @currentVariant.details.product.ShortDescription
+                        </MudExpansionPanel>
+                        <MudText Typo="Typo.h5">Choose Variant</MudText>
+                        @foreach (var variant in variantNames)
+                        {
+                            <MudChip Variant="@((currentVariant.variant.Id == variant.variant.Id) ? Variant.Filled : Variant.Text)" Color="MudBlazor.Color.Success" OnClick="() => SetCurrentVariant(variant)">@variant.Name</MudChip>
+                        }
+                        <div>
+                            <MudIconButton Class="mt-4" Icon="@Icons.Material.TwoTone.HorizontalRule" Variant="Variant.Outlined" Color="MudBlazor.Color.Primary" Size="MudBlazor.Size.Medium" OnClick="Decrease" />
+                            <MudButton Class="mt-4" Variant="Variant.Filled" Color="MudBlazor.Color.Warning" Disabled="true">@quantity</MudButton>
+                            <MudIconButton Class="mt-4" Icon="@Icons.Material.Filled.Add" Variant="Variant.Outlined" Color="MudBlazor.Color.Primary" Size="MudBlazor.Size.Medium" OnClick="Increase" />
+
+                            <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.ShoppingCart"
+                                       Color="MudBlazor.Color.Success" Class="mt-4" OnClick="() => AddToCart(currentVariant.variant.Id)">
+                                       Add to Cart
+                            </MudButton>
+                        </div>
+                        
+                    </div>
+                </MudItem>
+                <MudContainer>
+                    <MudTabs Elevation="2" Rounded="true" Centered="true" Class="my-6" Color="MudBlazor.Color.Secondary">
+                        <MudTabPanel Text="Description">
+                            @((MarkupString)currentVariant.details.product.MainDescription)
+                        </MudTabPanel>
+                        <MudTabPanel Text="Comment">
+                            <BlazorMudClient.Pages.Comment.CommentIndex productID="@details.product.Id"></BlazorMudClient.Pages.Comment.CommentIndex>
+                        </MudTabPanel>
+                    </MudTabs>
+                </MudContainer>
+            </MudGrid>
+        </MudContainer>
+    </DialogContent>
+</MudDialog>
+
+    @code {
+    [Inject] ISnackbar Snackbar { get; set; }
+
+    private string productName = "Beautiful Flower";
+    private string productPrice = "";
+    private int currentImgIndex = 0;
+    private int quantity = 1;
+    private BlazorMudClient.DTO.ProductDetails currentVariant = new BlazorMudClient.DTO.ProductDetails();
+
+    private List<BlazorMudClient.DTO.ProductDetails> variantNames = new List<BlazorMudClient.DTO.ProductDetails>();
+    [Parameter]
+    public VariantDetails details { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        for(int i = 0; i < details.variant.Count(); i++)
+        {
+            BlazorMudClient.DTO.ProductDetails temp = new BlazorMudClient.DTO.ProductDetails();
+            temp.Name = variantName(details.variant[i], details);
+            temp.variant = details.variant[i];
+            temp.details = details;
+            variantNames.Add(temp);
+        }
+        currentVariant = variantNames[0];
+    }
+    string variantName(ProductVariant variant, VariantDetails detail)
+    {
+        string name = detail.product.Name;
+        string colorName = variant.IdColorNavigation.Name;
+        string sizeName = variant.IdSizeNavigation.Name;
+        string unitName = variant.IdUnitNavigation.Name;
+        string variantName = $"{name}";
+        if (unitName != null)
+        {
+            variantName = unitName + " " + variantName;
+        }
+        if (colorName != null)
+        {
+            variantName = variantName + " màu " + colorName;
+        }
+        if (sizeName != null)
+        {
+            variantName = variantName + " kích thước " + sizeName;
+        }
+        return variantName;
+    }
+    
+    void SetCurrentVariant(BlazorMudClient.DTO.ProductDetails variant)
+    {
+        if (currentVariant.variant.Id != variant.variant.Id)
+        {
+            currentVariant = variant;
+            StateHasChanged();
+        }
+    }
+    void SetCurrentImage(int index)
+    {
+        currentImgIndex = index;
+        StateHasChanged();
+    }
+    void Increase()
+    {
+        if(quantity == 15)
+        {
+            Snackbar.Add("You have reached the maximum quantity of this item", MudBlazor.Severity.Warning);
+        }
+        else
+        {
+            quantity++;
+        }
+    }
+    void Decrease()
+    {
+        if(quantity > 1)
+        {
+            quantity--;
+        }
+    }
+    async Task AddToCart(int id)
+    {
+        CartView cartView = new CartView();
+        cartView.quantity = quantity;
+        StaticValue.cartNum += quantity;
+
+        cartView.id_variant = id;
+        var rs = await http.PostAsJsonAsync("/api/Cart/AddToCart", cartView);
+        Snackbar.Add("Added successfully", MudBlazor.Severity.Success);
+    }
+}
+
+

@@ -1,0 +1,43 @@
+﻿@using BlossmAPI.Models
+<MudDialog>
+    <DialogContent>
+        <MudGrid>
+            <MudItem xs="4">
+                <MudField Label="Id" Variant="Variant.Text">@Context.Id</MudField>
+                </MudItem>
+                <MudItem xs="8">
+                    <MudField Label="Name" Variant="Variant.Text">@Context.Name</MudField>
+                </MudItem>
+                <MudItem xs="12">
+                    <MudField Label="Discount Percentage" Variant="Variant.Text">@Context.DiscountPercentage</MudField>
+                </MudItem>
+                <MudItem xs="12">
+                    <MudField Label="Discount Amount" Variant="Variant.Text">@Context.DiscountAmount</MudField>
+                </MudItem>
+                <MudItem xs="12">
+                    <MudField Label="Condition" Variant="Variant.Text">@Context.Condition</MudField>
+                </MudItem>
+                <MudItem xs="12">
+                    <MudField Label="CreateDate" Variant="Variant.Text">@Context.CreateDate</MudField>
+                </MudItem>
+                <MudItem xs="12">
+                    <MudField Label="StartDate" Variant="Variant.Text">@Context.StartDate</MudField>
+                </MudItem>
+                <MudItem xs="12">
+                    <MudField Label="EndDate" Variant="Variant.Text">@Context.EndDate</MudField>
+                </MudItem>
+                <MudItem xs="12">
+                    <MudField Label="Active" Variant="Variant.Text">@Context.Active</MudField>
+                </MudItem>
+            </MudGrid>
+        </DialogContent>
+        <DialogActions>
+            <MudButton Color="MudBlazor.Color.Primary" OnClick="Submit">Ok</MudButton>
+        </DialogActions>
+    </MudDialog>
+    @code {
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+    [Parameter] public Voucher Context { get; set; }
+
+    void Submit() => MudDialog.Close(DialogResult.Ok(true));
+}

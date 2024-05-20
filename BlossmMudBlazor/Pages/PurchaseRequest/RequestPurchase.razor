@@ -1,0 +1,335 @@
+﻿@page "/RequestPurchase"
+@using BlossmMudBlazor.DTO;
+@using BlossmMudBlazor.Dialogs;
+@using BlossmMudBlazor.Helper;
+@using BlossmMudBlazor.Patterms;
+@using Microsoft.AspNetCore.SignalR.Client;
+@inject HttpClient httpClient
+@inject ISnackbar Snackbar
+@inject IDialogService DialogService
+@inject NavigationManager NavManager
+
+
+@if (employeeProfile.idUser == employeeProfile.BranchManager || employeeProfile.idBranch == 1)
+{
+    <MudTable Loading="reloadTable" Items="@Elements" Dense="@dense" Hover="@hover" Bordered="@bordered" Striped="@striped" Filter="new Func<PurchaseRequest,bool>(FilterFunc1)" SortLabel="Sort By" @bind-SelectedItem="selectedItem1">
+    <ToolBarContent >
+        <MudText Typo="Typo.h6">Request Purchase</MudText>
+        <MudSpacer />
+        @if (!filterSelected)
+        {
+            <MudTextField @bind-Value="searchString1" Placeholder="Search supplier name" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+        }
+        else
+        {
+            <MudSelect T="string" Label="Status" MultiSelection="true" @bind-Value="value" @bind-SelectedValues="optionPRStatusList" OnClose="Filter">
+                @foreach (var item in prStatusList)
+                {
+                    <MudSelectItem T="string" Value="@item.name">@item.name</MudSelectItem>
+                }
+            </MudSelect>
+            <MudSelect T="string" Label="Priovity" MultiSelection="true" @bind-Value="value" @bind-SelectedValues="optionPriovities" OnClose="Filter">
+                @foreach (var item in priovities)
+                {
+                    <MudSelectItem T="string" Value="@item.name">@item.name</MudSelectItem>
+                }
+            </MudSelect>
+        }
+        <MudToggleIconButton @bind-Toggled="@filterSelected"
+                             Icon="@Icons.Material.Filled.FilterListOff" Color="@Color.Error" Title="Off"
+                             ToggledIcon="@Icons.Material.Filled.FilterList" ToggledColor="@Color.Success" ToggledTitle="On" />
+        <MudIconButton Icon="@Icons.Material.Filled.ChangeCircle" aria-label="ChangeCircle" Color="Color.Tertiary" OnClick="ReloadData"></MudIconButton>
+        <MudIconButton Icon="@Icons.Material.Filled.Add" aria-label="Add" Color="Color.Primary" OnClick="ButtonAdd"></MudIconButton>
+       
+    </ToolBarContent>
+    <HeaderContent>
+        <MudTh><MudTableSortLabel SortBy="new Func<PurchaseRequest, object>(x=>x.id)">Id</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortBy="new Func<PurchaseRequest, object>(x=>x.createDate)">Create Date</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortBy="new Func<PurchaseRequest, object>(x=>x.deadline)">Deadline</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortBy="new Func<PurchaseRequest, object>(x=>x.idStatus)">Status</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortBy="new Func<PurchaseRequest, object>(x=>x.idPrioviry)">Priovity</MudTableSortLabel></MudTh>
+        <MudTh>Notes</MudTh>
+        <MudTh>Branch Address</MudTh>
+        <MudTh>Supplier Name</MudTh>
+        <MudTh><MudTableSortLabel SortBy="new Func<PurchaseRequest, object>(x=>x.totalAmount)">Total Amount</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortBy="new Func<PurchaseRequest, object>(x=>x.totalQuantity)">Total Quantity</MudTableSortLabel></MudTh>
+        <MudTh></MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd>PR-@context.id</MudTd>
+        <MudTd>@context.createDate</MudTd>
+        <MudTd>@context.deadline</MudTd>
+        <MudTd>@context.status</MudTd>
+        <MudTd>@context.prioviry</MudTd>
+        <MudTd>
+            @if(@context.notes != null)
+                @if (@context.notes.Length > 8)
+                {
+                    @context.notes.Substring(0,8)
+                    <p>...</p>    
+                }
+                else
+                {
+                    @context.notes
+                }
+        </MudTd>
+        <MudTd DataLabel="Nr">@context.branchAdress</MudTd>
+        <MudTd DataLabel="Nr">@context.supplierName</MudTd>
+        <MudTd DataLabel="Nr">@String.Format("{0:0,0}", context.totalAmount)</MudTd>
+        <MudTd DataLabel="Nr">@context.totalQuantity</MudTd>
+        <MudTd>
+            <MudIconButton Icon="@Icons.Material.Filled.RemoveRedEye" Color="Color.Inherit" OnClick="() => buttonDetail(context)"></MudIconButton>
+                @if (context.idStatus == 2 || context.idStatus == 3)
+                {
+                    if(employeeProfile.idBranch == 1 && context.idStatus != 2)
+                    {
+                        <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Secondary" OnClick="() => ButtonDelete(context.id)"></MudIconButton>      <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Secondary" OnClick="() => ButtonDelete(context.id)"></MudIconButton>                        
+                    }
+                }
+                else
+                {
+                    <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Secondary" OnClick="() => ButtonDelete(context.id)"></MudIconButton>
+                }
+
+        </MudTd>
+    </RowTemplate>
+    <PagerContent>
+        <MudTablePager />
+    </PagerContent>
+</MudTable>
+
+<div class="d-flex flex-wrap mt-4">
+    <MudSwitch @bind-Checked="@hover" Color="Color.Primary">Hover</MudSwitch>
+    <MudSwitch @bind-Checked="@dense" Color="Color.Secondary">Dense</MudSwitch>
+    <MudSwitch @bind-Checked="@striped" Color="Color.Tertiary">Striped</MudSwitch>
+    <MudSwitch @bind-Checked="@bordered" Color="Color.Warning">Bordered</MudSwitch>
+    <MudSpacer />
+    @*<div style="min-width:200px;">
+        <MudText Inline="true" Class="align-self-center">Selected1: @selectedItem1?.Name</MudText>
+    </div>*@
+</div>
+}
+@if (reloadTable)
+{
+    reloadTable = false;
+}
+
+
+
+@code {
+    private bool dense = false;
+    private bool hover = true;
+    private bool striped = false;
+    private bool bordered = false;
+    private bool filterSelected = false;
+    private string searchString1 = "";
+    private string value { get; set; } = "Nothing selected";
+    private PurchaseRequest selectedItem1 = null;
+    private HashSet<PurchaseRequest> selectedItems = new HashSet<PurchaseRequest>();
+
+    private List<PurchaseRequest> Elements = new List<PurchaseRequest>();
+    private List<PurchaseRequest> tempElements = null;
+    private List<PurchaseRequestStatus> prStatusList = new List<PurchaseRequestStatus>();
+    private List<Priovity> priovities = new List<Priovity>();
+
+    private IEnumerable<string> optionPRStatusList { get; set; } = new HashSet<string>();
+    private IEnumerable<string> optionPriovities { get; set; } = new HashSet<string>();
+
+    EmployeeProfile employeeProfile = new EmployeeProfile();
+
+    bool reloadTable = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            WebSocket.connection.On<string>("NotiRequestPurchase", async m =>
+            {
+                await OnInitializedAsync();
+                StateHasChanged();
+            });
+
+            List<PurchaseRequest> prlist = new List<PurchaseRequest>();
+
+            if (BlossmSingleTon.Instance.GetEmployeeProfile() != null)
+                employeeProfile = BlossmSingleTon.Instance.GetEmployeeProfile();
+
+            if (BlossmSingleTon.Instance.GetEmployeeProfile().idBranch != 1)
+                prlist = (List<PurchaseRequest>)await httpClient.GetFromJsonAsync("/api/Purchase/GetRequestFromUser", typeof(List<PurchaseRequest>));
+            else
+                prlist = (List<PurchaseRequest>)await httpClient.GetFromJsonAsync("/api/Purchase/GetAllRequest", typeof(List<PurchaseRequest>));
+
+            if (BlossmSingleTon.Instance.GetPRStatus() != null)
+                prStatusList = BlossmSingleTon.Instance.GetPRStatus();
+
+            if (BlossmSingleTon.Instance.GetPriovities() != null)
+                priovities = BlossmSingleTon.Instance.GetPriovities();
+
+            Elements = prlist;
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add(ex.Message, Severity.Error);
+        }
+    }
+
+    private bool FilterFunc1(PurchaseRequest element) => FilterFunc(element, searchString1);
+
+    private bool FilterFunc(PurchaseRequest element, string searchString)
+    {
+        if (string.IsNullOrWhiteSpace(searchString))
+            return true;
+        if (StringHelper.RemoveDiacritics(element.supplierName).Contains(StringHelper.RemoveDiacritics(searchString), StringComparison.OrdinalIgnoreCase))
+            return true;
+        return false;
+    }
+
+    private async Task ReloadData()
+    {
+        tempElements = null;
+        await OnInitializedAsync();
+    }
+
+    private async void Filter()
+    {
+        if (tempElements == null)
+        {
+            tempElements = new List<PurchaseRequest>();
+            tempElements = Elements;
+        }
+
+        if (optionPriovities.Count() == 0 && optionPRStatusList.Count() == 0)
+        {
+            Elements = tempElements;
+            return;
+        }
+
+        if (optionPriovities.Count() > 0 && optionPRStatusList.Count() > 0)
+        {
+            Elements = tempElements.Where(e => 
+                optionPriovities.Contains(e.prioviry) && 
+                optionPRStatusList.Contains(e.status))
+                .ToList();
+            return;
+        }
+
+        if (optionPriovities.Count() > 0)
+        {
+            Elements = tempElements.Where(e =>
+                optionPriovities.Contains(e.prioviry))
+                .ToList();
+            return;
+        }
+
+        if (optionPRStatusList.Count() > 0)
+        {
+            Elements = tempElements.Where(e =>
+                optionPRStatusList.Contains(e.status))
+                .ToList();
+            return;
+        }
+    }
+
+    private async Task ButtonAdd()
+    {
+        NavManager.NavigateTo("/RequestPurchase/AddPR");
+    }
+
+    private async Task ButtonDelete(int idPR)
+    {
+        try
+        {
+            var options = new DialogOptions
+                {
+                    ClassBackground = "my-custom-class",
+                    DisableBackdropClick = true
+                };
+            var dialog = await DialogService.ShowAsync<ConfirmDialog>("Confirm", options);
+            var rsDia = await dialog.Result;
+            if ((bool)rsDia.Data == true)
+            {
+                HttpResponseMessage delete = new HttpResponseMessage();
+
+                NotiPR notiPR = new NotiPR();
+
+                var proFile = BlossmSingleTon.Instance.GetEmployeeProfile();
+                var webSokect = WebSocket.onlineUsers;
+
+                notiPR.action = $"PR-{idPR} has been Deleted";
+                notiPR.fullname = proFile.firstName + " " + proFile.lastName;
+                notiPR.dateTime = DateTime.Now;
+
+                if (proFile.idBranch != 1)
+                {
+                    delete = await httpClient.DeleteAsync("/api/Purchase/DeleteRequest?id=" + idPR);
+
+                    if (delete.IsSuccessStatusCode)
+                    {
+                        var user = WebSocket.onlineUsers.FirstOrDefault(o => o.email == proFile.emailManager);
+                        if (user != null)
+                        {
+                            notiPR.idClient = user.idClient;
+                            await httpClient.PostAsJsonAsync("/api/WebSocket/NotiRequestPurchase", notiPR);
+                        }
+                    }
+                }
+                else
+                {
+                    var pr = Elements.FirstOrDefault(e => e.id == idPR);
+                    if(pr.idStatus != 4)
+                    {
+                        delete = await httpClient.DeleteAsync("/api/Purchase/RealDeleteRequest?id=" + idPR);
+                        if (delete.IsSuccessStatusCode)
+                        {
+
+                            var user = WebSocket.onlineUsers.FirstOrDefault(o => o.isBranchManager == true && o.idBranch == pr.idBranch);
+
+                            if (user != null)
+                            {
+                                notiPR.idClient = user.idClient;
+                                await httpClient.PostAsJsonAsync("/api/WebSocket/NotiRequestPurchase", notiPR);
+                            }
+                        }
+                    }
+                    
+                }
+                
+
+
+                if (delete.IsSuccessStatusCode)
+                {
+                    Snackbar.Add("Delete Successfully", Severity.Success);
+                    await OnInitializedAsync();
+                }
+                else
+                    Snackbar.Add(await delete.Content.ReadAsStringAsync(), Severity.Error);
+            }
+
+        }
+        catch (Exception ex)
+        {
+            
+        }
+    }
+
+    async Task buttonDetail(PurchaseRequest purchaseRequest)
+    {
+        var parameters = new DialogParameters<DetailPRDialog>();
+        parameters.Add(x => x.Context, purchaseRequest);
+        var dialog = await DialogService.ShowAsync<DetailPRDialog>("Detail Request", parameters, new DialogOptions() { CloseButton = true, FullWidth = true });
+        try
+        {
+            var rs = await dialog.Result;
+            if ((bool)rs.Data == true)
+            {
+                await ReloadData();
+            }
+        }
+        catch
+        {
+            
+        }
+
+    }
+}
+

@@ -1,0 +1,58 @@
+﻿@using BlossmAPI.Models;
+@using BlossmAPI.ModelViews;
+@using BlossmMudBlazor.DTO;
+
+@{
+    InitView();
+}
+<MudGrid>
+    <MudItem xs="6">
+        <MudPaper Class="d-flex align-center justify-center mud-width-full">
+            <MudCarousel Class="mud-width-full" ItemsSource="urlFinalList" Style="height:600px;" 
+                ShowArrows="true" ShowBullets="true" EnableSwipeGesture="true">
+                <ItemTemplate>
+                    <div class="d-flex flex-column flex-column justify-center" style="height:100%">
+                        <MudImage Src="@context" Alt="img" Width="600" Class="rounded-lg pl-1 pr-1" />
+                    </div>
+                </ItemTemplate>
+            </MudCarousel>
+        </MudPaper>
+    </MudItem>
+    <MudItem xs="6">
+        <MudPaper Class="align-center justify-center mud-width-full py-8">
+            <MudText Typo="Typo.h5">@detail.product.Name</MudText> <br />
+            <MudText Typo="Typo.h6">@detail.product.IdCategoryNavigation.Name</MudText>
+        </MudPaper>
+    </MudItem>
+    
+</MudGrid>
+            
+@code {
+    #region Inject
+    [Inject] ISnackbar Snackbar { get; set; }
+    [Inject] HttpClient HttpClient { get; set; }
+    [Inject] NavigationManager NavManager { get; set; }
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+    #endregion
+    [Parameter] public VariantDetails detail { get; set; }
+
+    private HttpResponseMessage response = new HttpResponseMessage();
+    private List<Image> FinalList = new List<Image>();
+    private List<string> urlFinalList = new List<string>();
+    private int selectedIndex = 2;
+
+    private async Task<HttpResponseMessage> GetResponse(int id) => await HttpClient.PostAsJsonAsync("api/Image/GetImagesByVariantId", id);
+    private async Task<List<Image>> GetImages() => (List<Image>)await response.Content.ReadFromJsonAsync(typeof(List<Image>));
+
+    private void InitView()
+    {
+        foreach(var item in detail.variant)
+        {
+            foreach(var img in item.Images)
+            {
+                string imageDataUrl = $"data:image/png;base64,{img.Images}";
+                urlFinalList.Add(imageDataUrl);
+            }
+        }
+    }
+}

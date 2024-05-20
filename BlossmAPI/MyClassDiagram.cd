@@ -1,0 +1,62 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="BlossmAPI.Configuations.ConfigDependencyInjection">
+    <Position X="6.75" Y="6.75" Width="2.75" />
+    <TypeIdentifier>
+      <HashCode>IAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Configuations\ConfigDependencyInjection.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="BlossmAPI.Repositories.Services.ProductServices">
+    <Position X="10.5" Y="2.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>IwAAgAAAAAAABgAAAAAAAAiBEAgAAIBAQAAAAAAAAAA=</HashCode>
+      <FileName>Repositories\Services\ProductServices.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Field Name="_context" />
+    </ShowAsAssociation>
+    <Lollipop Position="0.1" />
+  </Class>
+  <Class Name="BlossmAPI.Controllers.ProductController">
+    <Position X="4.75" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AgAAgAQAAAAAEAAAAAAAAACAAAgIAEAASAAAAAAAAAA=</HashCode>
+      <FileName>Controllers\ProductController.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Field Name="_productService" />
+      <Field Name="_productVariantServices" />
+      <Field Name="_userServices" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="BlossmAPI.Models.BlossmContext" Collapsed="true">
+    <Position X="14" Y="2.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>BKFCQACQAQMQoo0gQABAAACAGQKAUJAAGAAAgQAAJAc=</HashCode>
+      <FileName>Models\BlossmContext.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Interface Name="BlossmAPI.Repositories.Interfaces.IProductServices">
+    <Position X="8.25" Y="2.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>IAAAAAAAAAAAAAAAAAAAAACBAAAAAAAAQAAAAAAAAAA=</HashCode>
+      <FileName>Repositories\Interfaces\IProductServices.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="BlossmAPI.Repositories.Interfaces.IProductVariantServices">
+    <Position X="8" Y="4.5" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AQAAgAAAAAAAAgAAAAAAAAAAAAgAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Repositories\Interfaces\IProductVariantServices.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="BlossmAPI.Repositories.Interfaces.IUserServices">
+    <Position X="4.75" Y="5.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>EAAAAAAIAAAAACCAQAEACEAAAAAAAIAAEEAQAAAAAAA=</HashCode>
+      <FileName>Repositories\Interfaces\IUserServices.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

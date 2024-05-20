@@ -1,0 +1,78 @@
+﻿@using BlossmAPI.Models;
+@using BlossmAPI.ModelViews;
+@using BlossmMudBlazor.DTO;
+
+@inject HttpClient http;
+@inject ISnackbar Snackbar;
+
+<MudDialog>
+    <DialogContent>
+        <MudCard>
+            <MudCardContent>
+                <MudForm Model="@view" @ref="@form">
+                    <MudTextField T="string" Label="Code" @bind-Value="view.id"></MudTextField>
+                    <MudTextField T="string" Label="Name" @bind-Value="view.name"></MudTextField>
+                    <MudTextField T="DateTime?" Label="Start date" @bind-Value="view.startDate"></MudTextField>
+                    <MudTextField T="DateTime?" Label="End date" @bind-Value="view.endDate"></MudTextField>
+                    <MudNumericField T="int?" Label="Amount" @bind-Value="view.amount"></MudNumericField>
+                    <MudCheckBox @bind-Checked="view.isPercentage" Label="Amount in Percentage" Color="MudBlazor.Color.Primary"></MudCheckBox>
+                    <MudNumericField T="int?" Label="Limit" @bind-Value="view.limit"></MudNumericField>
+                    <MudSelect T="bool?" Label="Active" AnchorOrigin="Origin.BottomCenter" @bind-Value="view.active">
+                        @if (view.active == true)
+                        {
+                            <MudSelectItem Class="pt-5" T="bool?" Value="true">TRUE</MudSelectItem>
+                            <MudSelectItem Class="pt-5" T="bool?" Value="false">FALSE</MudSelectItem>
+                        }
+                        else
+                        {
+                            <MudSelectItem Class="pt-5" T="bool?" Value="false">FALSE</MudSelectItem>
+                            <MudSelectItem Class="pt-5" T="bool?" Value="true">TRUE</MudSelectItem>
+                        }
+                    </MudSelect>
+                    <MudNumericField T="int?" Label="Condition" Placeholder="Min order value to apply this voucher" @bind-Value="view.condition"></MudNumericField>
+                </MudForm>
+            </MudCardContent>
+        </MudCard>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+        <MudButton Color="MudBlazor.Color.Primary" OnClick="Submit">Ok</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+
+    private VoucherView view = new VoucherView();
+    private MudForm form;
+
+    protected override async Task OnInitializedAsync()
+    {
+        view.id = "";
+        view.name = "";
+        view.startDate = DateTime.Now;
+        view.endDate = DateTime.Now;
+        view.limit = 0;
+        view.amount = 0;
+        view.isPercentage = false;
+    }
+
+    async Task Submit() 
+    {
+        if (!string.IsNullOrEmpty(view.id))
+        {
+            var rs = await http.PostAsJsonAsync("api/Voucher/Create", view);
+
+            if (rs.IsSuccessStatusCode)
+            {
+                MudDialog.Close(DialogResult.Ok(true));
+                Snackbar.Add("Added voucher successfully!", Severity.Success);
+            }
+            else
+            {
+                Snackbar.Add("Something wrong", Severity.Error);
+            }
+        }
+    }
+    void Cancel() => MudDialog.Cancel();
+}

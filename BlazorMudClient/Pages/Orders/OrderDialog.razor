@@ -1,0 +1,219 @@
+﻿@using BlazorMudClient.Pages.Products
+@using BlossmAPI.Models
+@using BlossmAPI.Models.ModelsExtention;
+@using BlossmAPI.ModelViews;
+@using BlossmMudBlazor.DTO
+
+@inject HttpClient httpClient
+@inject ISnackbar Snackbar
+@inject IDialogService DialogService
+@inject NavigationManager NavManager
+
+<MudDialog>
+    <DialogContent>
+        <MudGrid>
+            <MudItem xs="2">
+                <MudField Label="Id" Variant="Variant.Text">@Context.Id</MudField>
+            </MudItem>
+                <MudItem xs="10">
+                    <MudField Label="Create Date" Variant="Variant.Text">@Context.CreateDate</MudField>
+                </MudItem>
+                <MudItem xs="6">
+                    <MudField Label="Create Date" Variant="Variant.Text">@Context.IdStatusNavigation.Name</MudField>
+                </MudItem>
+                <MudItem xs="6">
+                    <MudField Label="Create Date" Variant="Variant.Text">@Context.DeliveryStatusNavigation.Name</MudField>
+                </MudItem>
+                <MudItem xs="12">
+                    <MudField Label="Create Date" Variant="Variant.Text">@Context.IdPaymentMethodNavigation.Name</MudField>
+                </MudItem>
+                <MudItem xs="12">
+                    <MudField Label="Subtotal" Variant="Variant.Text">@String.Format("{0:#,0}", Context.Subtotal)đ</MudField>
+                </MudItem>
+                <MudItem xs="12">
+                    <MudTable Items="@Context.OrderItems" Hover="true" Breakpoint="Breakpoint.Sm" LoadingProgressColor="MudBlazor.Color.Info">
+                        <HeaderContent>
+                            <MudTh>Id</MudTh>
+                            <MudTh>Image</MudTh>
+                            <MudTh>Product Name</MudTh>
+                            <MudTh>Unit</MudTh>
+                            <MudTh>Color</MudTh>
+                            <MudTh>Size</MudTh>
+                            <MudTh>Quantity</MudTh>
+                            <MudTh>Selling Price</MudTh>
+                            <MudTh>Total</MudTh>
+                            <MudTh></MudTh>
+                        </HeaderContent>
+                        <RowTemplate>
+                            @{
+                                string urlImg = $"data:image/png;base64,{context.IdProductVariantNavigation.Images.FirstOrDefault().Images}";
+                            }
+                            <MudTd DataLabel="Nr">@context.IdProductVariant</MudTd>
+                            <MudTd DataLabel="Nr">
+                                <MudImage Src="@urlImg" Width="50"></MudImage>
+                            </MudTd>
+                            <MudTd DataLabel="Sign">@context.IdProductVariantNavigation.IdProductNavigation.Name</MudTd>
+                            <MudTd DataLabel="Name">@context.IdProductVariantNavigation.IdUnitNavigation.Name</MudTd>
+                            <MudTd DataLabel="Name">@context.IdProductVariantNavigation.IdColorNavigation.Name</MudTd>
+                            <MudTd DataLabel="Name">@context.IdProductVariantNavigation.IdSizeNavigation.Name</MudTd>
+                            <MudTd DataLabel="Name">@context.Quantity</MudTd>
+                            <MudTd DataLabel="Name">@(String.Format("{0:#,0}", context.SellingPrice))đ</MudTd>
+                            <MudTd DataLabel="Name">@(String.Format("{0:#,0}", context.SellingPrice * context.Quantity))đ</MudTd>
+                            <MudTd DataLabel="Molar mass">
+                                <MudIconButton Icon="@Icons.Material.Filled.RemoveRedEye" OnClick="() => OpenDialog(context)"></MudIconButton>
+                            </MudTd>
+                        </RowTemplate>
+                    </MudTable>
+                </MudItem>
+                @if(Context.IdPaymentMethod == PaymentMethodConst.CREDIT_CARD || Context.IdPaymentMethod == PaymentMethodConst.VNPAY)
+                {
+                    <MudItem xs="5">
+                        <MudButton Variant="Variant.Filled" OnClick="Checkout" Color="MudBlazor.Color.Primary"
+                               Disabled="@(Context.IdStatus == OrderStatusConst.Paid || Context.IdStatus == OrderStatusConst.RECIEVED
+                                                ? true
+                                                : false)">
+                            @(Context.IdStatus == OrderStatusConst.Paid || Context.IdStatus == OrderStatusConst.RECIEVED || Context.IdStatus == OrderStatusConst.CANCLED
+                                ? "Already Checkout"
+                                : "Checkout")
+                        </MudButton>
+                    </MudItem>
+                }
+                <MudItem xs="5">
+                    <MudButton Variant="Variant.Filled" OnClick="CancelOrder" Color="MudBlazor.Color.Secondary"
+                               Disabled="@(Context.IdStatus == OrderStatusConst.NEW
+                                                ? false
+                                                : true)">
+                        @if (_processing)
+                        {
+                            <MudProgressCircular Class="ms-n1" Size="MudBlazor.Size.Small" Indeterminate="true" />
+                            <MudText Class="ms-2">Processing</MudText>
+                        }
+                        else
+                        {
+                            <MudText>Cancel Order</MudText>
+                        }
+                    </MudButton>
+                </MudItem>
+        </MudGrid>
+    </DialogContent>
+    <DialogActions>
+        <MudButton Color="MudBlazor.Color.Primary" OnClick="Submit">OK</MudButton>
+    </DialogActions>
+</MudDialog>
+@code {
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+    [Parameter] public Order Context { get; set; }
+
+    string url = "";
+    string vnp_url = "";
+    private bool _processing = false;
+
+    void Submit() => MudDialog.Close(DialogResult.Ok(true));
+    void Cancel() => MudDialog.Cancel();
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        Context = Context;
+        StateHasChanged();
+    }
+
+    async Task OpenDialog(OrderItem orderItem)
+    {
+        var param = new DialogParameters<DetailsDialog>();
+        VariantDetails variantDetails = new VariantDetails();
+        variantDetails.product = orderItem.IdProductVariantNavigation.IdProductNavigation;
+
+        var oi = Context.OrderItems
+        .Where(o => o.IdProductVariantNavigation.IdProductNavigation.Id == variantDetails.product.Id).ToList();
+
+        foreach(var item in oi)
+        {
+            variantDetails.variant.Add(item.IdProductVariantNavigation);
+            foreach (var i in item.IdProductVariantNavigation.Images)
+            {
+                string urlImg = $"data:image/png;base64,{i.Images}";
+                variantDetails.allImg.Add(urlImg);
+            }
+        }
+
+        param.Add(x => x.details, variantDetails);
+        var options = new DialogOptions { MaxWidth = MaxWidth.Medium, FullScreen = true, CloseButton = true, DisableBackdropClick = true, ClassBackground = "my-custom-class" };
+        var rs = await DialogService.ShowAsync<DetailsDialog>("Product #" + variantDetails.product.Id, param, options);
+    }
+    async Task Checkout()
+    {
+        if(Context.IdPaymentMethod == PaymentMethodConst.VNPAY)
+        {
+            //VnPay payment gateway integration
+            var rs1 = await httpClient.PostAsJsonAsync("/api/VnPay/GetPaymentUrl", Context.Id);
+            url = await rs1.Content.ReadAsStringAsync();
+        }
+        else if (Context.IdPaymentMethod == PaymentMethodConst.CREDIT_CARD)
+        {
+            //Stripe payment gateway integration
+            List<OrderItemView> orderItems = new List<OrderItemView>();
+            foreach (var item in Context.OrderItems)
+            {
+                OrderItemView view = new OrderItemView();
+                view.id = item.IdOrder;
+                view.quantity = item.Quantity;
+                view.id_variant = item.IdProductVariant;
+                view.selling_price = item.SellingPrice;
+
+                orderItems.Add(view);
+            }
+
+            var rs = await httpClient.PostAsJsonAsync("api/StripePayment/checkout", Context);
+            url = await rs.Content.ReadAsStringAsync();
+        }
+        else
+        {
+            url = "";
+        }
+        if (!string.IsNullOrEmpty(url))
+        {
+            NavManager.NavigateTo(url);
+        }
+    }
+    async Task CancelOrder()
+    {
+        _processing = true;
+        var rs = await httpClient.PostAsJsonAsync("api/Order/GetOrderById", Context.Id);
+        Order data = await rs.Content.ReadFromJsonAsync<Order>();
+
+        OrderView orderView = new OrderView();
+        try
+        {
+            OrderView view = new OrderView();
+            view.address = "";
+            view.username = "";
+            view.phoneNumber = "";
+            view.note = "";
+            view.id_delivery_status = 0;
+            view.id_payment = 0;
+            view.id_user = "";
+            view.cancellation_reason = "";
+            view.totalValue = 0;
+            view.id = data.Id;
+            view.id_status = OrderStatusConst.CANCLED;
+
+            var response = await httpClient.PutAsJsonAsync("api/Order/UpdateOrderStatus", view);
+            if (response.IsSuccessStatusCode)
+            {
+                Snackbar.Add("Payment confirm successfully", MudBlazor.Severity.Success);
+                await OnInitializedAsync();
+            }
+            else
+            {
+                Snackbar.Add(await response.Content.ReadAsStringAsync(), MudBlazor.Severity.Error, config => { config.VisibleStateDuration = 5000; });
+            }
+
+            _processing = false;
+        }
+        catch (Exception ex)
+        {
+            throw ex;
+        }
+    }
+}

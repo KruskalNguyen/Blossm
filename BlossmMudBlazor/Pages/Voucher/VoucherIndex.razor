@@ -1,0 +1,177 @@
+﻿@page "/voucher"
+
+@using System.Net.Http.Json
+@using BlossmAPI.Models;
+@using BlossmAPI.ModelViews;
+@inject HttpClient httpClient
+@inject ISnackbar Snackbar;
+@inject IDialogService DialogService;
+
+<MudTable Items="@Vouchers" Hover="true" SortLabel="Sort By" CanCancelEdit="true"
+          RowEditPreview="BackupItem" RowEditCancel="ResetItemToOriginalValues" IsEditRowSwitchingBlocked="true" 
+          ApplyButtonPosition="TableApplyButtonPosition.End" EditButtonPosition="TableEditButtonPosition.End"
+          RowEditCommit="ItemHasBeenCommitted" EditTrigger="@TableEditTrigger.EditButton">
+    <ToolBarContent>
+        <MudText Typo="Typo.h6">Voucher Management</MudText>
+        <MudIconButton Icon="@Icons.Material.Filled.Add" Color="MudBlazor.Color.Primary" aria-label="Add" OnClick="OpenAddDialog"></MudIconButton>
+        <MudSpacer />
+        <MudTextField @bind-Value="searchString" Placeholder="Search" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="MudBlazor.Size.Medium" Class="mt-0"></MudTextField>
+    </ToolBarContent>
+    <HeaderContent>
+        <MudTh><MudTableSortLabel SortBy="new Func<Voucher, object>(x=>x.Id)">Nr</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel Enabled="@enabled" SortBy="new Func<Voucher, object>(x=>x.Name)">Name</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel InitialDirection="SortDirection.Ascending" SortBy="new Func<Voucher, object>(x=>x.CreateDate)">Create date</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel InitialDirection="SortDirection.Ascending" SortBy="new Func<Voucher, object>(x=>x.StartDate)">Start date</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel InitialDirection="SortDirection.Ascending" SortBy="new Func<Voucher, object>(x=>x.EndDate)">End date</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortBy="new Func<Voucher, object>(x=>x.DiscountAmount)">Amount</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortBy="new Func<Voucher, object>(x=>x.DiscountPercentage)">In Percentage</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortBy="new Func<Voucher, object>(x=>x.Limit)">Limit</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortBy="new Func<Voucher, object>(x=>x.Active)">Active</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortBy="new Func<Voucher, object>(x=>x.Condition)">Condition</MudTableSortLabel></MudTh>
+        @*<MudTh>Action</MudTh>*@
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd DataLabel="Code">@context.Id</MudTd>
+        <MudTd DataLabel="Name">@context.Name</MudTd>
+        <MudTd DataLabel="Create date">@context.CreateDate</MudTd>
+        <MudTd DataLabel="Start date">@context.StartDate</MudTd>
+        <MudTd DataLabel="End date">@context.EndDate</MudTd>
+        <MudTd DataLabel="Amount">@context.DiscountAmount</MudTd>
+        <MudTd DataLabel="In percentage">@context.DiscountPercentage</MudTd>
+        <MudTd DataLabel="Limit">@context.Limit</MudTd>
+        <MudTd DataLabel="Active">@context.Active</MudTd>
+        <MudTd DataLabel="Active">@context.Condition</MudTd>
+        @*<MudTd>
+            <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="MudBlazor.Color.Secondary" aria-label="Edit"></MudIconButton>
+        </MudTd>*@
+    </RowTemplate>
+    <RowEditingTemplate>
+        <MudTd DataLabel="Code">
+            @context.Id
+        </MudTd>
+        <MudTd DataLabel="Name">
+            <MudTextField @bind-Value="@context.Name" Required />
+        </MudTd>
+        <MudTd DataLabel="Create Date">
+            @context.CreateDate
+        </MudTd>
+        <MudTd DataLabel="Start Date">
+            <MudTextField T="DateTime?" Format="s" Label="Start date" @bind-Value="@context.StartDate" InputType="InputType.DateTimeLocal" />
+        </MudTd>
+        <MudTd DataLabel="Create Date">
+            <MudTextField T="DateTime?" Format="s" Label="End date" @bind-Value="@context.EndDate" InputType="InputType.DateTimeLocal" />
+        </MudTd>
+        <MudTd DataLabel="Amount">
+            <MudNumericField @bind-Value="@context.DiscountAmount" Required Min="5" />
+        </MudTd>
+        <MudTd DataLabel="In Percentage">
+            <MudSelect T="bool?" Label="In Percentage" MultiSelection="false" @bind-Value="@context.DiscountPercentage">
+                @if (context.DiscountPercentage == true)
+                {
+                    <MudSelectItem Class="pt-5" T="bool?" Value="true">TRUE</MudSelectItem>
+                    <MudSelectItem Class="pt-5" T="bool?" Value="false">FALSE</MudSelectItem>
+                }
+                else
+                {
+                    <MudSelectItem Class="pt-5" T="bool?" Value="false">FALSE</MudSelectItem>
+                    <MudSelectItem Class="pt-5" T="bool?" Value="true">TRUE</MudSelectItem>
+                }
+            </MudSelect>
+        </MudTd>
+        <MudTd DataLabel="Usage limit">
+            <MudNumericField @bind-Value="@context.Limit" Required Min="50" />
+        </MudTd>
+        <MudTd DataLabel="Active">
+            <MudSelect T="bool?" Label="Active" MultiSelection="false" @bind-Value="@context.Active">
+                @if (context.Active == true)
+                {
+                    <MudSelectItem Class="pt-5" T="bool?" Value="true">TRUE</MudSelectItem>
+                    <MudSelectItem Class="pt-5" T="bool?" Value="false">FALSE</MudSelectItem>
+                }
+                else
+                {
+                    <MudSelectItem Class="pt-5" T="bool?" Value="false">FALSE</MudSelectItem>
+                    <MudSelectItem Class="pt-5" T="bool?" Value="true">TRUE</MudSelectItem>
+                }
+            </MudSelect>
+        </MudTd>
+        <MudTd DataLabel="Usage limit">
+            <MudNumericField @bind-Value="@context.Condition" Required Min="100000" />
+        </MudTd>
+    </RowEditingTemplate>
+    <PagerContent>
+        <MudTablePager PageSizeOptions="new int[]{5, 10, 20}" />
+    </PagerContent>
+    <EditButtonContent Context="button">
+        <MudIconButton Size="@MudBlazor.Size.Small" Icon="@Icons.Material.Outlined.Edit" Class="pa-0" OnClick="@button.ButtonAction" Disabled="@button.ButtonDisabled" />
+    </EditButtonContent>
+</MudTable>
+
+<MudSwitch @bind-Checked="enabled" Color="MudBlazor.Color.Info">Enable sorting on the Sign Column</MudSwitch>
+@code {
+    private bool enabled = true;
+    private IEnumerable<Voucher> Vouchers = new List<Voucher>();
+    private Voucher voucherBeforeEdit = new Voucher();
+    private string searchString = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        Vouchers = await httpClient.GetFromJsonAsync<List<Voucher>>("api/Voucher/GetAll");
+    }
+    private void BackupItem(object voucher)
+    {
+        voucherBeforeEdit = new()
+            {
+                DiscountAmount = ((Voucher)voucher).DiscountAmount,
+                Name = ((Voucher)voucher).Name,
+                DiscountPercentage = ((Voucher)voucher).DiscountPercentage,
+                Active = ((Voucher)voucher).Active,
+                StartDate = ((Voucher)voucher).StartDate,
+                EndDate = ((Voucher)voucher).EndDate,
+            };
+    }
+    private void ResetItemToOriginalValues(object voucher)
+    {
+        ((Voucher)voucher).DiscountAmount = voucherBeforeEdit.DiscountAmount;
+        ((Voucher)voucher).Name = voucherBeforeEdit.Name;
+        ((Voucher)voucher).DiscountPercentage = voucherBeforeEdit.DiscountPercentage;
+        ((Voucher)voucher).Active = voucherBeforeEdit.Active;
+        ((Voucher)voucher).StartDate = voucherBeforeEdit.StartDate;
+        ((Voucher)voucher).EndDate = voucherBeforeEdit.EndDate;
+        ((Voucher)voucher).Active = voucherBeforeEdit.Active;
+    }
+    private async void ItemHasBeenCommitted(object voucher)
+    {
+        VoucherView view = new VoucherView();
+        view.id = ((Voucher)voucher).Id;
+        view.name = ((Voucher)voucher).Name;
+        view.amount = ((Voucher)voucher).DiscountAmount;
+        view.isPercentage = ((Voucher)voucher).DiscountPercentage;
+        view.limit = ((Voucher)voucher).Limit;
+        view.startDate = ((Voucher)voucher).StartDate;
+        view.endDate = ((Voucher)voucher).EndDate;
+        view.active = ((Voucher)voucher).Active;
+        view.condition = ((Voucher)voucher).Condition;
+        HttpResponseMessage responseMessage = new HttpResponseMessage();
+        try
+        {
+            responseMessage = await httpClient.PutAsJsonAsync("api/Voucher/Update", view);
+
+            Snackbar.Add("Updated successfully", Severity.Success);
+        }
+        catch(Exception ex)
+        {
+            Snackbar.Add(await responseMessage.Content.ReadAsStringAsync(), Severity.Error);
+        }
+    }
+    private async void OpenAddDialog()
+    {
+        var options = new DialogOptions { CloseOnEscapeKey = true, MaxWidth = MaxWidth.Large, FullWidth = true, CloseButton = true };
+        var rs = await DialogService.ShowAsync<AddVoucherDialog>("Add Voucher", options);
+        var rsData = await rs.Result;
+        if ((bool)rsData.Data == true)
+        {
+            StateHasChanged();
+        }
+    }
+}

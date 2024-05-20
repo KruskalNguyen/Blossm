@@ -1,0 +1,58 @@
+﻿@page "/PaymentSuccess/{orderId}"
+
+@using BlossmAPI.Models;
+@using BlossmAPI.ModelViews;
+@using BlossmAPI.Models.ModelsExtention
+
+@inject HttpClient http;
+@inject NavigationManager navManager;
+@inject ISnackbar Snackbar;
+
+<MudContainer MaxWidth="MaxWidth.Small" Class="d-flex flex-grow-1 gap-4">
+    <MudImage Class="align-self-center py-4 flex-1" Src="https://cashfreelogo.cashfree.com/website/landings/instant-settlements/payment-done.png"></MudImage>
+</MudContainer>
+
+
+@code {
+    [Parameter]
+    public string orderId { get; set; }
+
+    private Order orderData;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var rs = await http.PostAsJsonAsync("api/Order/GetOrderById", orderId);
+        orderData = await rs.Content.ReadFromJsonAsync<Order>();
+
+        OrderView orderView = new OrderView();
+        try
+        {
+            OrderView view = new OrderView();
+            view.address = "";
+            view.username = "";
+            view.phoneNumber = "";
+            view.note = "";
+            view.id_delivery_status = 0;
+            view.id_payment = 0;
+            view.id_user = "";
+            view.cancellation_reason = "";
+            view.totalValue = 0;
+            view.id = orderData.Id;
+            view.id_status = OrderStatusConst.Paid;
+
+            var response = await http.PutAsJsonAsync("api/Order/UpdateOrderStatus", view);
+            if (response.IsSuccessStatusCode)
+            {
+                Snackbar.Add("Payment confirm successfully", MudBlazor.Severity.Success);
+            }
+            else
+            {
+                Snackbar.Add(await response.Content.ReadAsStringAsync(), MudBlazor.Severity.Error, config => { config.VisibleStateDuration = 5000; });
+            }
+        }
+        catch (Exception ex)
+        {
+            throw ex;
+        }
+    }
+}

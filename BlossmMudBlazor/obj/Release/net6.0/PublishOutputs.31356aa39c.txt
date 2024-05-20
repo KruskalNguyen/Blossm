@@ -1,0 +1,2 @@
+D:\nam4\dotnet_project\Blossm\BlossmMudBlazor\obj\Release\net6.0\browser-wasm\PubTmp\Out\libman.json
+D:\nam4\dotnet_project\Blossm\BlossmMudBlazor\obj\Release\net6.0\browser-wasm\PubTmp\Out\web.config

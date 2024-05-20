@@ -1,0 +1,99 @@
+﻿@using BlossmAPI.ModelViews;
+@using BlossmMudBlazor.DTO;
+@using BlossmMudBlazor.Dialogs;
+@inject HttpClient httpClient
+@inject IDialogService DialogService
+@inject ISnackbar Snackbar
+
+<MudDialog>
+    <DialogContent>
+        <MudGrid>
+            <MudItem xs="12">
+                <MudField Label="Id-PO" Variant="Variant.Text">@idPurchaseOrder</MudField>
+            </MudItem>
+            <MudItem xs="12">
+                <MudSelect T="PaymentMethod" @bind-Value="selected" Label="Payment Method" AnchorOrigin="Origin.BottomCenter">
+                    @if (paymentMethods != null)
+                    {
+                        foreach (var item in paymentMethods)
+                        {
+                            <MudSelectItem Value="@item" />
+                        }
+                    }
+                </MudSelect>
+            </MudItem>
+            <MudItem xs="6">
+                <MudNumericField @bind-Value="confirmPayment.payment_amount" Label="Payment Amount" Variant="Variant.Text" Min="1000" />
+            </MudItem>
+            <MudItem xs="1">
+                <h1>/</h1>
+            </MudItem>
+            <MudItem xs="5">
+                <MudField Label="PR Total Amount" Variant="Variant.Text">@String.Format("{0:0,0}", PRTotalAmount)</MudField>
+            </MudItem>
+            <MudItem xs="12">
+                <MudTextField T="string" @bind-Value="confirmPayment.note" Label="Notes" Variant="Variant.Outlined" Text="@note" Lines="5" />
+            </MudItem>
+        </MudGrid>
+    </DialogContent>
+    <DialogActions>
+        <MudButton Color="Color.Error" OnClick="Cancel">Cancel</MudButton>
+        <MudButton Color="Color.Primary" OnClick="ConFirm">Ok</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+    [Parameter] public int idPurchaseOrder { get; set; }
+    [Parameter] public string? note { get; set; }
+    [Parameter] public int PRTotalAmount { get; set; }
+
+    ConfirmPayment confirmPayment = new ConfirmPayment();
+    List<PaymentMethod> paymentMethods = null; 
+    PaymentMethod selected = new PaymentMethod(); 
+
+    protected override async Task OnInitializedAsync()
+    {
+        paymentMethods = new List<PaymentMethod>();
+        paymentMethods = (List<PaymentMethod>)await httpClient.GetFromJsonAsync("/api/PaymentMethod/GetPaymentMethod", typeof(List<PaymentMethod>));
+    }
+
+    async void Cancel()
+    {
+        MudDialog.Cancel();
+    }
+
+    async void ConFirm()
+    {
+        try
+        {
+            var options = new DialogOptions
+                {
+                    ClassBackground = "my-custom-class",
+                    DisableBackdropClick = true
+                };
+            var dialog = await DialogService.ShowAsync<ConfirmDialog>("Confirm", options);
+            var rsDia = await dialog.Result;
+            if ((bool)rsDia.Data == true)
+            {
+                confirmPayment.id_purchase_order = idPurchaseOrder;
+                confirmPayment.id_payment_method = selected.id;
+
+                var rs = await httpClient.PostAsJsonAsync("/api/Purchase/ComfirmPayment", confirmPayment);
+                if (rs.IsSuccessStatusCode)
+                {
+                    MudDialog.Close(DialogResult.Ok(true));
+                    Snackbar.Add("Confirm payment successfully", Severity.Success);
+                }
+                else
+                {
+                    Snackbar.Add(await rs.Content.ReadAsStringAsync(), Severity.Error);
+                }
+            }
+        }
+        catch
+        {
+            
+        }
+    }
+}

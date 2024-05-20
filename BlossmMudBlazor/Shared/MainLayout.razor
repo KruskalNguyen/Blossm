@@ -1,0 +1,369 @@
+﻿@using Blazored.LocalStorage;
+@using BlossmMudBlazor.DTO;
+@using BlossmMudBlazor.Dialogs;
+@using BlossmMudBlazor.Helper;
+@using BlossmMudBlazor.Patterms;
+@using System.Net.Http.Headers;
+@using Microsoft.AspNetCore.SignalR.Client
+
+
+@inherits LayoutComponentBase
+@inject IDialogService DialogService
+@inject NavigationManager NavManager
+@inject ILocalStorageService localStorage
+@inject HttpClient httpClient
+@inject ISnackbar Snackbar
+
+<MudThemeProvider />
+<MudDialogProvider />
+<MudSnackbarProvider />
+
+<MudLayout>
+    <MudAppBar Elevation="1" Color="Color.Tertiary" Dense="true">
+        <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
+        <MudSpacer />
+        @if(BlossmSingleTon.Instance.GetEmployeeProfile() == null)
+        {
+            <MudIconButton Icon="@Icons.Material.Filled.FreeBreakfast" Color="Color.Inherit" OnClick="TestClick" />
+        }
+        else
+        {
+            @*<MudBadge Content="0" Color="Color.Info" Overlap="true" Class="mx-6 my-4">
+                <MudIcon Icon="@Icons.Material.Filled.Notifications" Color="Color.Inherit" OnClick="TestClick"></MudIcon>
+            </MudBadge>*@
+            <MudIconButton Icon="@Icons.Material.Filled.Notifications" Color="Color.Inherit" OnClick="TestClick"></MudIconButton>
+            <MudIconButton Icon="@Icons.Material.Filled.PersonSearch" Color="Color.Inherit" OnClick="ToggleEndDrawer"></MudIconButton>
+            <MudMenu AnchorOrigin="Origin.BottomCenter">
+                <ActivatorContent>
+                    <MudAvatar Size="Size.Small" Color="Color.Secondary">@BlossmSingleTon.Instance.GetFirstChar()</MudAvatar>
+                </ActivatorContent>
+                <ChildContent>
+                    <MudMenuItem Href="/profile">Profile</MudMenuItem>
+                    <MudMenuItem>Setting</MudMenuItem>
+                    <MudMenuItem OnClick="SignOut">Sign Out</MudMenuItem>
+                </ChildContent>
+            </MudMenu>
+            
+        }
+    </MudAppBar>
+    <MudDrawer @bind-Open="@open" Anchor="Anchor.Start" ClipMode="clipMode" Breakpoint="@breakpoint" PreserveOpenState="@preserveOpenState" Elevation="1" Variant="@DrawerVariant.Mini">
+        <NavMenu></NavMenu>
+    </MudDrawer>
+    <MudDrawer @bind-Open="@openEnd" Width="250px" Fixed="true" Anchor="Anchor.End" Elevation="4" Variant="@DrawerVariant.Persistent">
+        <MudDrawerHeader>
+            <MudText Typo="Typo.h6">Settings</MudText>
+        </MudDrawerHeader>
+        <MudNavMenu>
+            @if(WebSocket.onlineUsers != null && BlossmSingleTon.Instance.GetEmployeeProfile() != null)
+            {
+                List<OnlineUser> lstUser = new List<OnlineUser>();
+
+                if (BlossmSingleTon.Instance.GetEmployeeProfile().idBranch != 1)
+                {
+                    lstUser = WebSocket.onlineUsers.Where(o => o.idBranch == BlossmSingleTon.Instance.GetEmployeeProfile().idBranch).ToList();
+                    var findManager = lstUser.FirstOrDefault(l => l.email == BlossmSingleTon.Instance.GetEmployeeProfile().emailManager);
+                    if(findManager == null)
+                    {
+                        var addManager = WebSocket.onlineUsers.FirstOrDefault(w => w.email == BlossmSingleTon.Instance.GetEmployeeProfile().emailManager);
+                        if (addManager != null)
+                            lstUser.Add(addManager);
+                    }
+                }
+                else
+                    lstUser = WebSocket.onlineUsers;
+
+                <MudNavLink Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.SwitchAccount">
+                    @lstUser.Count() users are online
+                </MudNavLink>
+
+                foreach (var item in lstUser)
+                {
+                    if (item.email == BlossmSingleTon.Instance.GetEmployeeProfile().emailManager)
+                    {
+                        <MudNavLink Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.AccountBox" IconColor="Color.Tertiary">
+                            <MudText Color="Color.Tertiary" Inline="true">@item.fullName</MudText>
+                        </MudNavLink>
+                    }
+                    else if (item.email == BlossmSingleTon.Instance.GetEmployeeProfile().email)
+                    {
+                        <MudNavLink Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.AccountBox">@item.fullName (You)</MudNavLink>
+                    }
+                    else
+                    {
+                        <MudNavLink Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.AccountBox">@item.fullName</MudNavLink>
+                    }
+                }
+
+                var idBranch = BlossmSingleTon.Instance.GetEmployeeProfile().idBranch;
+                var idsClient = WebSocket.idsClient;
+
+                if (idBranch == 8)
+                {
+                    var listNonUser = new List<string>();
+
+                    foreach (var item in idsClient)
+                    {
+                        if (!lstUser.Select(u => u.idClient).Contains(item))
+                        {
+                            listNonUser.Add(item);
+                        }
+                    }
+
+                    <MudNavLink Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.SwitchAccount">
+                        @listNonUser.Count() users are non-register
+                    </MudNavLink>
+                    if (WebSocket.chatList.Count() > 0)
+                    {
+                        foreach (var item in listNonUser)
+                        {
+                            var chat = WebSocket.chatList.Where(c => c.id_client == item);
+                            <MudBadge Content="chat.Count()" Overlap="true">
+                                <MudNavLink OnClick="() => MoveToChatSupport(item)" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.AccountBox">@item</MudNavLink>
+                            </MudBadge>
+
+                        }
+                    }
+                    else
+                    {
+                        foreach (var item in listNonUser)
+                        {
+                            <MudNavLink OnClick="() => MoveToChatSupport(item)" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.AccountBox">@item</MudNavLink>
+
+                        }
+                    }
+
+                }
+
+                
+
+            }
+            
+           
+        </MudNavMenu>
+    </MudDrawer>
+    <MudMainContent>
+        <MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="my-6">
+            @if (isLogin)
+            {
+                @Body
+            }
+        </MudContainer>
+    </MudMainContent>
+</MudLayout>
+
+
+
+@if (WebSocket.idClient != null && countActiveOnline == 0)
+{
+    OnlineUser userOnline = new OnlineUser();
+    userOnline.idClient = WebSocket.idClient;
+    userOnline.idUser = BlossmSingleTon.Instance.GetEmployeeProfile().idUser;
+    userOnline.idBranch = BlossmSingleTon.Instance.GetEmployeeProfile().idBranch;
+    userOnline.email = BlossmSingleTon.Instance.GetEmployeeProfile().email;
+    userOnline.fullName = BlossmSingleTon.Instance.GetEmployeeProfile().firstName + " " + BlossmSingleTon.Instance.GetEmployeeProfile().lastName;
+    httpClient.PostAsJsonAsync("/api/WebSocket/ActiveOnline", userOnline);
+    countActiveOnline++;
+}
+
+<style>
+    .my-custom-class {
+        backdrop-filter: blur(10px);
+    }
+</style>
+
+@code {
+    bool _drawerOpen = true;
+    bool showContent = false;
+    bool isLogin = false;
+    bool openEnd = false;
+    int countActiveOnline = 0;
+
+    bool open = false;
+    bool dense = false;
+    bool preserveOpenState = false;
+    Breakpoint breakpoint = Breakpoint.Lg;
+    DrawerClipMode clipMode = DrawerClipMode.Never;
+
+    string token;
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        token = await localStorage.GetItemAsync<string>("token");
+        if(token != null)
+        {
+            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+            try
+            {
+                var employeeProfile = await httpClient.GetFromJsonAsync("/api/Users/GetCurrentEmployee", typeof(EmployeeProfile));
+                BlossmSingleTon.Instance.SetEmployeeProfile((EmployeeProfile)employeeProfile);
+                Snackbar.Add("Login success", Severity.Success);
+                await ConnectToServer();
+                await InjectSingleTon();
+                isLogin = true;
+            }
+            catch
+            {
+                token = null;
+                await localStorage.RemoveItemAsync("token");
+                BlossmSingleTon.Instance.ResetEmployeeProfile();
+            }
+        }
+
+        await OppenLoginDialog();
+    }
+
+
+    void DrawerToggle()
+    {
+        open = !open;
+    }
+
+    private void TestClick()
+    {
+        showContent = true;
+    }
+
+    private async Task SignOut()
+    {
+        token = null;
+        await localStorage.RemoveItemAsync("token");
+        BlossmSingleTon.Instance.ResetEmployeeProfile();
+        //await OppenLoginDialog();
+        NavManager.NavigateTo("/", forceLoad: true);
+    }
+
+    private async Task OppenLoginDialog()
+    {
+        if (token == null)
+        {
+            var options = new DialogOptions
+                {
+                    ClassBackground = "my-custom-class",
+                    DisableBackdropClick = true
+                };
+            var dialog = await DialogService.ShowAsync<LoginDialog>("Login", options);
+            var rs = await dialog.Result;
+            if ((bool)rs.Data == true)
+            {
+                await ConnectToServer();
+
+                await InjectSingleTon();
+                isLogin = true;
+                NavManager.NavigateTo("/profile");
+            }
+        }
+    }
+
+    private async Task InjectSingleTon()
+    {
+        if (BlossmSingleTon.Instance.GetPRStatus() == null)
+        {
+            try
+            {
+                var statuslist = await httpClient.GetFromJsonAsync<List<PurchaseRequestStatus>>("/api/PurchaseRequestStatus/GetAllStatus");
+                BlossmSingleTon.Instance.SetPRStatus(statuslist);
+            }
+            catch
+            {
+
+            }
+
+        }
+
+        if (BlossmSingleTon.Instance.GetPriovities() == null)
+        {
+            try
+            {
+                var priovitylist = await httpClient.GetFromJsonAsync("/api/Priovities/GetAllPriovity", typeof(List<Priovity>));
+                BlossmSingleTon.Instance.SetPriovities((List<Priovity>)priovitylist);
+            }
+            catch
+            {
+
+            }
+
+        }
+
+
+        if (BlossmSingleTon.Instance.GetBranches() == null)
+        {
+            try
+            {
+                var branchList = await httpClient.GetFromJsonAsync<List<BlossmAPI.Models.Branch>>("/api/Branch/GetAllBranch");
+                BlossmSingleTon.Instance.SetBranches(branchList.Where(b => b.Latlng != null).ToList());
+            }
+            catch
+            {
+
+            }
+
+        }
+    }
+
+    void ToggleEndDrawer()
+    {
+        openEnd = !openEnd;
+    }
+
+    private async Task ConnectToServer()
+    {
+        WebSocket.connection = new HubConnectionBuilder()
+            .WithUrl("https://localhost:7285/blossmhub")
+            .Build();
+
+        await WebSocket.connection.StartAsync();
+        WebSocket.isConnected = true;
+        WebSocket.connectionStatus = "Connected :-)";
+
+        WebSocket.connection.Closed += async (s) =>
+        {
+            WebSocket.isConnected = false;
+            WebSocket.connectionStatus = "Disconnected";
+            await WebSocket.connection.StartAsync();
+            WebSocket.isConnected = true;
+        };
+
+        WebSocket.connection.On<List<OnlineUser>>("ListUserOnline", m =>
+        {
+            WebSocket.onlineUsers = m;
+            StateHasChanged();
+        });
+
+
+
+        WebSocket.connection.On<string>("id", m =>
+        {
+            WebSocket.idClient = m;
+            StateHasChanged();
+        });
+
+        WebSocket.connection.On<List<string>>("listId", m =>
+       {
+           WebSocket.idsClient = m;
+           StateHasChanged();
+       });
+
+        WebSocket.connection.On<string>("NotiRequestPurchase", m =>
+       {
+           Snackbar.Add(m, Severity.Normal, config =>
+                    {
+                        config.VisibleStateDuration = 60000;
+                    });
+           StateHasChanged();
+       });
+
+        WebSocket.connection.On<Chat>("ChatSupport", m =>
+        {
+            WebSocket.chatList.Add(m);
+
+            StateHasChanged();
+        });
+    }
+
+    void MoveToChatSupport(string id)
+    {
+        NavManager.NavigateTo($"/ChatSupport/{id}");
+    }
+}

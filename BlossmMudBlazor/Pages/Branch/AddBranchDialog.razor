@@ -1,0 +1,117 @@
+﻿@using System.Net.Http.Json
+@using BlazorMudClient.DTO.GoongDTO;
+@using BlossmAPI.Models;
+@using BlossmMudBlazor.Models.StaticValue;
+@using BlossmAPI.ModelViews;
+@using BlazorMudClient.DTO;
+
+@inject HttpClient http;
+@inject ISnackbar Snackbar;
+
+<MudDialog>
+    <DialogContent>
+        <MudCard>
+            <MudCardContent>
+                <MudForm Model="@view" @ref="@form">
+                    <MudAutocomplete T="string" Label="Address" @bind-Value="@view.Address" SearchFunc="@Search2"
+                                     ResetValueOnEmptyText="@resetValueOnEmptyText"
+                                     CoerceText="@coerceText" CoerceValue="@coerceValue"
+                                     AdornmentColor="MudBlazor.Color.Primary" />
+                    <MudSelect T="int?" @bind-Value="@view.IdArea" Label="Price" Variant="Variant.Outlined" AnchorOrigin="Origin.BottomCenter">
+                        @foreach (var area in areas)
+                        {
+                            <MudSelectItem T="int?" Value="area.Id">
+                                @area.Name
+                            </MudSelectItem>
+                        }
+                    </MudSelect>
+                    <MudSelect T="string" @bind-Value="@view.Manager" Label="Price" Variant="Variant.Outlined" AnchorOrigin="Origin.BottomCenter">
+                        @foreach (var emp in employees)
+                        {
+                            <MudSelectItem T="string" Value="emp.IdUser">
+                                @emp.IdUserNavigation.FirstName @emp.IdUserNavigation.LastName
+                            </MudSelectItem>
+                        }
+                    </MudSelect>
+                </MudForm>
+            </MudCardContent>
+        </MudCard>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+        <MudButton Color="MudBlazor.Color.Primary" OnClick="Submit">Ok</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+
+    private BranchView view = new BranchView();
+    private MudForm form;
+    private bool resetValueOnEmptyText;
+    private bool coerceText;
+    private bool coerceValue;
+    private List<Area> areas = new List<Area>();
+    private List<Employee> employees = new List<Employee>();
+    private LocationModel model = new LocationModel();
+
+    protected override async Task OnInitializedAsync()
+    {
+        view.Address = "";
+        view.IdArea = 0;
+        view.Manager = "";
+
+        areas = await http.GetFromJsonAsync<List<Area>>("api/Area/GetAll");
+        employees = await http.GetFromJsonAsync<List<Employee>>("api/Users/GetAllEmployee");
+    }
+
+    async Task Submit() 
+    {
+        if (!string.IsNullOrEmpty(view.Address))
+        {
+            var rs = await http.PostAsJsonAsync("api/Branch/CreateBranch", view);
+
+            if (rs.IsSuccessStatusCode)
+            {
+                MudDialog.Close(DialogResult.Ok(true));
+                Snackbar.Add("Create Branch successfully!", Severity.Success);
+            }
+            else
+            {
+                Snackbar.Add("Something wrong", Severity.Error);
+            }
+        }
+    }
+    void Cancel() => MudDialog.Cancel();
+    private async Task<IEnumerable<string>> Search2(string value)
+    {
+        // In real life use an asynchronous function for fetching data from an api.
+
+        await Task.Delay(5);
+
+        // if text is null or empty, don't return values (drop-down will not open)
+        if (string.IsNullOrEmpty(value))
+            return new string[0];
+
+        if (value.Length >= 7)
+        {
+            string api = "https://rsapi.goong.io/Place/AutoComplete" +
+            "?api_key=" + StaticValue.goongKey +
+            "&location=" + model.Latitude + ", " + model.Longitude +
+            "&input=" + value;
+
+            try
+            {
+                AutoComplete autoComplete = await http.GetFromJsonAsync<AutoComplete>(api);
+                return autoComplete.predictions.Select(p => p.description);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+        }
+
+        return new string[0];
+    }
+}

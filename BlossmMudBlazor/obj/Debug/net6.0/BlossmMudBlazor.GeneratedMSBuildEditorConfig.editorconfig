@@ -1,0 +1,151 @@
+is_global = true
+build_property.EnableAotAnalyzer = 
+build_property.EnableSingleFileAnalyzer = 
+build_property.EnableTrimAnalyzer = false
+build_property.IncludeAllContentForSelfExtract = 
+build_property.TargetFramework = net6.0
+build_property.TargetPlatformMinVersion = 
+build_property.UsingMicrosoftNETSdkWeb = 
+build_property.ProjectTypeGuids = 
+build_property.InvariantGlobalization = false
+build_property.PlatformNeutralAssembly = 
+build_property.EnforceExtendedAnalyzerRules = 
+build_property._SupportedPlatformList = browser
+build_property.RootNamespace = BlossmMudBlazor
+build_property.RootNamespace = BlossmMudBlazor
+build_property.ProjectDir = D:\nam4\dotnet_project\Blossm\BlossmMudBlazor\
+build_property.EnableComHosting = 
+build_property.EnableGeneratedComInterfaceComImportInterop = 
+build_property.RazorLangVersion = 6.0
+build_property.SupportLocalizedComponentNames = 
+build_property.GenerateRazorMetadataSourceChecksumAttributes = 
+build_property.MSBuildProjectDirectory = D:\nam4\dotnet_project\Blossm\BlossmMudBlazor
+build_property._RazorSourceGeneratorDebug = 
+
+[D:/nam4/dotnet_project/Blossm/BlossmMudBlazor/App.razor]
+build_metadata.AdditionalFiles.TargetPath = QXBwLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/nam4/dotnet_project/Blossm/BlossmMudBlazor/Dialogs/ConfirmDialog.razor]
+build_metadata.AdditionalFiles.TargetPath = RGlhbG9nc1xDb25maXJtRGlhbG9nLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/nam4/dotnet_project/Blossm/BlossmMudBlazor/Dialogs/LoginDialog.razor]
+build_metadata.AdditionalFiles.TargetPath = RGlhbG9nc1xMb2dpbkRpYWxvZy5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/nam4/dotnet_project/Blossm/BlossmMudBlazor/Dialogs/UserDialog.razor]
+build_metadata.AdditionalFiles.TargetPath = RGlhbG9nc1xVc2VyRGlhbG9nLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/nam4/dotnet_project/Blossm/BlossmMudBlazor/Dialogs/VoucherDia.razor]
+build_metadata.AdditionalFiles.TargetPath = RGlhbG9nc1xWb3VjaGVyRGlhLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/nam4/dotnet_project/Blossm/BlossmMudBlazor/Pages/Branch/AddBranchDialog.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQnJhbmNoXEFkZEJyYW5jaERpYWxvZy5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/nam4/dotnet_project/Blossm/BlossmMudBlazor/Pages/Branch/BranchIndex.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQnJhbmNoXEJyYW5jaEluZGV4LnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/nam4/dotnet_project/Blossm/BlossmMudBlazor/Pages/ChatSupport/ChatSupport.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ2hhdFN1cHBvcnRcQ2hhdFN1cHBvcnQucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/nam4/dotnet_project/Blossm/BlossmMudBlazor/Pages/Index.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcSW5kZXgucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/nam4/dotnet_project/Blossm/BlossmMudBlazor/Pages/Newspaper/IndexNewspapers.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcTmV3c3BhcGVyXEluZGV4TmV3c3BhcGVycy5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/nam4/dotnet_project/Blossm/BlossmMudBlazor/Pages/Newspaper/NewspaperAddDia.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcTmV3c3BhcGVyXE5ld3NwYXBlckFkZERpYS5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/nam4/dotnet_project/Blossm/BlossmMudBlazor/Pages/Newspaper/NewspaperDia.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcTmV3c3BhcGVyXE5ld3NwYXBlckRpYS5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/nam4/dotnet_project/Blossm/BlossmMudBlazor/Pages/Order/DetailOrdersDialog.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcT3JkZXJcRGV0YWlsT3JkZXJzRGlhbG9nLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/nam4/dotnet_project/Blossm/BlossmMudBlazor/Pages/Order/IndexOrders.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcT3JkZXJcSW5kZXhPcmRlcnMucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/nam4/dotnet_project/Blossm/BlossmMudBlazor/Pages/Product/AddCommentDialog.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcUHJvZHVjdFxBZGRDb21tZW50RGlhbG9nLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/nam4/dotnet_project/Blossm/BlossmMudBlazor/Pages/Product/AddImageDialog.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcUHJvZHVjdFxBZGRJbWFnZURpYWxvZy5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/nam4/dotnet_project/Blossm/BlossmMudBlazor/Pages/Product/AddProductDialog.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcUHJvZHVjdFxBZGRQcm9kdWN0RGlhbG9nLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/nam4/dotnet_project/Blossm/BlossmMudBlazor/Pages/Product/IndexProduct.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcUHJvZHVjdFxJbmRleFByb2R1Y3QucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/nam4/dotnet_project/Blossm/BlossmMudBlazor/Pages/Product/UpdateProductDialog.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcUHJvZHVjdFxVcGRhdGVQcm9kdWN0RGlhbG9nLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/nam4/dotnet_project/Blossm/BlossmMudBlazor/Pages/Product/ViewProductDialog.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcUHJvZHVjdFxWaWV3UHJvZHVjdERpYWxvZy5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/nam4/dotnet_project/Blossm/BlossmMudBlazor/Pages/Profile.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcUHJvZmlsZS5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/nam4/dotnet_project/Blossm/BlossmMudBlazor/Pages/PurchaseOrder/ComfirmPaymentDialog.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcUHVyY2hhc2VPcmRlclxDb21maXJtUGF5bWVudERpYWxvZy5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/nam4/dotnet_project/Blossm/BlossmMudBlazor/Pages/PurchaseOrder/DetailPODialog.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcUHVyY2hhc2VPcmRlclxEZXRhaWxQT0RpYWxvZy5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/nam4/dotnet_project/Blossm/BlossmMudBlazor/Pages/PurchaseOrder/OrderPurchase.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcUHVyY2hhc2VPcmRlclxPcmRlclB1cmNoYXNlLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/nam4/dotnet_project/Blossm/BlossmMudBlazor/Pages/PurchaseRequest/AddPR.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcUHVyY2hhc2VSZXF1ZXN0XEFkZFBSLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/nam4/dotnet_project/Blossm/BlossmMudBlazor/Pages/PurchaseRequest/DetailPRDialog.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcUHVyY2hhc2VSZXF1ZXN0XERldGFpbFBSRGlhbG9nLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/nam4/dotnet_project/Blossm/BlossmMudBlazor/Pages/PurchaseRequest/RequestPurchase.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcUHVyY2hhc2VSZXF1ZXN0XFJlcXVlc3RQdXJjaGFzZS5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/nam4/dotnet_project/Blossm/BlossmMudBlazor/Pages/Voucher/AddVoucherDialog.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcVm91Y2hlclxBZGRWb3VjaGVyRGlhbG9nLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/nam4/dotnet_project/Blossm/BlossmMudBlazor/Pages/Voucher/VoucherIndex.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcVm91Y2hlclxWb3VjaGVySW5kZXgucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/nam4/dotnet_project/Blossm/BlossmMudBlazor/Shared/MainLayout.razor]
+build_metadata.AdditionalFiles.TargetPath = U2hhcmVkXE1haW5MYXlvdXQucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/nam4/dotnet_project/Blossm/BlossmMudBlazor/Shared/NavMenu.razor]
+build_metadata.AdditionalFiles.TargetPath = U2hhcmVkXE5hdk1lbnUucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/nam4/dotnet_project/Blossm/BlossmMudBlazor/_Imports.razor]
+build_metadata.AdditionalFiles.TargetPath = X0ltcG9ydHMucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 

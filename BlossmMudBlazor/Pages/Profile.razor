@@ -1,0 +1,57 @@
+﻿@page "/Profile"
+@using BlossmMudBlazor.DTO;
+@using BlossmMudBlazor.Patterms;
+
+<PageTitle>Profile</PageTitle>
+@if (BlossmSingleTon.Instance.GetEmployeeProfile() != null)
+{
+    <MudTabs Elevation="4" Rounded="true" Outlined="true" ApplyEffectsToContainer="true" PanelClass="pa-4">
+        <MudTabPanel Text="Personal information">
+            <MudItem xs="12" sm="6" md="4">
+                <MudField Label="Full name" Variant="Variant.Text">@employeeProfile.firstName @employeeProfile.lastName</MudField>
+            </MudItem>
+            <MudItem xs="12" sm="6" md="4">
+                <MudField Label="Email" Variant="Variant.Text">@employeeProfile.email</MudField>
+            </MudItem>
+            <MudItem xs="12" sm="6" md="4">
+                <MudField Label="Phone" Variant="Variant.Text">@employeeProfile.phoneNumber</MudField>
+            </MudItem>
+            <MudItem xs="12" sm="6" md="4">
+                <MudField Label="Start Date" Variant="Variant.Text">@employeeProfile.startDate</MudField>
+            </MudItem>
+            <MudItem xs="12" sm="6" md="4">
+                <MudField Label="End Date" Variant="Variant.Text">@employeeProfile.endDate</MudField>
+            </MudItem>  
+        </MudTabPanel>
+        <MudTabPanel Text="Managed by">
+            <MudItem xs="12" sm="6" md="4">
+                <MudField Label="Full name" Variant="Variant.Text">@employeeProfile.firstNameManager @employeeProfile.lastNameManager</MudField>
+            </MudItem>
+            <MudItem xs="12" sm="6" md="4">
+                <MudField Label="Email" Variant="Variant.Text">@employeeProfile.emailManager</MudField>
+            </MudItem>
+            <MudItem xs="12" sm="6" md="4">
+                <MudField Label="Phone" Variant="Variant.Text">@employeeProfile.phoneManager</MudField>
+            </MudItem>
+        </MudTabPanel>
+        <MudTabPanel Text="Working at">
+            <MudItem xs="12" sm="6" md="4">
+                <MudField Label="Branch" Variant="Variant.Text">@employeeProfile.address</MudField>
+            </MudItem>
+            <MudItem xs="12" sm="6" md="4">
+                <MudField Label="Area" Variant="Variant.Text">@employeeProfile.name</MudField>
+            </MudItem>
+        </MudTabPanel>
+    </MudTabs>
+}
+
+@code {
+    EmployeeProfile employeeProfile;
+
+    protected override async Task OnInitializedAsync()
+    {
+        employeeProfile = BlossmSingleTon.Instance.GetEmployeeProfile();
+    }
+
+
+}

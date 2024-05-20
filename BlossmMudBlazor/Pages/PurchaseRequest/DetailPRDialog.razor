@@ -1,0 +1,250 @@
+﻿@using BlossmMudBlazor.DTO;
+@using BlossmMudBlazor.Dialogs;
+@using BlossmMudBlazor.Patterms;
+@using BlossmMudBlazor.Helper;
+
+@inject HttpClient httpClient;
+@inject ISnackbar Snackbar
+@inject IDialogService DialogService
+
+<MudDialog>
+    <DialogContent>
+        <MudGrid>
+            <MudItem xs="12">
+                <MudField Label="Id" Variant="Variant.Text">PR-@Context.id</MudField>
+            </MudItem>
+            <MudItem xs="6">
+                <MudField Label="Date Create" Variant="Variant.Text">@Context.createDate</MudField>
+            </MudItem>
+            <MudItem xs="6">
+                <MudField Label="Deadline" Variant="Variant.Text">@Context.deadline</MudField>
+            </MudItem>
+            <MudItem xs="6">
+                <MudField Label="Branch Adress" Variant="Variant.Text">@Context.branchAdress</MudField>
+            </MudItem>
+            <MudItem xs="6">
+                <MudField Label="Supplier Name" Variant="Variant.Text">@Context.supplierName</MudField>
+            </MudItem>
+            <MudItem xs="12">
+                <MudField Label="Requester" Variant="Variant.Text">@Context.fullNameRequester</MudField>
+            </MudItem>
+            <MudItem xs="6">
+                <MudField Label="Approver" Variant="Variant.Text">@Context.approverFirstName @Context.approverLastName</MudField>
+            </MudItem>
+            <MudItem xs="6">
+                <MudField Label="Approver Date" Variant="Variant.Text">@Context.approvalDate</MudField>
+            </MudItem>
+            <MudItem xs="12">
+                <MudField Label="Notes" Variant="Variant.Text">@Context.notes</MudField>
+            </MudItem>
+            @if (Context.productItems != null)
+            {
+                <MudTable SortLabel="Sort By" Items="@Context.productItems" Dense="@dense" Hover="@hover" Bordered="@bordered" Striped="@striped" Filter="new Func<ProductItem,bool>(FilterFunc1)" @bind-SelectedItem="selectedItem1">
+                    <ToolBarContent>
+                        <MudText Typo="Typo.h6">Periodic Elements</MudText>
+                        <MudSpacer />
+                        <MudTextField @bind-Value="searchString1" Placeholder="Search" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+                    </ToolBarContent>
+                    <HeaderContent>
+                        <MudTh>
+                            <MudTableSortLabel SortBy="new Func<ProductItem, object>(x=>x.id)">
+                                Id
+                            </MudTableSortLabel>
+                        </MudTh>
+                        <MudTh>Product Name</MudTh>
+                        <MudTh>Color</MudTh>
+                        <MudTh>Size</MudTh>
+                        <MudTh>Unit</MudTh>
+                        <MudTh>
+                            <MudTableSortLabel SortBy="new Func<ProductItem, object>(x=>x.PurchasePrice)">
+                                Purchase Price
+                            </MudTableSortLabel>
+                        </MudTh>
+                        <MudTh>
+                            <MudTableSortLabel SortBy="new Func<ProductItem, object>(x=>x.Quantity)">
+                                Quantity
+                            </MudTableSortLabel>
+                        </MudTh>
+                    </HeaderContent>
+                    <RowTemplate>
+                        <MudTd DataLabel="Nr">PV-@context.id</MudTd>
+                        <MudTd DataLabel="Sign">@context.product</MudTd>
+                        <MudTd DataLabel="Name">@context.color</MudTd>
+                        <MudTd DataLabel="Position">@context.size</MudTd>
+                        <MudTd DataLabel="Molar mass">@context.unit</MudTd>
+                        <MudTd DataLabel="Molar mass">@String.Format("{0:0,0}", context.PurchasePrice)</MudTd>
+                        <MudTd DataLabel="Molar mass">@context.Quantity</MudTd>
+                    </RowTemplate>
+                    <PagerContent>
+                        <MudTablePager />
+                    </PagerContent>
+                </MudTable>
+            }
+
+            <MudItem xs="12">
+                <h2>Total Amount: @String.Format("{0:0,0}", Context.totalAmount)</h2>
+                <h2>Total Quantity: @Context.totalQuantity</h2>
+            </MudItem>
+            
+            <div class="d-flex flex-wrap mt-4">
+                <MudSwitch @bind-Checked="@hover" Color="Color.Primary">Hover</MudSwitch>
+                <MudSwitch @bind-Checked="@dense" Color="Color.Secondary">Dense</MudSwitch>
+                <MudSwitch @bind-Checked="@striped" Color="Color.Tertiary">Striped</MudSwitch>
+                <MudSwitch @bind-Checked="@bordered" Color="Color.Warning">Bordered</MudSwitch>
+                <MudSpacer />
+            </div>
+        </MudGrid>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+        @if (employeeProfile.idBranch == 1)
+        {
+            if (Context.idStatus != 3 && Context.idStatus != 2 && Context.idStatus != 4)
+            {
+                <MudButton Color="Color.Error" OnClick="() => Reject(Context.id)">Reject</MudButton>
+                <MudButton Color="Color.Success" OnClick="() => Accpet(Context.id)">Accept</MudButton>
+            }
+           
+        }
+    </DialogActions>
+</MudDialog>
+
+
+@code {
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+    [Parameter] public PurchaseRequest Context { get; set; }
+
+    private bool dense = false;
+    private bool hover = true;
+    private bool striped = false;
+    private bool bordered = false;
+    private string searchString1 = "";
+    private ProductItem selectedItem1 = null;
+    private HashSet<ProductItem> selectedItems = new HashSet<ProductItem>();
+
+    EmployeeProfile employeeProfile = new EmployeeProfile();
+    List<PurchaseRequestStatus> listStatus = new List<PurchaseRequestStatus>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        if(BlossmSingleTon.Instance.GetEmployeeProfile() != null)
+            employeeProfile = BlossmSingleTon.Instance.GetEmployeeProfile();
+        if (BlossmSingleTon.Instance.GetPRStatus() != null)
+            listStatus = BlossmSingleTon.Instance.GetPRStatus();
+
+    }
+
+    async Task Reject(int id) 
+    {
+        try
+        {
+            var options = new DialogOptions
+                {
+                    ClassBackground = "my-custom-class",
+                    DisableBackdropClick = true
+                };
+            var dialog = await DialogService.ShowAsync<ConfirmDialog>("Confirm", options);
+            var rsDia = await dialog.Result;
+
+            if ((bool)rsDia.Data == true)
+            {
+                var rs = await httpClient.PostAsJsonAsync("/api/Purchase/RejectRequest", id);
+                if (rs.IsSuccessStatusCode)
+                {
+                    NotiPR notiPR = new NotiPR();
+
+                    notiPR.action = $"PR-{id} has been Rejected";
+                    notiPR.fullname = employeeProfile.lastName + " " + employeeProfile.firstName;
+                    notiPR.dateTime = DateTime.Now;
+
+                    var user = WebSocket.onlineUsers.FirstOrDefault(o => o.isBranchManager == true && o.idBranch == Context.idBranch);
+
+                    if (user != null)
+                    {
+                        notiPR.idClient = user.idClient;
+                        await httpClient.PostAsJsonAsync("/api/WebSocket/NotiRequestPurchase", notiPR);
+                    }
+
+
+                    Snackbar.Add("Reject Successfully", Severity.Success);
+                    MudDialog.Close(DialogResult.Ok(true));
+                }
+                else
+                    Snackbar.Add(await rs.Content.ReadAsStringAsync(), Severity.Error);
+            }
+        }
+        catch
+        {
+
+        }
+
+
+    }
+
+    async Task Accpet(int id)
+    {
+        try
+        {
+            var options = new DialogOptions
+                {
+                    ClassBackground = "my-custom-class",
+                    DisableBackdropClick = true
+                };
+
+            var dialog = await DialogService.ShowAsync<ConfirmDialog>("Confirm", options);
+            var rsDia = await dialog.Result;
+
+            if ((bool)rsDia.Data == true)
+            {
+                var rs = await httpClient.PostAsJsonAsync("/api/Purchase/AcceptRequest", id);
+                if (rs.IsSuccessStatusCode)
+                {
+                    NotiPR notiPR = new NotiPR();
+
+                    notiPR.action = $"PR-{id} has been Accepted";
+                    notiPR.fullname = employeeProfile.lastName + " " + employeeProfile.firstName;
+                    notiPR.dateTime = DateTime.Now;
+
+                    var user = WebSocket.onlineUsers.FirstOrDefault(o => o.isBranchManager == true && o.idBranch == Context.idBranch);
+
+                    if (user != null)
+                    {
+                        notiPR.idClient = user.idClient;
+                        await httpClient.PostAsJsonAsync("/api/WebSocket/NotiRequestPurchase", notiPR);
+                    }
+
+
+                    Snackbar.Add("Accept Successfully", Severity.Success);
+                    MudDialog.Close(DialogResult.Ok(true));
+                }
+                else
+                    Snackbar.Add(await rs.Content.ReadAsStringAsync(), Severity.Error);
+            }
+        }
+        catch
+        {
+            
+        }
+        
+    }
+
+    void Cancel() => MudDialog.Cancel();
+
+    private bool FilterFunc1(ProductItem element) => FilterFunc(element, searchString1);
+
+    private bool FilterFunc(ProductItem element, string searchString)
+    {
+        if (string.IsNullOrWhiteSpace(searchString))
+            return true;
+        if (element.color.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        if (element.size.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        if (element.unit.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        if (element.product.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        
+        return false;
+    }
+}

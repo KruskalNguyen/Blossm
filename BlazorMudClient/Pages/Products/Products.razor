@@ -1,0 +1,422 @@
+﻿@using BlazorMudClient.DARK_CODE
+@using BlazorMudClient.DTO
+@using BlossmAPI.Models;
+@using BlossmAPI.ModelViews;
+@using BlossmMudBlazor.DTO;
+@using MudBlazor;
+
+@inject HttpClient httpClient
+@inject ISnackbar Snackbar
+@inject IDialogService DialogService
+@inject NavigationManager NavManager
+
+@page "/product"
+
+<h3>Product</h3>
+
+<MudGrid>
+    <MudItem xs="2">
+        <MudPaper Width="250px" Elevation="0" Class="py-3">
+            <MudNavMenu Color="MudBlazor.Color.Info">
+                @*
+                <MudItem>
+                Name
+                <MudTextField @bind-Value="productName" Variant="Variant.Outlined" Margin="Margin.Dense"></MudTextField>
+                </MudItem>
+                *@
+               @* <MudItem>
+                    <MudSlider @bind-Value="pricevalue" Min="0" Max="10000000" Color="MudBlazor.Color.Info">Price: @currencyformat()</MudSlider>
+                </MudItem>*@
+                
+                <MudItem>
+                    Color
+                    @foreach(var item in colors)
+                    {
+                        <MudTreeView MultiSelection="true" @bind-SelectedValues="SelectedColor">
+                            <MudTreeViewItem T="string" Value="@item.name"  />   @* @(nameOfUnit)*@
+                        </MudTreeView>
+                    }
+                </MudItem>
+                <MudItem>
+                    Unit
+                    @foreach(var item in units)
+                    {
+                        <MudTreeView MultiSelection="true" @bind-SelectedValues="SelectedUnit">
+                            <MudTreeViewItem T="string" Value="@item.name"  />   @* @(nameOfUnit)*@
+                        </MudTreeView>
+                    }
+                </MudItem>
+                <MudItem>
+                    Size
+                    @foreach (var item in sizes)
+                    {
+                        <MudTreeView MultiSelection="true" @bind-SelectedValues="SelectedSize">
+                            <MudTreeViewItem T="string" Value="@item.name" />   @* @(nameOfUnit)*@
+                        </MudTreeView>
+                    }
+                </MudItem>
+                <MudItem>
+                    Category
+                    <MudTreeView MultiSelection="true" @bind-SelectedValues="SelectedCategory">
+                        @foreach(var parent in waterfalls)
+                        {
+                            <MudTreeViewItem Value="@parent.parent.Name">
+                                @foreach(var child in parent.childs)
+                                {
+                                    <MudTreeViewItem Value="@child.Name" /> @* @(nameOfCategory)*@
+                                }
+                            </MudTreeViewItem>
+                        }
+                    </MudTreeView>
+                </MudItem>
+                <MudButton Variant="Variant.Filled" Color="MudBlazor.Color.Primary" OnClick="Filter">Apply</MudButton>
+                <MudButton Variant="Variant.Filled" Color="MudBlazor.Color.Secondary">Reset</MudButton>
+            </MudNavMenu>
+        </MudPaper>
+    </MudItem>
+
+
+    <MudItem xs="10">
+        <MudGrid>
+            @foreach(var detail in details)
+            {
+                if(detail.variant.Count() > 0)
+                {
+                    <MudItem xs="4">
+                        <MudCard Outlined="true">
+                            <MudCardContent>
+                                <MudCarousel Class="mud-width-full" Style="height:550px;" ShowArrows="true" ShowBullets="true" EnableSwipeGesture="true" AutoCycle="false" TData="object">
+                                    @if(detail.allImg.Count() > 0)
+                                    {
+                                        @foreach (var img in detail.allImg)
+                                        {
+                                            <MudCarouselItem Transition="Transition.Slide" Color="@MudBlazor.Color.Primary">
+                                                <div class="d-flex" style="height:100%; min-width:100%; max-width:100%">
+                                                    <MudImage Fluid="true" Src="@img" ObjectFit="ObjectFit.Fill" ObjectPosition="ObjectPosition.Center"></MudImage>
+                                                </div>
+                                            </MudCarouselItem>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <MudCarouselItem Transition="Transition.Slide" Color="@MudBlazor.Color.Primary">
+
+                                            <div class="d-flex" style="height:100%">
+                                                <MudIcon Class="mx-auto my-auto" Icon="@Icons.Custom.Brands.MudBlazor" Size="@MudBlazor.Size.Large" />
+                                            </div>
+                                        </MudCarouselItem>
+                                    }
+                                </MudCarousel>
+                            </MudCardContent>
+                            <MudItem>
+                                <div style="text-align: center; font-size: 18px;">@detail.product.Name</div>
+                            </MudItem>
+                            <MudItem>
+                                <MudIconButton Icon="@Icons.Material.Filled.RemoveRedEye" Color="MudBlazor.Color.Primary" OnClick="() => OpenDetailsDialog(detail)" />
+                                <MudIconButton Icon="@Icons.Material.Filled.Favorite" Color="MudBlazor.Color.Primary" />
+                            </MudItem>
+                        </MudCard>
+                    </MudItem>
+                }
+            }
+        </MudGrid>
+    </MudItem>
+</MudGrid>
+
+@code
+{
+    private readonly int MIN_PRICE = 0; 
+    private readonly int MAX_PRICE = 10000000; 
+    public double pricevalue = 10000000;
+    //public string productName { get; set; }
+    private HttpResponseMessage response = new HttpResponseMessage();
+    private List<VariantDetails> details = new List<VariantDetails>();
+    private List<VariantDetails> sortedDetails = new List<VariantDetails>();
+
+    private List<SizeView> sizes = new List<SizeView>();
+    private List<UnitView> units = new List<UnitView>();
+    private List<ColorView> colors = new List<ColorView>();
+    private List<Category> categories = new List<Category>();
+    List<CategoryWaterfall> waterfalls = new List<CategoryWaterfall>();
+
+    HashSet<string> SelectedColor { get; set; }
+    HashSet<string> SelectedUnit { get; set; }
+    HashSet<string> SelectedSize { get; set; }
+    HashSet<string> SelectedCategory { get; set; }
+
+
+    void SetProductSearch()
+    {
+        foreach (var item in StaticValue.variantDetails)
+        {
+            foreach (var item2 in item.variant)
+            {
+                ProductSearch productSearch = new ProductSearch();
+                productSearch.id = item.id;
+                productSearch.name = $"{item.product.Name} {item2.IdSizeNavigation.Name} {item2.IdUnitNavigation.Name} {item2.IdColorNavigation.Name}";
+                StaticValue.productSearches.Add(productSearch);
+            }
+
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (StaticValue.variantDetails.Count() == 0)
+        {
+            await FillData();
+            StaticValue.variantDetails = details;
+            SetProductSearch();
+        }
+        else
+        {
+            details = StaticValue.variantDetails;
+            SetProductSearch();
+        }
+
+        sizes = (List<SizeView>)await httpClient.GetFromJsonAsync("api/Size/GetSizes", typeof(List<SizeView>));
+        units = (List<UnitView>)await httpClient.GetFromJsonAsync("api/Unit/GetUnits", typeof(List<UnitView>));
+        colors = (List<ColorView>)await httpClient.GetFromJsonAsync("api/Color/GetColors", typeof(List<ColorView>));
+        categories = (List<Category>)await httpClient.GetFromJsonAsync("/api/Category/GetCategories", typeof(List<Category>));
+
+        foreach (var item in categories)
+        {
+            if (item.ChildOf == null)
+            {
+                CategoryWaterfall waterfall = new CategoryWaterfall();
+                waterfall.parent = item;
+                waterfalls.Add(waterfall);
+            }
+        }
+        foreach (var child in categories)
+        {
+            foreach (var parent in waterfalls)
+            {
+                if (child.ChildOf == parent.parent.Id)
+                {
+                    parent.childs.Add(child);
+                }
+            }
+        }
+
+        StateHasChanged();
+    }
+    protected async Task FillData()
+    {
+        #region init product
+        var prlist = (List<BlossmAPI.Models.Product>)await httpClient.GetFromJsonAsync("/api/Product/GetProducts", typeof(List<BlossmAPI.Models.Product>));
+
+        foreach (var item in prlist)
+        {
+            VariantDetails detail = new VariantDetails();
+            detail.id = Guid.NewGuid().ToString();
+            detail.product = item;
+            details.Add(detail);
+        }
+
+        foreach (var item in details)
+        {
+            response = await httpClient.PostAsJsonAsync("/api/Product/GetByProductId", item.product.Id);
+            List<ProductVariant> variants = new List<ProductVariant>();
+            variants = (List<ProductVariant>)await response.Content.ReadFromJsonAsync(typeof(List<ProductVariant>));
+            variants = variants.Where(v => v.Publish == true).ToList();
+
+            foreach (var variant in variants)
+            {
+                item.variant.Add(variant);
+            }
+        }
+
+        foreach (var item in details)
+        {
+            foreach (var variant in item.variant)
+            {
+                response = await httpClient.PostAsJsonAsync("api/Image/GetImagesByVariantId", variant.Id);
+
+                variant.Images = new List<BlossmAPI.Models.Image>();
+                variant.Images = (List<BlossmAPI.Models.Image>)await response.Content.ReadFromJsonAsync(typeof(List<BlossmAPI.Models.Image>));
+            }
+        }
+        foreach (var item in details)
+        {
+            foreach(var variant in item.variant)
+            {
+                foreach(var img in variant.Images)
+                {
+                    string imageDataUrl = $"data:image/png;base64,{img.Images}";
+                    item.allImg.Add(imageDataUrl);
+                }
+            }
+        }
+        #endregion
+
+        
+    }
+    string currencyformat()
+    {
+        var info = System.Globalization.CultureInfo.GetCultureInfo("vi-VN");
+        return String.Format(info, "{0:c}", pricevalue);
+    }
+    private void ElementsToTempElements()
+    {
+        sortedDetails = new List<VariantDetails>();
+        foreach (var item in details)
+        {
+            VariantDetails a = new VariantDetails();
+            a.id = Guid.NewGuid().ToString();
+            foreach (var variant in item.variant)
+            {
+                ProductVariant p = variant;
+                a.variant.Add(p);
+            }
+            foreach (var img in item.allImg)
+            {
+                a.allImg.Add(img);
+            }
+            a.product = item.product;
+            a.ShowDetails = item.ShowDetails;
+            sortedDetails.Add(a);
+        }
+    }
+    private void TempElementsToElements()
+    {
+        details = new List<VariantDetails>();
+        foreach (var item in sortedDetails)
+        {
+            VariantDetails a = new VariantDetails();
+            a.id = Guid.NewGuid().ToString();
+            foreach (var variant in item.variant)
+            {
+                ProductVariant p = variant;
+                a.variant.Add(p);
+            }
+            foreach(var img in item.allImg)
+            {
+                a.allImg.Add(img);
+            }
+            a.product = item.product;
+            a.ShowDetails = item.ShowDetails;
+            details.Add(a);
+        }
+    }
+
+    public void Filter()
+    {
+        FilterDetails();
+        StateHasChanged();
+    }
+    public void FilterDetails()
+    {
+        if(sortedDetails.Count() == 0)
+        {
+            ElementsToTempElements();
+        }
+        if(SelectedUnit.Count() == 0 && SelectedColor.Count() == 0 && SelectedSize.Count() == 0 && SelectedCategory.Count() == 0)
+        {
+            TempElementsToElements();
+            return;
+        }
+        if (SelectedCategory.Count() > 0)
+        {
+            TempElementsToElements();
+            details = sortedDetails.Where(p => SelectedCategory.Contains(p.product.IdCategoryNavigation.Name)).ToList();
+        }
+        if (SelectedUnit.Count() > 0 && SelectedColor.Count > 0 && SelectedSize.Count() > 0)
+        {
+            TempElementsToElements();
+            for (int i = 0; i < sortedDetails.Count(); i++)
+            {
+                details[i].variant = sortedDetails[i].variant
+                .Where(t =>
+                    SelectedUnit.Contains(t.IdUnitNavigation.Name)
+                || SelectedSize.Contains(t.IdSizeNavigation.Name)
+                || SelectedColor.Contains(t.IdColorNavigation.Name))
+                .ToList();
+            }
+        }
+        else if (SelectedColor.Count > 0 && SelectedUnit.Count > 0)
+        {
+            TempElementsToElements();
+            for (int i = 0; i < sortedDetails.Count(); i++)
+            {
+                details[i].variant = sortedDetails[i].variant
+                .Where(t =>
+                    SelectedColor.Contains(t.IdColorNavigation.Name)
+                || SelectedUnit.Contains(t.IdUnitNavigation.Name))
+                .ToList();
+            }
+        }
+        else if (SelectedColor.Count > 0 && SelectedSize.Count > 0)
+        {
+            TempElementsToElements();
+            for (int i = 0; i < sortedDetails.Count(); i++)
+            {
+                details[i].variant = sortedDetails[i].variant
+                .Where(t =>
+                    SelectedColor.Contains(t.IdColorNavigation.Name)
+                || SelectedSize.Contains(t.IdSizeNavigation.Name))
+                .ToList();
+            }
+        }
+        else if (SelectedUnit.Count > 0 && SelectedSize.Count > 0)
+        {
+            TempElementsToElements();
+            for (int i = 0; i < sortedDetails.Count(); i++)
+            {
+                details[i].variant = sortedDetails[i].variant
+                .Where(t =>
+                    SelectedUnit.Contains(t.IdUnitNavigation.Name)
+                || SelectedSize.Contains(t.IdSizeNavigation.Name))
+                .ToList();
+            }
+        }
+        else if (SelectedUnit.Count > 0)
+        {
+            TempElementsToElements();
+            for (int i = 0; i < sortedDetails.Count(); i++)
+            {
+                details[i].variant = sortedDetails[i].variant
+                .Where(t =>
+                    SelectedUnit.Contains(t.IdUnitNavigation.Name))
+                .ToList();
+            }
+        }
+        else if (SelectedColor.Count > 0)
+        {
+            TempElementsToElements();
+            for (int i = 0; i < sortedDetails.Count(); i++)
+            {
+                details[i].variant = sortedDetails[i].variant
+                .Where(t =>
+                    SelectedColor.Contains(t.IdColorNavigation.Name))
+                .ToList();
+            }
+        }
+        else if (SelectedSize.Count > 0)
+        {
+            TempElementsToElements();
+            for (int i = 0; i < sortedDetails.Count(); i++)
+            {
+                details[i].variant = sortedDetails[i].variant
+                .Where(t =>
+                    SelectedSize.Contains(t.IdSizeNavigation.Name))
+                .ToList();
+            }
+        }
+
+    }
+    private async void OpenDetailsDialog(VariantDetails variant)
+    {
+        var param = new DialogParameters<DetailsDialog>();
+        param.Add(x => x.details, variant);
+        var options = new DialogOptions { MaxWidth = MaxWidth.Medium, FullScreen = true, CloseButton = true, DisableBackdropClick = true };
+        var rs = await DialogService.ShowAsync<DetailsDialog>("Product #" + variant.product.Id, param, options);
+        var rs1 = await rs.Result;
+        if (rs1.Cancelled)
+        {
+            NavManager.NavigateTo("/Product");
+        }
+    }
+
+
+}

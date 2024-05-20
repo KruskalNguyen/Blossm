@@ -1,0 +1,100 @@
+﻿@using BlossmAPI.Models;
+@using BlossmAPI.ModelViews;
+@using BlazorMudClient.DTO;
+@using BlazorMudClient.DARK_CODE;
+
+@inject HttpClient http;
+@inject ISnackbar Snackbar;
+
+@if(StaticValue.AspNetUser != null)
+{
+    <MudTextField Class="mt-3" T="string" @bind-Value="newComment" Label="Your comment" Variant="Variant.Outlined" AutoGrow Lines="3" HelperText="Max comment capacity: 255 words" />
+    <MudGrid>
+        <MudItem xs="1">
+            <MudButton Variant="Variant.Filled" Color="MudBlazor.Color.Primary" OnClick="SubmitComment">Submit</MudButton>
+        </MudItem>
+        <MudItem xs="1">
+            <MudButton Variant="Variant.Filled" Color="MudBlazor.Color.Error" OnClick="ClearComment">Clear</MudButton>
+        </MudItem>
+    </MudGrid>
+}
+@if(comments.Count() > 0)
+{
+    @foreach(var comment in comments)
+    {
+        <MudCard>
+            
+            <MudCardHeader>
+                <CardHeaderAvatar>
+                    <MudAvatar Color="MudBlazor.Color.Secondary">@comment.IdUserNavigation.FirstName.Substring(1,1)</MudAvatar>
+                </CardHeaderAvatar>
+                <CardHeaderContent>
+                    <MudText Typo="Typo.body1">@comment.IdUserNavigation.FirstName @comment.IdUserNavigation.LastName </MudText>
+                    <MudText Typo="Typo.body2">Posted on @comment.CreateDate</MudText>
+                </CardHeaderContent>
+            </MudCardHeader>
+            <MudCardContent>
+                <MudText Typo="Typo.body2">@comment.Content</MudText>
+            </MudCardContent>
+            <MudCardActions>
+                <MudIconButton Icon="@Icons.Material.Filled.Favorite" Color="MudBlazor.Color.Default" />
+                <MudIconButton Icon="@Icons.Material.Filled.Share" Color="MudBlazor.Color.Default" />
+            </MudCardActions>
+        </MudCard>
+    }
+}
+else
+{
+    <MudText Typo="Typo.body1">@Message</MudText>
+}
+
+@code {
+    [Parameter] public int productID { get; set; }
+
+    private List<Comment> comments = new List<Comment>();
+    private string newComment = "";
+    private string Message = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        Reset();
+        var rs = await http.PostAsJsonAsync("api/Comment/GetCommentsByProduct", productID);
+        if (rs.IsSuccessStatusCode)
+        {
+            comments = await rs.Content.ReadFromJsonAsync<List<Comment>>();
+        }
+        else
+        {
+            Message = "This product doesn't have any comments";
+        }
+    }
+    private void Reset()
+    {
+        comments = new List<Comment>();
+        Message = "";
+    }
+    private async Task SubmitComment()
+    {
+        CommentView view = new CommentView();
+        view.id_product = productID;
+        view.id_user = StaticValue.AspNetUser.Id;
+        view.content = newComment;
+
+        var rs = await http.PostAsJsonAsync("api/Comment/Create", view);
+        if (rs.IsSuccessStatusCode)
+        {
+            Snackbar.Add("Post comment successfully!", Severity.Success);
+            newComment = "";
+            await OnInitializedAsync();
+        }
+        else
+        {
+            Snackbar.Add("Failed to post new comment", Severity.Error);
+        }
+    }
+    private void ClearComment()
+    {
+        newComment = "";
+        StateHasChanged();
+    }
+}

@@ -1,0 +1,83 @@
+is_global = true
+build_property.EnableAotAnalyzer = 
+build_property.EnableSingleFileAnalyzer = 
+build_property.EnableTrimAnalyzer = false
+build_property.IncludeAllContentForSelfExtract = 
+build_property.TargetFramework = net6.0
+build_property.TargetPlatformMinVersion = 
+build_property.UsingMicrosoftNETSdkWeb = 
+build_property.ProjectTypeGuids = 
+build_property.InvariantGlobalization = false
+build_property.PlatformNeutralAssembly = 
+build_property.EnforceExtendedAnalyzerRules = 
+build_property._SupportedPlatformList = browser
+build_property.RootNamespace = BlazorMudClient
+build_property.RootNamespace = BlazorMudClient
+build_property.ProjectDir = D:\nam4\dotnet_project\Blossm\BlazorMudClient\
+build_property.EnableComHosting = 
+build_property.EnableGeneratedComInterfaceComImportInterop = 
+build_property.RazorLangVersion = 6.0
+build_property.SupportLocalizedComponentNames = 
+build_property.GenerateRazorMetadataSourceChecksumAttributes = 
+build_property.MSBuildProjectDirectory = D:\nam4\dotnet_project\Blossm\BlazorMudClient
+build_property._RazorSourceGeneratorDebug = 
+
+[D:/nam4/dotnet_project/Blossm/BlazorMudClient/App.razor]
+build_metadata.AdditionalFiles.TargetPath = QXBwLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/nam4/dotnet_project/Blossm/BlazorMudClient/Dialog/LoginDia.razor]
+build_metadata.AdditionalFiles.TargetPath = RGlhbG9nXExvZ2luRGlhLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/nam4/dotnet_project/Blossm/BlazorMudClient/Pages/Cart/CartIndex.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ2FydFxDYXJ0SW5kZXgucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/nam4/dotnet_project/Blossm/BlazorMudClient/Pages/Cart/OrderSuccess.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ2FydFxPcmRlclN1Y2Nlc3MucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/nam4/dotnet_project/Blossm/BlazorMudClient/Pages/Checkout/PaymentCancel.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ2hlY2tvdXRcUGF5bWVudENhbmNlbC5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/nam4/dotnet_project/Blossm/BlazorMudClient/Pages/Checkout/PaymentSuccess.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ2hlY2tvdXRcUGF5bWVudFN1Y2Nlc3MucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/nam4/dotnet_project/Blossm/BlazorMudClient/Pages/Index.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcSW5kZXgucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/nam4/dotnet_project/Blossm/BlazorMudClient/Pages/Orders/IndexOrder.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcT3JkZXJzXEluZGV4T3JkZXIucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/nam4/dotnet_project/Blossm/BlazorMudClient/Pages/Orders/OrderDialog.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcT3JkZXJzXE9yZGVyRGlhbG9nLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/nam4/dotnet_project/Blossm/BlazorMudClient/Pages/Products/DetailsDialog.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcUHJvZHVjdHNcRGV0YWlsc0RpYWxvZy5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/nam4/dotnet_project/Blossm/BlazorMudClient/Pages/Products/Products.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcUHJvZHVjdHNcUHJvZHVjdHMucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/nam4/dotnet_project/Blossm/BlazorMudClient/Pages/Profile/Info.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcUHJvZmlsZVxJbmZvLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/nam4/dotnet_project/Blossm/BlazorMudClient/Shared/MainLayout.razor]
+build_metadata.AdditionalFiles.TargetPath = U2hhcmVkXE1haW5MYXlvdXQucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/nam4/dotnet_project/Blossm/BlazorMudClient/Shared/NavMenu.razor]
+build_metadata.AdditionalFiles.TargetPath = U2hhcmVkXE5hdk1lbnUucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/nam4/dotnet_project/Blossm/BlazorMudClient/_Imports.razor]
+build_metadata.AdditionalFiles.TargetPath = X0ltcG9ydHMucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 

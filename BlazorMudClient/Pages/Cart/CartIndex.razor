@@ -1,0 +1,424 @@
+﻿@page "/Cart"
+@using BlazorMudClient.DARK_CODE;
+@using BlazorMudClient.DTO.GoongDTO
+@using BlossmAPI.ModelViews;
+@using BlossmAPI.Models;
+@using BlossmAPI.Models.ModelsExtention;
+@using BlazorMudClient.Infrastructure;
+@using BlazorMudClient.Models;
+@using BlazorMudClient.DTO;
+
+
+@inject HttpClient http;
+@inject NavigationManager navManager;
+@inject IJSRuntime JSRuntime;
+
+<MudContainer>
+    <MudGrid>
+        <MudItem xs="9">
+            <MudTable Items="@cartItems" Class="mb-4">
+                <HeaderContent>
+                    <MudTh></MudTh>
+                    <MudTh>Image</MudTh>
+                    <MudTh>Name</MudTh>
+                    <MudTh>Price</MudTh>
+                    <MudTh>Quantity</MudTh>
+                    <MudTh>Total</MudTh>
+                    <MudTh>Remove</MudTh>
+                </HeaderContent>
+                <RowTemplate Context="item">
+                    <MudTd>
+                        <MudCheckBox @bind-Checked="@item.IsSelected"/>
+                    </MudTd>
+                    <MudTd>
+                        @{
+                            var image = images.FirstOrDefault(i => i.IdProductVariant == item.shoppingCart.IdProductVariant);
+                            string url = $"data:image/png;base64,{image.Images}";
+                        }
+                        <MudImage Src="@url" Alt="Mony the dog" Elevation="25" Class="rounded-lg" Width="80" />
+                    </MudTd>
+                    <MudTd>
+                        <MudText Typo="Typo.h5">
+                            <strong>@item.shoppingCart.IdProductVariantNavigation.IdProductNavigation.Name</strong>
+                        </MudText>
+                        <div class="d-flex">
+                            <MudTextField @bind-Value="@item.shoppingCart.IdProductVariantNavigation.IdColorNavigation.Name" Label="Color" ReadOnly="true" Variant="Variant.Text" />
+                            <MudTextField @bind-Value="@item.shoppingCart.IdProductVariantNavigation.IdSizeNavigation.Name" Label="Size" ReadOnly="true" Variant="Variant.Text" />
+                            <MudTextField @bind-Value="@item.shoppingCart.IdProductVariantNavigation.IdUnitNavigation.Name" Label="Unit" ReadOnly="true" Variant="Variant.Text" />
+                        </div>
+                    </MudTd>
+                    <MudTd>@String.Format("{0:#,0}",item.shoppingCart.IdProductVariantNavigation.SellingPrice)đ</MudTd>
+                    <MudTd>
+                        <div class="d-flex">
+                            <MudIconButton Icon="@Icons.Material.TwoTone.HorizontalRule" Color="MudBlazor.Color.Tertiary" OnClick="() => Down(item.shoppingCart.IdProductVariant)"></MudIconButton>
+                            <MudText Class="align-content-center">@item.shoppingCart.Quantity</MudText>
+                            <MudIconButton Icon="@Icons.Material.Filled.Add" Color="MudBlazor.Color.Tertiary" OnClick="() => Up(item.shoppingCart.IdProductVariant)"></MudIconButton>
+                        </div>
+
+                    </MudTd>
+                        <MudTd>@String.Format("{0:#,0}", item.shoppingCart.IdProductVariantNavigation.SellingPrice * item.shoppingCart.Quantity)</MudTd>
+                    <MudTd>
+                        <MudIconButton Icon="@Icons.Material.Filled.Close" Color="MudBlazor.Color.Tertiary" OnClick="() => Remove(item.shoppingCart.IdProductVariant)"></MudIconButton>
+                    </MudTd>
+                </RowTemplate>
+            </MudTable>
+            <MudGrid>
+                <MudItem xs="12">
+                    <MudPaper Class="d-flex align-center justify-center mud-width-full py-8">
+                        <div>
+                            <div>
+                                <MudText Typo="Typo.h6">
+                                    Total item:
+                                    <strong>
+                                        @(String.Format("{0:#,0}", @cartItems.Sum(c => (c.IsSelected == true) ? c.shoppingCart.Quantity : 0))) item(s)
+                                    </strong>
+                                </MudText>
+                            </div>
+                            
+                            <div>
+                                <MudText Typo="Typo.h6">
+                                    Subtotal:
+                                    <strong>
+                                        @(String.Format("{0:#,0}", cartItems.Sum(c => (c.IsSelected) == true ? c.shoppingCart.IdProductVariantNavigation.SellingPrice * c.shoppingCart.Quantity : 0))) VND
+                                    </strong>
+                                </MudText>
+                            </div>
+
+                            <div>
+                                <MudText Typo="Typo.h6">
+                                    Discount:
+                                    <strong>
+                                        @{
+                                            if (order.voucher != null)
+                                            {
+                                                discount = order.voucher.Id == null
+                                                ? 0
+                                                : (order.voucher.DiscountPercentage == true
+                                                ? (cartItems.Sum(ci => ((ci.IsSelected) == true)
+                                                ? ci.shoppingCart.IdProductVariantNavigation.SellingPrice * ci.shoppingCart.Quantity
+                                                : 0) * order.voucher.DiscountAmount) / 100
+                                                : order.voucher.DiscountAmount);
+                                            }
+                                            else
+                                            {
+                                                discount = 0;
+                                            }
+                                        }
+                                        @(String.Format("{0:#,0}", discount)) VND
+                                    </strong>
+                                </MudText>
+                            </div>
+
+                            <div>
+                                <MudText Typo="Typo.h6">
+                                    Total:
+                                    <strong>
+                                        @(String.Format("{0:#,0}", cartItems.Sum(c => (c.IsSelected) == true ? c.shoppingCart.IdProductVariantNavigation.SellingPrice * c.shoppingCart.Quantity : 0) - discount)) VND
+                                    </strong>
+                                </MudText>
+                            </div>
+                        </div>
+                    </MudPaper>
+                </MudItem>
+               
+            </MudGrid>
+        </MudItem>
+        <MudItem xs="3">
+            <MudText Typo="Typo.h5" GutterBottom="true">Billing address</MudText>
+            <MudGrid>
+                <MudItem xs="6">
+                    <MudTextField @bind-Value="firstName" T="string" Label="First name" />
+                </MudItem>
+                <MudItem xs="6">
+                    <MudTextField @bind-Value="lastName" T="string" Label="Last name" />
+                </MudItem>
+                    <MudItem xs="12">
+                        <MudAutocomplete T="string" Label="Address" @bind-Value="@order.address" SearchFunc="@Search2"
+                                         ResetValueOnEmptyText="@resetValueOnEmptyText"
+                                         CoerceText="@coerceText" CoerceValue="@coerceValue"
+                                         AdornmentColor="MudBlazor.Color.Primary" />
+                    </MudItem>
+                <MudItem xs="12">
+                        <MudTextField @bind-Value="phone" T="string" Label="Phone" />
+                </MudItem>
+                <MudItem xs="12">
+                    <MudSelect T="int?" @bind-Value="order.id_payment" Label="Payment method" Variant="Variant.Outlined" AnchorOrigin="Origin.BottomCenter">
+                        <MudSelectItem T="int?" Value="PaymentMethodConst.CREDIT_CARD">Thẻ tín dụng</MudSelectItem>
+                        <MudSelectItem T="int?" Value="PaymentMethodConst.COD">Thanh toán khi nhận hàng</MudSelectItem>
+                        <MudSelectItem T="int?" Value="PaymentMethodConst.VNPAY">Thanh toán qua VNPay</MudSelectItem>
+                    </MudSelect>
+                </MudItem>
+                <MudItem xs="12">
+                    @if(order.voucher != null)
+                    {
+                        if (order.voucher.Condition > cartItems.Sum(c => (c.IsSelected) == true
+                            ? c.shoppingCart.IdProductVariantNavigation.SellingPrice * c.shoppingCart.Quantity
+                            : 0))
+                        {
+                            order.voucher = null;
+                        }
+                    }
+                    <MudSelect T="Voucher" @bind-Value="order.voucher" Label="Select voucher" Variant="Variant.Outlined" AnchorOrigin="Origin.BottomCenter">
+                        
+                        @foreach(var voucher in ownedVouchers)
+                        {
+                            <MudSelectItem T="Voucher" Value="voucher" Disabled="@(cartItems.Sum(c => (c.IsSelected) == true 
+                                                                                            ? c.shoppingCart.IdProductVariantNavigation.SellingPrice * c.shoppingCart.Quantity 
+                                                                                            : 0)  >= voucher.Condition 
+                                                                                                    ? false 
+                                                                                                    : true)">
+                                @voucher.Id - @voucher.Name
+                                <MudText Typo="Typo.subtitle2" Color="MudBlazor.Color.Warning">Giá trị đơn hàng tối thiểu: @voucher.Condition đ</MudText>
+                            </MudSelectItem>
+                        }
+                    </MudSelect>
+                </MudItem>
+                <MudItem xs="12">
+                    <MudText style="left:20px;">
+                        Note
+                    </MudText>
+                    <textarea style="width:100%; 
+                                    height:fit-content; 
+                                    min-height:150px; 
+                                    resize:none; 
+                                    padding:10px" 
+                              placeholder="Ghi chú..." 
+                              class="border border-1 border-secondary-subtle" @bind="order.note">
+                    </textarea>
+                </MudItem>
+                <MudItem xs="12" Class="d-flex justify-center">
+                    <MudButton Variant="Variant.Filled" DisableElevation="true" Color="MudBlazor.Color.Primary" Size="MudBlazor.Size.Large" Class="mt-2" OnClick="CreateOrder">Continue to Payment</MudButton>
+                </MudItem>
+            </MudGrid>
+        </MudItem>
+    </MudGrid>
+    
+</MudContainer>
+
+@code {
+    [Inject] ISnackbar Snackbar { get; set; }
+    [Inject] StateContainer container { get; set; }
+
+    private List<CartItem> cartItems = new List<CartItem>();
+
+    List<ShoppingCart> carts = new List<ShoppingCart>();
+    List<Image> images = new List<Image>();
+    List<Voucher> ownedVouchers = new List<Voucher>();
+    MudSelect<Voucher> voucherSelect = new MudBlazor.MudSelect<Voucher>();
+
+    private bool resetValueOnEmptyText;
+    private bool coerceText;
+    private bool coerceValue;
+    private int? discount = 0;
+
+    private int? totalPrice = 0;
+    private string firstName = StaticValue.AspNetUser.FirstName;
+    private string lastName = StaticValue.AspNetUser.LastName;
+    private string phone = StaticValue.AspNetUser.PhoneNumber;
+    string address;
+    private OrderView order = new OrderView();
+    private List<OrderItemView> orderItems = new List<OrderItemView>();
+    LocationModel locationModel = new LocationModel();
+
+    protected override async Task OnInitializedAsync()
+    {
+        cartItems = new List<CartItem>();
+        carts = new List<ShoppingCart>();
+        images = new List<Image>();
+
+        carts = await http.GetFromJsonAsync<List<ShoppingCart>>("/api/Cart/GetCartById");
+        foreach(var item in carts)
+        {
+            var rs = await http.PostAsJsonAsync("/api/Image/GetImagesByVariantId", item.IdProductVariant);
+            if (rs.IsSuccessStatusCode)
+            {
+                var image = (List<Image>)await rs.Content.ReadFromJsonAsync(typeof(List<Image>));
+                if(image.Count() != 0)
+                {
+                    images.Add(image[0]);
+                }
+            }
+            CartItem cartItem = new CartItem();
+            cartItem.IsSelected = false;
+            cartItem.shoppingCart = item;
+            cartItems.Add(cartItem);
+        }
+        ownedVouchers = (List<Voucher>)await http.GetFromJsonAsync("api/Voucher/GetVoucherByUserId", typeof(List<Voucher>));
+
+        GetLocationAsync();
+        StateHasChanged();
+    }
+
+    async Task Up(int id)
+    {
+        CartView cartView = new CartView();
+        cartView.quantity = 0;
+        cartView.id_variant = id;
+        var rs = await http.PutAsJsonAsync("/api/Cart/IncreaseVariant", cartView);
+        if (rs.IsSuccessStatusCode) {
+            await OnInitializedAsync();
+            StaticValue.cartNum++;
+            navManager.NavigateTo("/cart");
+            StateHasChanged();
+        }
+
+    }
+
+    async Task Down(int id)
+    {
+        CartView cartView = new CartView();
+        cartView.quantity = 0;
+        cartView.id_variant = id;
+        var rs = await http.PutAsJsonAsync("/api/Cart/DecreaseVariant", cartView);
+        if (rs.IsSuccessStatusCode)
+        {
+            await OnInitializedAsync();
+            StaticValue.cartNum--;
+            navManager.NavigateTo("/cart");
+            StateHasChanged();
+        }
+    }
+
+    async Task Remove(int id)
+    {
+        var rs = await http.DeleteAsync("api/Cart/RemoveVariant?id=" + id);
+        if (rs.IsSuccessStatusCode)
+        {
+            await OnInitializedAsync();
+            int? newNum = carts.Sum(c => c.Quantity);
+            StaticValue.cartNum = newNum;
+            navManager.NavigateTo("/cart");
+            StateHasChanged();
+        }
+    }
+
+    void GoToCheckoutPage()
+    {
+        if(cartItems.Sum(c => (c.IsSelected == true) ? c.shoppingCart.Quantity : 0) == 0)
+        {
+            Snackbar.Add("Please select item to checkout", MudBlazor.Severity.Warning);
+        }
+        else
+        {
+            navManager.NavigateTo("/Checkout");
+        }
+    }
+
+    async Task CreateOrder()
+    {
+        foreach(var item in cartItems)
+        {
+            if(item.IsSelected)
+            {
+                OrderItemView view = new OrderItemView();
+                view.id = 0;
+                view.id_variant = item.shoppingCart.IdProductVariant;
+                view.selling_price = (int)item.shoppingCart.IdProductVariantNavigation.SellingPrice;
+                view.quantity = (int)item.shoppingCart.Quantity;
+                orderItems.Add(view);
+
+            }
+        }
+        if(orderItems.Count() == 0)
+        {
+            Snackbar.Add("Please select item to checkout", MudBlazor.Severity.Warning);
+        }
+        else
+        {
+            order.username = lastName + " " + firstName;
+            order.phoneNumber = phone;
+            order.id_user = StaticValue.AspNetUser.Id;
+            order.cancellation_reason = "";
+            order.totalValue = (int)cartItems.Sum(c => (c.IsSelected) == true 
+                                                    ? c.shoppingCart.IdProductVariantNavigation.SellingPrice * c.shoppingCart.Quantity 
+                                                    : 0) - (int)discount;
+            foreach(var item in orderItems)
+            {
+                order.orderItems.Add(item);
+            }
+            try
+            {
+                HttpResponseMessage rs = await http.PostAsJsonAsync("/api/Order/CreateOrder", order);
+                if (rs.IsSuccessStatusCode)
+                {
+                    Snackbar.Add("Order successfully!", MudBlazor.Severity.Success);
+
+                    var response = await http.DeleteAsync("api/Voucher/RemoveFromUser?id=" + order.voucher.Id);
+
+                    var temp = (Order)await rs.Content.ReadFromJsonAsync(typeof(Order));
+                    foreach (var item in cartItems)
+                    {
+                        if (item.IsSelected)
+                        {
+                            await Remove(item.shoppingCart.IdProductVariant);
+                        }
+                    }
+                    navManager.NavigateTo("/OrderSuccess/" + container.AddRoutingObjectParameter(temp));
+                }
+                else
+                {
+                    Snackbar.Add(await rs.Content.ReadAsStringAsync(), MudBlazor.Severity.Error);
+                }
+            }
+            catch(Exception ex)
+            {
+                throw ex;
+            }
+
+        }
+    }
+
+    private async void GetLocationAsync()
+    {
+        try
+        {
+            // Gọi hàm JavaScript để lấy tọa độ
+            locationModel = await JSRuntime.InvokeAsync<LocationModel>("getCurrentLocation");
+
+        }
+        catch (Exception ex)
+        {
+            // Xử lý lỗi (nếu có)
+            Console.WriteLine($"Error getting location: {ex.Message}");
+        }
+    }
+
+    private async Task<IEnumerable<string>> Search2(string value)
+    {
+        // In real life use an asynchronous function for fetching data from an api.
+
+        await Task.Delay(5);
+
+        // if text is null or empty, don't return values (drop-down will not open)
+        if (string.IsNullOrEmpty(value))
+            return new string[0];
+
+        if (value.Length >= 7)
+        {
+            string api = "https://rsapi.goong.io/Place/AutoComplete" + 
+            "?api_key=" + StaticValue.goongKey +
+            "&location=" + locationModel.Latitude +", " +locationModel.Longitude +
+            "&input=" + value;
+
+            try
+            {
+                AutoComplete autoComplete = await http.GetFromJsonAsync<AutoComplete>(api);
+                return autoComplete.predictions.Select(p => p.description);
+            }
+            catch(Exception ex)
+            {
+                throw ex;
+            }
+
+        }
+
+        return new string[0];
+    }
+    private void itemSelected()
+    {
+        foreach (var item in cartItems.Where(ci => ci.IsSelected))
+        {
+            //if(ownedVouchers.Where(ov => ov.Condition <= order.totalValue))
+        }
+    }
+}

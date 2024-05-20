@@ -1,0 +1,31 @@
+﻿@using BlossmAPI.Models
+<MudDialog>
+    <DialogContent>
+        <MudGrid>
+            <MudItem xs="6">
+                <MudField Label="FirstName" Variant="Variant.Text">@Context.FirstName</MudField>
+                </MudItem>
+                <MudItem xs="6">
+                    <MudField Label="LastName" Variant="Variant.Text">@Context.LastName</MudField>
+                </MudItem>
+            <MudItem xs="12">
+                <MudField Label="Email" Variant="Variant.Text">@Context.Email</MudField>
+            </MudItem>
+                <MudItem xs="12">
+                    <MudField Label="PhoneNumber" Variant="Variant.Text">@Context.PhoneNumber</MudField>
+                </MudItem>
+                <MudItem xs="12">
+                    <MudField Label="UserName" Variant="Variant.Text">@Context.UserName</MudField>
+                </MudItem>
+        </MudGrid>
+    </DialogContent>
+    <DialogActions>
+        <MudButton Color="MudBlazor.Color.Primary" OnClick="Submit">Ok</MudButton>
+    </DialogActions>
+</MudDialog>
+@code {
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+    [Parameter] public AspNetUser Context { get; set; }
+
+    void Submit() => MudDialog.Close(DialogResult.Ok(true));
+}

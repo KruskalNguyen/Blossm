@@ -1,0 +1,51 @@
+﻿@page "/Blog"
+@using BlossmAPI.Models
+@inject HttpClient http
+@inject IDialogService DialogService
+
+<MudContainer>
+    <MudGrid>
+        @foreach (var item in Elements)
+        {
+            string url = "data:image/png;base64," + item.Thumnail;
+            
+            <MudItem xs="4">
+                <MudCard>
+                    <MudImage Fluid="true" Height="200" Src="@url" />
+                    <MudCardContent>
+                        <MudText Typo="Typo.h5">@item.Title</MudText>
+                    </MudCardContent>
+                    <MudCardActions>
+                            <MudButton Variant="Variant.Text" Color="MudBlazor.Color.Primary" OnClick="() => OppenDia(item)">Read more</MudButton>
+                    </MudCardActions>
+                </MudCard>
+            </MudItem>
+        }
+        
+    </MudGrid>
+</MudContainer>
+
+@code {
+    private List<Newspaper> Elements = new List<Newspaper>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        Elements = await http.GetFromJsonAsync<List<Newspaper>>("/api/Newspaper/GetNewspaper");
+    }
+
+
+    async void OppenDia(Newspaper newspaper)
+    {
+        try
+        {
+            var parameters = new DialogParameters<BlogDia>();
+            parameters.Add(x => x.newspaper, newspaper);
+            var options = new DialogOptions { CloseOnEscapeKey = true, FullScreen = true, MaxWidth = MaxWidth.Large, CloseButton = true };
+            DialogService.Show<BlogDia>($"Newspaper", parameters, options);
+        }
+        catch
+        {
+            
+        }
+    }
+}
